@@ -5,37 +5,33 @@ import math
 import random
 from settings import *
 imgs = []
-img = pygame.image.load(os.path.join("game_assets","infanterie/imgs/conscrit.png"))
-img = pygame.transform.scale(img, (BLOCKSIZE, BLOCKSIZE))
+img = pygame.image.load(os.path.join("game_assets","misc/imgs/canon.png"))
+img = pygame.transform.flip(img, True, False)
+img = pygame.transform.scale(img, (90, 60))
 imgs.append(img)
-class Conscrit(Unit) :
 
-
-    def __init__(self,ligne,colone,ally):
-        super().__init__(ligne,colone,ally)
-        self.level = 0
-        self.range = 10 * BLOCKSIZE
-        self.proba_tir_reussi = 15
-        self.proba_prendre_balle = 10
-        self.proba_prendre_cac = 80
-        self.proba_reussire_cac = 25
-
+class Canon(Unit) :
+    def __init__(self, ligne, colone, ally):
+        super().__init__(ligne, colone, ally)
+        self.level = 2
+        self.range = 1500
         self.inRange = False
-
-        self.price =price_conscrit
+        self.damage = 10000
         self.last = pygame.time.get_ticks()
-        self.reload_time = 25000
+        self.reload_time = 100000
         self.shooting = False
         self.reloading = False
-        self.imgs= imgs
-        self.max_health = 10
-        self.moral = 5
+        self.imgs = imgs
+        self.max_health = 150
         self.health = self.max_health
-        self.ammo = 15
+        self.ammo = 25
+
         self.cac = False
-        self.cac_reload = 2500
+        self.cac_reload = 5000
         self.cac_dommages = 20
         self.cacing = False
+        self.price = price_canon
+
 
     def attack(self, ennemies):
         self.inRange = False
@@ -63,31 +59,39 @@ class Conscrit(Unit) :
                     self.cacing = True
                     self.last = now
                     knife_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/knife.mp3"))
-                    knife_sound.set_volume(0.3)
+                    knife_sound.set_volume(0.6)
                     pygame.mixer.Channel(1).play(knife_sound)
-                    ennemy_closest.hit(self.proba_reussire_cac,"c")
+                    ennemy_closest.hit(self.cac_dommages)
                     return
-            else:
+            else :
                 self.cacing = False
-
             if self.inRange and self.ammo > 0 and not self.cac:
                 now = pygame.time.get_ticks()
                 if now - self.last >= self.reload_time:
                     self.shooting = True
                     self.last = now
-                    rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/musket.mp3"))
-                    rifle_sound.set_volume(0.3)
-                    #pygame.mixer.Channel(1).play(rifle_sound)
-                    ennemy_closest.hit(self.proba_tir_reussi,"t")
+                    rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/canon.mp3"))
+                    rifle_sound.set_volume(0.8)
+                    pygame.mixer.Channel(1).play(rifle_sound)
+                    ennemy_closest.hit(self.damage)
                     self.ammo -= 1
                     return
-            else:
+            else :
                 self.shooting = False
 
 
+    def change_range(self, r):
+        self.range = r
 
     def play_sound(self):
         pass
+        """
+        if not self.playing and not pygame.mixer.Channel(2).get_busy():
+            vive_lempereur_sound = pygame.mixer.Sound(os.path.join("game_assets", "grenadier-vive-lempereur.mp3"))
+            vive_lempereur_sound.set_volume(0.8)
+            pygame.mixer.Channel(2).play(vive_lempereur_sound)
+        if pygame.mixer.Channel(2).get_busy():
+            self.playing = True
+        if pygame.mixer.Channel(2).get_busy():
+            self.playing = False"""
 
-    def change_range(self,r):
-        self.range = r

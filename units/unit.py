@@ -1,37 +1,47 @@
 import pygame
 import math
 import os
+from settings import *
+import string
+import random
+from random import randrange
+
 def get_path(ligne,colonne):
-    lignes = 11
-    colonnes = 15
+    lignes = LIGNES
+    colonnes = COLONNES
     all_path = []
-    for c in range(colonnes):
+    for l in range(lignes):
         new_path = []
-        for l in range(lignes):
-                new_path.append((l*60,c*60))
+        for c in range(colonnes):
+                new_path.append((c*BLOCKSIZE,l*BLOCKSIZE))
         all_path.append(new_path)
     return all_path[ligne][colonne:]
 
 
+
 class Unit :
     def __init__(self,ligne,colone,ally,width=64,height=64,velocity=3,):
+        self.name  = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
+
         self.ligne = ligne
         self.colonne = colone
         self.ally = ally
         if self.ally:
             self.path = get_path(ligne,colone)
         else:
-            self.path =  get_path(ligne,colone)[::-1]
+            self.path = get_path(ligne,colone)[::-1]
         self.x = self.path[0][0]
         self.y = self.path[0][1]
         self.path_pos = 0
         self.move_count = 0
         self.dis = 0
-
-        self.level=1
-        self.tower_imgs = []
-
+        self.proba_prendre_balle = 0
+        self.proba_prendre_cac = 0
+        self.level=0
+        self.playing = False
         self.img = []
+        self.imgs = None
+        self.font = pygame.font.SysFont("comicsans", 25)
         self.animation_count = 0
         self.width = width
         self.height = height
@@ -48,8 +58,8 @@ class Unit :
         self.selected = False
         self.menu = ""
         self.ennemies = []
-    def definepath(self):
-        path = self.path
+
+        self.hover = False
 
     def draw(self,surface):
         """
@@ -58,15 +68,31 @@ class Unit :
         :return: None
         """
         #self.animation_count += 1
+
         if self.animation_count >= len(self.imgs): self.animation_count = 0
         self.img = self.imgs[self.animation_count]
 
         surface.blit(self.img,(self.x,self.y))
-        self.draw_health_bar(surface)
+        #self.draw_health_bar(surface)
         if self.shooting:
-            img = pygame.image.load(os.path.join("game_assets", "smoke.png"))
-            img = pygame.transform.scale(img, (40, 40))
+            img = pygame.image.load(os.path.join("game_assets", "infanterie/imgs/smoke.png"))
+            img = pygame.transform.scale(img, (30, 40))
             surface.blit(img, (self.x, self.y))
+
+    def draw_radius(self,win):
+        pygame.draw.circle(win, (255, 0, 0), (self.x,self.y), self.range, 1)
+    def draw_selected_unit(self,win):
+        text = self.font.render(str(self.ammo), 1, (255, 255, 255))
+        #canon_ball = pygame.image.load(os.path.join("game_assets", "ball.png"))
+        #img = pygame.transform.scale(canon_ball, (20, 20))
+
+        if self.cac:
+            bayonet = pygame.image.load(os.path.join("game_assets", "infanterie/imgs/bayonet.png"))
+            bayonet = pygame.transform.scale(bayonet, (40, 40))
+            win.blit(bayonet, (self.x -50, self.y - 10))
+        win.blit(text, (self.x + 3, self.y + 5))
+    def draw_info(self,win):
+        pass
 
     def draw_health_bar(self, win):
         """
@@ -77,12 +103,13 @@ class Unit :
         length = 50
         move_by = length / self.max_health
         health_bar = round(move_by * self.health)
-        if self.ally:
-            pygame.draw.circle(win, (0, 255, 0),  (self.x  ,self.y - 7), 5, 0)
+        """if self.ally:
+            pygame.draw.circle(win, (0, 255, 0),  (self.x+15  ,self.y - 7), 5, 0)
         else:
-            pygame.draw.circle(win, (255, 0, 0),  (self.x  ,self.y - 7), 5, 0)
-        pygame.draw.rect(win, (255, 0, 0), (self.x , self.y - 30, length, 10), 0)
-        pygame.draw.rect(win, (0, 255, 0), (self.x , self.y - 30, health_bar, 10), 0)
+            pygame.draw.circle(win, (255, 0, 0),  (self.x +15 ,self.y - 7), 5, 0)"""
+        pygame.draw.rect(win, (255, 0, 0), (self.x , self.y - 10, length, 10), 0)
+        pygame.draw.rect(win, (0, 255, 0), (self.x , self.y - 10, health_bar, 10), 0)
+
     def collide(self,x,y):
         """
         return if position has hit
@@ -106,7 +133,6 @@ class Unit :
         if X <= self.x - img.get_width() // 2 + self.width and X >= self.x - img.get_width() // 2:
             if Y <= self.y + self.height - img.get_height() // 2 and Y >= self.y - img.get_height() // 2:
                 return True
-            print("clicked")
         return False
     def sell(self):
         return self.sell_price
@@ -116,58 +142,78 @@ class Unit :
             self.damage += 1
     def get_upgrade_cost(self):
         return self.upgrade_cost[self.level -1]
-    def move(self):
+    def move(self,mat):
         """
         Move enemy
         :return: None
         """
-
-        if not self.shooting :
+        if not self.shooting and not self.cacing:
             self.animation_count += 1
             if self.animation_count >= len(self.imgs):
                 self.animation_count = 0
 
             x1, y1 = self.path[self.path_pos]
             if self.path_pos + 1 >= len(self.path):
-                x2, y2 = (-10, 355)
-            else:
-                x2, y2 = self.path[self.path_pos+1]
+                self.path = self.path[::-1]
+                self.path_pos=0
+            x2, y2 = self.path[self.path_pos+1]
+            if check_free(mat,x2,y2):
+                dirn = ((x2-x1), (y2-y1))
+                length = math.sqrt((dirn[0])**2 + (dirn[1])**2)
+                dirn = (dirn[0]/length, dirn[1]/length)
+                if dirn[0] < 0 and not (self.flipped):
+                    self.flipped = True
+                    for x, img in enumerate(self.imgs):
+                        self.imgs[x] = pygame.transform.flip(img, True, False)
+                if not self.ally:
+                    move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
 
-            dirn = ((x2-x1), (y2-y1))
-            length = math.sqrt((dirn[0])**2 + (dirn[1])**2)
-            dirn = (dirn[0]/length, dirn[1]/length)
-            if dirn[0] < 0 and not (self.flipped):
-                self.flipped = True
-                for x, img in enumerate(self.imgs):
-                    self.imgs[x] = pygame.transform.flip(img, True, False)
+                    self.x = move_x
+                    self.y = move_y
+                    ligne, col = int(self.y // BLOCKSIZE), int(self.x // BLOCKSIZE)
+                    self.ligne = ligne
+                    self.colonne = col
 
-            move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
-
-            self.x = move_x
-            self.y = move_y
-
-            # Go to next point
-            if dirn[0] >= 0: # moving right
-                if dirn[1] >= 0: # moving down
-                    if self.x >= x2 and self.y >= y2:
-                        self.path_pos += 1
-                else:
-                    if self.x >= x2 and self.y <= y2:
-                        self.path_pos += 1
-            else: # moving left
-                if dirn[1] >= 0:  # moving down
-                    if self.x <= x2 and self.y >= y2:
-                        self.path_pos += 1
-                else:
-                    if self.x <= x2 and self.y >= y2:
-                        self.path_pos += 1
-
-    def hit(self,dommages):
+                    # Go to next point
+                    if dirn[0] >= 0: # moving right
+                        if dirn[1] >= 0: # moving down
+                            if self.x >= x2 and self.y >= y2:
+                                self.path_pos += 1
+                        else:
+                            if self.x >= x2 and self.y <= y2:
+                                self.path_pos += 1
+                    else: # moving left
+                        if dirn[1] >= 0:  # moving down
+                            if self.x <= x2 and self.y >= y2:
+                                self.path_pos += 1
+                        else:
+                            if self.x <= x2 and self.y >= y2:
+                                self.path_pos += 1
+    def hit(self,proba_touche,type):
         """
         returns if unit has died
         :return:
         """
-        self.health -= dommages
+        dommages_balle = 6
+        dommages_bayonet = 10
+        #TEST CAC TOUCHE :
+        if type =="t":
+            if randrange(101)<proba_touche:
+                if randrange(101)<self.proba_prendre_balle:
+                        self.health -= dommages_balle
+        if type == "c":
+            if randrange(101) < proba_touche:
+                if randrange(101) < self.proba_prendre_cac:
+                    self.health -= dommages_bayonet
         if self.health <= 0: return True
         return False
+
+
+
+def check_free(mat,x,y):
+    ligne, col = int(y//BLOCKSIZE),int(x//BLOCKSIZE)
+    if mat[ligne][col] == 0:
+        return True
+    return False
+
 

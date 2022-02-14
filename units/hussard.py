@@ -5,8 +5,8 @@ import math
 import random
 from settings import *
 imgs = []
-img = pygame.image.load(os.path.join("game_assets","infanterie/imgs/conscrit.png"))
-img = pygame.transform.scale(img, (BLOCKSIZE, BLOCKSIZE))
+img = pygame.image.load(os.path.join("game_assets","cavalerie/imgs/hussard.png"))
+img = pygame.transform.scale(img, (90, 90))
 imgs.append(img)
 class Conscrit(Unit) :
 
@@ -14,14 +14,9 @@ class Conscrit(Unit) :
     def __init__(self,ligne,colone,ally):
         super().__init__(ligne,colone,ally)
         self.level = 0
-        self.range = 10 * BLOCKSIZE
-        self.proba_tir_reussi = 15
-        self.proba_prendre_balle = 10
-        self.proba_prendre_cac = 80
-        self.proba_reussire_cac = 25
-
+        self.range = 600
         self.inRange = False
-
+        self.damage =6
         self.price =price_conscrit
         self.last = pygame.time.get_ticks()
         self.reload_time = 25000
@@ -31,7 +26,7 @@ class Conscrit(Unit) :
         self.max_health = 10
         self.moral = 5
         self.health = self.max_health
-        self.ammo = 15
+        self.ammo = 0
         self.cac = False
         self.cac_reload = 2500
         self.cac_dommages = 20
@@ -65,7 +60,7 @@ class Conscrit(Unit) :
                     knife_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/knife.mp3"))
                     knife_sound.set_volume(0.3)
                     pygame.mixer.Channel(1).play(knife_sound)
-                    ennemy_closest.hit(self.proba_reussire_cac,"c")
+                    ennemy_closest.hit(self.cac_dommages)
                     return
             else:
                 self.cacing = False
@@ -77,8 +72,8 @@ class Conscrit(Unit) :
                     self.last = now
                     rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/musket.mp3"))
                     rifle_sound.set_volume(0.3)
-                    #pygame.mixer.Channel(1).play(rifle_sound)
-                    ennemy_closest.hit(self.proba_tir_reussi,"t")
+                    pygame.mixer.Channel(1).play(rifle_sound)
+                    ennemy_closest.hit(self.damage)
                     self.ammo -= 1
                     return
             else:
