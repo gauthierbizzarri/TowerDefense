@@ -57,6 +57,7 @@ class Conscrit(Unit) :
 
         if ennemy_closest:
             ##ATTACKING WITH BAYONET
+            print(ennemy_closest_distance)
             if self.cac and ennemy_closest_distance <= BLOCKSIZE:
                 self.cacing = True
                 now = pygame.time.get_ticks()

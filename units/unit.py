@@ -208,7 +208,7 @@ class Unit :
         """
         dommages_balle = 6
         dommages_bayonet = 10
-        self.health -= dommages_balle
+        print(type)
         self.cacing = False
         self.shooting = False
         #TEST CAC TOUCHE :

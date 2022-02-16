@@ -132,8 +132,9 @@ class Game:
                     unites.append(self.ennemies[k])
                 if k < len(self.units):
                     unites.append(self.units[k])
-            for unit in unites :
+            self.update_mat(unites)
 
+            for unit in unites :
                 if unit.health <= 0:
                     if unit.ally :
                         self.units.remove(unit)
@@ -145,8 +146,6 @@ class Game:
                     unit.move(self.MAT,self.ennemies)
                 else:
                     unit.move(self.MAT,self.units)
-
-                self.update_mat(unit)
                 if unit.ally:
                     unit.attack(self.ennemies)
                 else :
@@ -230,12 +229,12 @@ class Game:
                         self.ennemies.append(object)
         if object :
             self.money -= object.price
-            self.update_mat(object)
+            self.update_single_mat(object)
             self.selected_unit_to_buy = None
 
     def matrice(self):
-        Mat =[[0 for col in range(self.c)] for row in range(self.l)]
-        self.MAT = Mat
+        self.MAT=[[0 for col in range(self.c)] for row in range(self.l)]
+
     def check_free(self,x,y):
         try:
             if self.MAT[x][y] ==0:
@@ -243,11 +242,19 @@ class Game:
             return False
         except:
             return False
-    def update_mat(self,unit):
+    def update_single_mat(self,unit):
         unit_ligne = unit.x
         unit_col = unit.y
-        ligne, col = self.get_ligne_col(unit_ligne,unit_col)
-        self.MAT[ligne][col]=unit.slug
+        ligne, col = self.get_ligne_col(unit_ligne, unit_col)
+        self.MAT[ligne][col] = unit.slug
+
+    def update_mat(self,units):
+        self.MAT = [[0 for col in range(self.c)] for row in range(self.l)]
+        for unit in units:
+            unit_ligne = unit.x
+            unit_col = unit.y
+            ligne, col = self.get_ligne_col(unit_ligne,unit_col)
+            self.MAT[ligne][col]=unit.slug
 
     def get_ligne_col(self,x,y):
         ligne = y//BLOCKSIZE
@@ -290,11 +297,9 @@ class Game:
         try :
 
             l,c = self.x , self.y
-            print(self.MAT)
             if l <= LIGNES and c <= COLONNES:
                 slug = self.MAT[l][c]
                 unit_selected = find_unit_with_slug(self.ennemies + self.units, slug)
-                print(unit_selected)
                 if unit_selected:
                     return unit_selected
             return None
@@ -319,16 +324,14 @@ class Game:
             return
 
     def gen_army(self):
-        pass
-        """ 
-       self.Add_unit("anglais",False,0,24)
+        self.Add_unit("anglais",False,0,24)
         self.Add_unit("anglais", False, 2, 24)
         self.Add_unit("anglais", False, 4, 24)
         self.Add_unit("anglais", False, 6, 24)
         self.Add_unit("anglais", False, 8, 24)
         self.Add_unit("anglais", False, 10, 24)
         self.Add_unit("anglais", False, 12, 24)
-        self.Add_unit("anglais", False, 14, 24)"""
+        self.Add_unit("anglais", False, 14, 24)
 
 def find_unit_with_slug(units,slug):
     for unit in units :

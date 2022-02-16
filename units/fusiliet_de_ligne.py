@@ -72,7 +72,7 @@ class Infanterie_de_ligne(Unit) :
                     self.last = now
                     rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/musket.mp3"))
                     rifle_sound.set_volume(0.3)
-                    #pygame.mixer.Channel(1).play(rifle_sound)
+                    #ygame.mixer.Channel(1).play(rifle_sound)
                     ennemy_closest.hit(self.proba_tir_reussi,"t")
                     self.ammo -= 1
                     return
