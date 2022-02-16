@@ -106,6 +106,9 @@ class Menu:
         self.items += 1
         self.buttons.append(Button(self, img, name))
 
+    def remove_btn(self,name):
+        self.items -=1
+        self.buttons.remove(name)
     def get_item_cost(self):
         """
         gets cost of upgrade to next level

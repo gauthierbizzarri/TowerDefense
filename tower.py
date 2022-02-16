@@ -16,12 +16,16 @@ pygame.init()
 
 
 side_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets","misc/imgs/board.jpeg")).convert_alpha(), (120, 500))
+unit_menu_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets","misc/imgs/board.jpeg")).convert_alpha(), (120, 250))
 star_img = pygame.image.load(os.path.join("game_assets","misc/imgs/star.png")).convert_alpha()
 
-buy_vieille_garde= pygame.transform.scale(pygame.image.load(os.path.join("game_assets","infanterie/imgs/viellegarde.png")).convert_alpha(), (75, 75))
 
+buy_vieille_garde= pygame.transform.scale(pygame.image.load(os.path.join("game_assets","infanterie/imgs/viellegarde.png")).convert_alpha(), (75, 75))
 buy_conscrit= pygame.transform.scale(pygame.image.load(os.path.join("game_assets","infanterie/imgs/conscrit.png")).convert_alpha(), (75, 75))
 buy_canon = pygame.transform.scale(pygame.image.load(os.path.join("game_assets","misc/imgs/canon.png")).convert_alpha(), (75, 75))
+
+bayonet= pygame.transform.scale(pygame.image.load(os.path.join("game_assets","infanterie/imgs/bayonet.png")).convert_alpha(), (50, 50))
+ball= pygame.transform.scale(pygame.image.load(os.path.join("game_assets","infanterie/imgs/ball.png")).convert_alpha(), (50, 50))
 money_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets","misc/imgs/money.png")).convert_alpha(), (50, 50))
 clock_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets","misc/imgs/clock.png")).convert_alpha(), (50, 50))
 s = sched.scheduler(time.time, time.sleep)
@@ -42,6 +46,7 @@ class Game:
         self.menu = VerticalMenu(self.width - side_img.get_width() + 70, 250, side_img)
         self.menu.add_btn(buy_canon, "buy_canon", price_canon)
         self.menu.add_btn(buy_conscrit, "buy_conscrit", price_conscrit)
+        self.unit_menu = None
         self.selected_units = unit
         self.bg = pygame.image.load(os.path.join("game_assets","misc/imgs/bg.jpeg"))
         self.bg = pygame.transform.scale(self.bg,(self.width,self.height))
@@ -167,7 +172,10 @@ class Game:
         self.drawGrid(phase)
         self.draw_hover()
         if self.selected_unit:
+            self.unit_menu = VerticalMenu(self.width - side_img.get_width() + 70, 800, unit_menu_img)
             self.selected_unit.draw_selected_unit(self.screen)
+            self.unit_menu.add_btn(bayonet, "Baionnet",0 )
+            self.unit_menu.add_btn(ball, "Ball", self.selected_unit.ammo)
             #DO ACTION WHEN SELECTED UNIT
         for en in self.ennemies:
              en.draw(self.screen)
@@ -182,6 +190,9 @@ class Game:
                 if self.MAT[l][c] !=0:
                     rect = pygame.Rect((c * BLOCKSIZE), (l * BLOCKSIZE), BLOCKSIZE, BLOCKSIZE )
                     pygame.draw.rect(self.screen, [0, 0, 255,0],rect, 1)
+
+        #draw unit_menu
+        if self.unit_menu:self.unit_menu.draw(self.screen)
 
         #draw menu , money
         self.menu.draw(self.screen)
