@@ -75,18 +75,18 @@ class Game:
             clock.tick(FPS)
             self.last = pygame.time.get_ticks()
             self.play_sounds()
-            self.matrice()
             pos = pygame.mouse.get_pos()
-            if pygame.time.get_ticks() > 30000:
+
+
+            if pygame.time.get_ticks() > 10000:
                 if not generated:
                     self.gen_army()
-                    print("generated")
                     generated = True
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run=False
                 #deployement phase
-                if pygame.time.get_ticks() <= 30000 :
+                if pygame.time.get_ticks()  :
                     if event.type == pygame.MOUSEBUTTONUP:
                         if self.selected_unit_to_buy:
                             self.get_ligne_col(pos[0],pos[1])
@@ -100,15 +100,17 @@ class Game:
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     #SELECT UNIT ON THE BOARD TO BUY
+                    # SELECT UNIT TO SHOW INFO
+                    self.x, self.y = self.get_ligne_col(pygame.mouse.get_pos()[0],
+                                                        pygame.mouse.get_pos()[1])[0], \
+                                     self.get_ligne_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])[1]
+                    self.selected_unit = self.detect_select_unit()
+
                     side_menu_button = self.menu.get_clicked(pos[0], pos[1])
                     if side_menu_button:
                         cost = self.menu.get_item_cost(side_menu_button)
                         if self.money >= cost:
                             self.selected_unit_to_buy = side_menu_button
-                    #SELECT UNIT TO SHOW INFO
-                    self.x, self.y = self.get_ligne_col(pygame.mouse.get_pos()[0],
-                                  pygame.mouse.get_pos()[1])[0], \
-                                        self.get_ligne_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])[1]
 
                 if event.type == pygame.KEYDOWN:
                     if self.selected_unit:
@@ -135,10 +137,15 @@ class Game:
                 if unit.health <= 0:
                     if unit.ally :
                         self.units.remove(unit)
+                        break
                     else :
                         self.ennemies.remove(unit)
                         break
-                unit.move(self.MAT)
+                if unit.ally :
+                    unit.move(self.MAT,self.ennemies)
+                else:
+                    unit.move(self.MAT,self.units)
+
                 self.update_mat(unit)
                 if unit.ally:
                     unit.attack(self.ennemies)
@@ -160,7 +167,6 @@ class Game:
         self.screen.blit(self.bg,(0,0))
         self.drawGrid(phase)
         self.draw_hover()
-        self.selected_unit=self.detect_select_unit()
         if self.selected_unit:
             self.selected_unit.draw_selected_unit(self.screen)
             #DO ACTION WHEN SELECTED UNIT
@@ -168,6 +174,8 @@ class Game:
              en.draw(self.screen)
         for unit in self.units:
             unit.draw(self.screen)
+            if unit.name == "canon":
+                unit.draw_canon_ball(self.screen)
         lignes , cols = len(self.MAT),len(self.MAT[0])
 
         for c in range(cols):
@@ -176,6 +184,7 @@ class Game:
                     rect = pygame.Rect((c * BLOCKSIZE), (l * BLOCKSIZE), BLOCKSIZE, BLOCKSIZE )
                     pygame.draw.rect(self.screen, [0, 0, 255,0],rect, 1)
 
+        #draw menu , money
         self.menu.draw(self.screen)
         text = self.life_font.render(str(self.money), 1, (255, 255, 255))
         money = pygame.transform.scale(money_img, (50, 50))
@@ -183,7 +192,7 @@ class Game:
 
         self.screen.blit(text, (start_x - text.get_width() - 10, 75))
         self.screen.blit(money, (start_x, 65))
-
+        #draw clock
         timer =  self.life_font.render(str(round(pygame.time.get_ticks()/1000,1)), 1, (255, 0, 0))
         if pygame.time.get_ticks()>30000:
             timer = self.life_font.render(str(pygame.time.get_ticks() / 1000), 1, (255, 255, 255))
@@ -193,9 +202,7 @@ class Game:
 
         pygame.display.update()
 
-
     def Add_unit(self,name,ally,ligne,col):
-        print(name,ally,ligne,col)
         object = None
         if ally :
             if col <4:
@@ -210,8 +217,7 @@ class Game:
                         object = Canon(ligne, col, ally)
                         self.units.append(object)
         if not ally :
-            print(len(self.MAT),len(self.MAT[0]))
-            if ligne <COLONNES and col<LIGNES:
+            if ligne <LIGNES and col<COLONNES:
                 if self.MAT[ligne][col] == 0:
                     if name == "buy_conscrit":
                         object = Conscrit(ligne, col, ally)
@@ -241,7 +247,7 @@ class Game:
         unit_ligne = unit.x
         unit_col = unit.y
         ligne, col = self.get_ligne_col(unit_ligne,unit_col)
-        self.MAT[ligne][col]=unit.name
+        self.MAT[ligne][col]=unit.slug
 
     def get_ligne_col(self,x,y):
         ligne = y//BLOCKSIZE
@@ -282,10 +288,13 @@ class Game:
                 # self.clicks.append(pos)
     def detect_select_unit(self):
         try :
+
             l,c = self.x , self.y
+            print(self.MAT)
             if l <= LIGNES and c <= COLONNES:
                 slug = self.MAT[l][c]
                 unit_selected = find_unit_with_slug(self.ennemies + self.units, slug)
+                print(unit_selected)
                 if unit_selected:
                     return unit_selected
             return None
@@ -310,12 +319,20 @@ class Game:
             return
 
     def gen_army(self):
-        for x in range (self.c):
-                self.Add_unit("anglais",False,x,x)
+        pass
+        """ 
+       self.Add_unit("anglais",False,0,24)
+        self.Add_unit("anglais", False, 2, 24)
+        self.Add_unit("anglais", False, 4, 24)
+        self.Add_unit("anglais", False, 6, 24)
+        self.Add_unit("anglais", False, 8, 24)
+        self.Add_unit("anglais", False, 10, 24)
+        self.Add_unit("anglais", False, 12, 24)
+        self.Add_unit("anglais", False, 14, 24)"""
 
 def find_unit_with_slug(units,slug):
     for unit in units :
-        if unit.name == slug :
+        if unit.slug == slug :
             return unit
         else:
             pass

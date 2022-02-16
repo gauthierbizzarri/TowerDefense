@@ -21,7 +21,7 @@ class Conscrit(Unit) :
         self.proba_reussire_cac = 25
 
         self.inRange = False
-
+        self.name ="Conscrit"
         self.price =price_conscrit
         self.last = pygame.time.get_ticks()
         self.reload_time = 25000
@@ -58,31 +58,25 @@ class Conscrit(Unit) :
         if ennemy_closest:
             ##ATTACKING WITH BAYONET
             if self.cac and ennemy_closest_distance <= BLOCKSIZE:
+                self.cacing = True
                 now = pygame.time.get_ticks()
                 if now - self.last >= self.cac_reload:
-                    self.cacing = True
                     self.last = now
                     knife_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/knife.mp3"))
                     knife_sound.set_volume(0.3)
                     pygame.mixer.Channel(1).play(knife_sound)
                     ennemy_closest.hit(self.proba_reussire_cac,"c")
-                    return
-            else:
-                self.cacing = False
 
             if self.inRange and self.ammo > 0 and not self.cac:
                 now = pygame.time.get_ticks()
+                self.shooting = True
                 if now - self.last >= self.reload_time:
-                    self.shooting = True
                     self.last = now
                     rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/musket.mp3"))
                     rifle_sound.set_volume(0.3)
                     #pygame.mixer.Channel(1).play(rifle_sound)
                     ennemy_closest.hit(self.proba_tir_reussi,"t")
                     self.ammo -= 1
-                    return
-            else:
-                self.shooting = False
 
 
 

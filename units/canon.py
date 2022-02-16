@@ -7,13 +7,13 @@ from settings import *
 imgs = []
 img = pygame.image.load(os.path.join("game_assets","misc/imgs/canon.png"))
 img = pygame.transform.flip(img, True, False)
-img = pygame.transform.scale(img, (90, 60))
+img = pygame.transform.scale(img, (150, 65))
 imgs.append(img)
 
 class Canon(Unit) :
     def __init__(self, ligne, colone, ally):
         super().__init__(ligne, colone, ally)
-        self.level = 2
+        self.level = 10
         self.range = 1500
         self.inRange = False
         self.damage = 10000
@@ -25,7 +25,7 @@ class Canon(Unit) :
         self.max_health = 150
         self.health = self.max_health
         self.ammo = 25
-
+        self.name ="canon"
         self.cac = False
         self.cac_reload = 5000
         self.cac_dommages = 20
@@ -73,7 +73,7 @@ class Canon(Unit) :
                     rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/canon.mp3"))
                     rifle_sound.set_volume(0.8)
                     pygame.mixer.Channel(1).play(rifle_sound)
-                    ennemy_closest.hit(self.damage)
+                    ennemy_closest.hit(self.damage,"t")
                     self.ammo -= 1
                     return
             else :
@@ -82,6 +82,7 @@ class Canon(Unit) :
 
     def change_range(self, r):
         self.range = r
+
 
     def play_sound(self):
         pass

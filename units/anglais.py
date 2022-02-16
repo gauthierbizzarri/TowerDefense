@@ -4,6 +4,7 @@ from units.unit import Unit
 import math
 import random
 from settings import *
+import string
 imgs = []
 img = pygame.image.load(os.path.join("game_assets","infanterie/imgs/infanterie_anglaise.png"))
 img = pygame.transform.scale(img, (BLOCKSIZE, BLOCKSIZE))
@@ -23,10 +24,9 @@ class Anglais(Unit) :
         self.shooting = False
         self.reloading = False
         self.imgs = imgs
-        self.max_health = 150
+        self.max_health = 15
         self.health = self.max_health
         self.ammo = 15
-
         self.cac = False
         self.cac_reload = 2500
         self.cac_dommages = 20
@@ -55,8 +55,8 @@ class Anglais(Unit) :
             ##ATTACKING WITH BAYONET
             if self.cac and ennemy_closest_distance <= BLOCKSIZE:
                 now = pygame.time.get_ticks()
+                self.cacing = True
                 if now - self.last >= self.cac_reload:
-                    self.cacing = True
                     self.last = now
                     knife_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/knife.mp3"))
                     knife_sound.set_volume(0.3)
@@ -67,8 +67,8 @@ class Anglais(Unit) :
                 self.cacing = False
             if self.inRange and self.ammo > 0 and not self.cac:
                 now = pygame.time.get_ticks()
+                self.shooting = True
                 if now - self.last >= self.reload_time:
-                    self.shooting = True
                     self.last = now
                     rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/musket.mp3"))
                     rifle_sound.set_volume(0.3)

@@ -27,7 +27,7 @@ class VielleGarde(Unit) :
         self.max_health = 150
         self.health = self.max_health
         self.ammo = 25
-
+        self.name = "VielleGarde"
         self.cac = False
         self.cac_reload = 2500
         self.cac_dommages = 20
@@ -56,8 +56,8 @@ class VielleGarde(Unit) :
             ##ATTACKING WITH BAYONET
             if self.cac and ennemy_closest_distance <= BLOCKSIZE:
                 now = pygame.time.get_ticks()
+                self.cacing = True
                 if now - self.last >= self.cac_reload:
-                    self.cacing = True
                     self.last = now
                     knife_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/knife.mp3"))
                     knife_sound.set_volume(0.3)
@@ -68,8 +68,8 @@ class VielleGarde(Unit) :
                 self.cacing = False
             if self.inRange and self.ammo > 0 and not self.cac:
                 now = pygame.time.get_ticks()
+                self.shooting = True
                 if now - self.last >= self.reload_time:
-                    self.shooting = True
                     self.last = now
                     rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/musket.mp3"))
                     rifle_sound.set_volume(0.3)

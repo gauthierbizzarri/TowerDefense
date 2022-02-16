@@ -6,16 +6,7 @@ import string
 import random
 from random import randrange
 
-def get_path(ligne,colonne):
-    lignes = LIGNES
-    colonnes = COLONNES
-    all_path = []
-    for l in range(lignes):
-        new_path = []
-        for c in range(colonnes):
-                new_path.append((c*BLOCKSIZE,l*BLOCKSIZE))
-        all_path.append(new_path)
-    return all_path[ligne][colonne:]
+
 
 
 
@@ -26,10 +17,7 @@ class Unit :
         self.ligne = ligne
         self.colonne = colone
         self.ally = ally
-        if self.ally:
-            self.path = get_path(ligne,colone)
-        else:
-            self.path = get_path(ligne,colone)[::-1]
+        self.path = [(colone*BLOCKSIZE,ligne*BLOCKSIZE)]
         self.x = self.path[0][0]
         self.y = self.path[0][1]
         self.path_pos = 0
@@ -42,6 +30,7 @@ class Unit :
         self.img = []
         self.imgs = None
         self.font = pygame.font.SysFont("comicsans", 25)
+        self.slug = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
         self.animation_count = 0
         self.width = width
         self.height = height
@@ -91,6 +80,27 @@ class Unit :
             bayonet = pygame.transform.scale(bayonet, (40, 40))
             win.blit(bayonet, (self.x -50, self.y - 10))
         win.blit(text, (self.x + 3, self.y + 5))
+    def draw_canon_ball(self,win):
+        """img = pygame.image.load(os.path.join("game_assets", "infanterie/imgs/ball.png"))
+        canon = pygame.transform.scale(img, (30, 30))
+        m = 1
+        g = 9.81
+        v0 = 250 / 3.6
+        vx0 = v0 * math.cos(70)
+        vy0 = v0 * math.sin(70)
+        dt = 0.5
+        t = 0
+        x = 0
+        y = 0
+        vx = vx0
+        vy = vy0
+        while y >= 0:
+            x = x + dt * vx
+            y = y + dt * vy
+            vx = vx + dt * vx
+            vy = vy + dt * vy  - dt * g
+            t = t + dt
+            win.blit(canon, (self.x +x, self.y + y))"""
     def draw_info(self,win):
         pass
 
@@ -142,30 +152,31 @@ class Unit :
             self.damage += 1
     def get_upgrade_cost(self):
         return self.upgrade_cost[self.level -1]
-    def move(self,mat):
+    def move(self,mat,ennemies):
         """
         Move enemy
         :return: None
         """
-        if not self.shooting and not self.cacing:
-            self.animation_count += 1
-            if self.animation_count >= len(self.imgs):
-                self.animation_count = 0
+        if ennemies :
+            self.add_closest_ennemy_to_path(ennemies)
+            if not self.shooting and not self.cacing:
+                self.animation_count += 1
+                if self.animation_count >= len(self.imgs):
+                    self.animation_count = 0
 
-            x1, y1 = self.path[self.path_pos]
-            if self.path_pos + 1 >= len(self.path):
-                self.path = self.path[::-1]
-                self.path_pos=0
-            x2, y2 = self.path[self.path_pos+1]
-            if check_free(mat,x2,y2):
-                dirn = ((x2-x1), (y2-y1))
-                length = math.sqrt((dirn[0])**2 + (dirn[1])**2)
-                dirn = (dirn[0]/length, dirn[1]/length)
-                if dirn[0] < 0 and not (self.flipped):
-                    self.flipped = True
-                    for x, img in enumerate(self.imgs):
-                        self.imgs[x] = pygame.transform.flip(img, True, False)
-                if not self.ally:
+                x1, y1 = self.path[self.path_pos]
+                if self.path_pos + 1 >= len(self.path):
+                    self.path_pos = 0
+                x2, y2 = self.path[self.path_pos + 1]
+                if check_free(mat, x2, y2):
+                    dirn = ((x2 - x1), (y2 - y1))
+                    length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
+                    dirn = (dirn[0] / length, dirn[1] / length)
+                    if dirn[0] < 0 and not (self.flipped):
+                        self.flipped = True
+                        for x, img in enumerate(self.imgs):
+                            self.imgs[x] = pygame.transform.flip(img, True, False)
+                    if not self.ally: pass
                     move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
 
                     self.x = move_x
@@ -175,20 +186,21 @@ class Unit :
                     self.colonne = col
 
                     # Go to next point
-                    if dirn[0] >= 0: # moving right
-                        if dirn[1] >= 0: # moving down
+                    if dirn[0] >= 0:  # moving right
+                        if dirn[1] >= 0:  # moving down
                             if self.x >= x2 and self.y >= y2:
                                 self.path_pos += 1
                         else:
                             if self.x >= x2 and self.y <= y2:
                                 self.path_pos += 1
-                    else: # moving left
+                    else:  # moving left
                         if dirn[1] >= 0:  # moving down
                             if self.x <= x2 and self.y >= y2:
                                 self.path_pos += 1
                         else:
                             if self.x <= x2 and self.y >= y2:
                                 self.path_pos += 1
+
     def hit(self,proba_touche,type):
         """
         returns if unit has died
@@ -196,8 +208,11 @@ class Unit :
         """
         dommages_balle = 6
         dommages_bayonet = 10
+        self.health -= dommages_balle
+        self.cacing = False
+        self.shooting = False
         #TEST CAC TOUCHE :
-        if type =="t":
+        """if type =="t":
             if randrange(101)<proba_touche:
                 if randrange(101)<self.proba_prendre_balle:
                         self.health -= dommages_balle
@@ -206,8 +221,38 @@ class Unit :
                 if randrange(101) < self.proba_prendre_cac:
                     self.health -= dommages_bayonet
         if self.health <= 0: return True
-        return False
+        return False"""
 
+
+    def add_closest_ennemy_to_path(self,ennemies):
+        ennemy_closest_distance = False
+        distances = []
+        ennemy_closest = None
+        path = []
+        for ennemy in ennemies:
+            ennemy_x, ennemy_y = ennemy.x, ennemy.y
+            dis = math.sqrt((self.x - ennemy_x) ** 2 + (self.y - ennemy_y) ** 2)
+            distances.append(dis)
+        if distances:
+            ennemy_closest_distance = min(distances)
+            index_closest = distances.index(ennemy_closest_distance)
+            ennemy_closest = ennemies[index_closest]
+            Xf = ennemy_closest.x
+            Yf = ennemy_closest.y
+            posx = self.x
+            posy = self.y
+            path = [(posx,posy)]
+            for i in range(int(ennemy_closest_distance/BLOCKSIZE)):
+                if Xf-posx<0:
+                    posx = posx - BLOCKSIZE
+                if Xf-posx>0:
+                    posx = posx +BLOCKSIZE
+                if Yf-posy <0:
+                    posy = posy - BLOCKSIZE
+                if Yf-posy >0 :
+                    posy = posy + BLOCKSIZE
+                path.append((posx,posy))
+            self.path = path
 
 
 def check_free(mat,x,y):
