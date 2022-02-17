@@ -6,36 +6,35 @@ import pygame
 from settings import *
 from units.unit import Unit
 
-imgs = []
-img = pygame.image.load(os.path.join("game_assets", "infantry/images/viellegarde.png"))
+images = []
+img = pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png"))
 img = pygame.transform.scale(img, (BLOCKSIZE, BLOCKSIZE))
-imgs.append(img)
+images.append(img)
 
 
-class OldGard(Unit):
-    def __init__(self, line, row, ally):
-        super().__init__(line, row, ally)
-        self.level = 5
-        self.inRange = False
+class LineInfantry(Unit):
+    def __init__(self, ligne, colone, ally):
+        super().__init__(ligne, colone, ally)
+        self.level = 1
         self.range = 10 * BLOCKSIZE
-        self.proba_tir_reussi = 70
+        self.proba_tir_reussi = 20
         self.proba_prendre_balle = 10
-        self.proba_prendre_cac = 30
-        self.proba_reussire_cac = 90
+        self.proba_prendre_cac = 70
+        self.proba_reussire_cac = 40
         self.last = pygame.time.get_ticks()
-        self.reload_time = 10000
+        self.reload_time = 23000
         self.shooting = False
         self.reloading = False
-        self.images = imgs
-        self.max_health = 150
+        self.images = images
+        self.max_health = 15
         self.health = self.max_health
-        self.ammo = 25
-        self.name = "VielleGarde"
+        self.ammo = 15
+        self.name = "Infanterie_de_ligne"
         self.cac = False
         self.cac_reload = 2500
         self.cac_dommages = 20
         self.cacing = False
-        self.price = price_old_guard
+        self.price = price_line_infantry
 
     def attack(self, ennemies):
         self.inRange = False

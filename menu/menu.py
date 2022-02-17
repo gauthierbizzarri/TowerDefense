@@ -99,7 +99,7 @@ class Menu:
         self.buttons = []
         self.items = 0
         self.bg = img
-        self.font = pygame.font.SysFont("comicsans", 25)
+        self.font = pygame.font.SysFont("franklingothicmedium", 25)
         self.tower = tower
 
     def add_btn(self, img, name):
@@ -183,6 +183,18 @@ class VerticalMenu(Menu):
         self.items += 1
         btn_x = self.x - 40
         btn_y = self.y - 100 + (self.items - 1) * 120
+        if name == "bayonet":
+            btn_x = self.x - 80
+            btn_y = self.y - 100
+        if name == "scope":
+            btn_x = self.x -80
+            btn_y = self.y
+        if name == "special":
+            btn_x = self.x
+            btn_y = self.y -100
+        if name == "rifle":
+            btn_x = self.x
+            btn_y = self.y
         if cost:
             self.buttons.append(VerticalButton(btn_x, btn_y, img, name, cost))
         else:

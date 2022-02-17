@@ -10,33 +10,38 @@ from units import unit
 from units.anglais import Anglais
 from units.canon import Canon
 from units.conscript import Conscript
-from units.fusiliet_de_ligne import Infanterie_de_ligne
+from units.line_infantry import LineInfantry
 from units.grenadier import Grenadier
+from units.young_guard import YoungGuard
+from units.med_guard import MedGuard
 from units.oldgard import OldGard
 
 pygame.font.init()
 pygame.init()
 
 side_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.jpeg"))
-                                  .convert_alpha(), (120, 500))
+                                  .convert_alpha(), (130, 500))
 unit_menu_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.jpeg"))
-                                       .convert_alpha(), (120, 250))
+                                       .convert_alpha(), (180, 250))
 star_img = pygame.image.load(os.path.join("game_assets", "misc/images/star.png")).convert_alpha()
 
 buy_old_gard = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/viellegarde.png")).convert_alpha(), (75, 75))
-buy_conscrit = pygame.transform.scale(
+buy_conscript = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/conscrit.png")).convert_alpha(), (75, 75))
 buy_canon = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "misc/images/canon.png")).convert_alpha(), (75, 75))
 
 bayonet = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/bayonet.png")).convert_alpha(), (50, 50))
-ball = pygame.transform.scale(
-    pygame.image.load(os.path.join("game_assets", "infantry/images/ball.png")).convert_alpha(), (50, 50))
-level_up = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/up.png")).convert_alpha(),
-                                  (50, 50))
 
+special = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/up.png")).convert_alpha(),
+                                 (50, 50))
+
+scope = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "infantry/images/scope.png"))
+                               .convert_alpha(), (50, 50))
+rifle = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "infantry/images/rifle.png"))
+                               .convert_alpha(), (50, 50))
 money_img = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "misc/images/money.png")).convert_alpha(), (50, 50))
 clock_img = pygame.transform.scale(
@@ -44,10 +49,10 @@ clock_img = pygame.transform.scale(
 s = sched.scheduler(time.time, time.sleep)
 
 
-def get_ligne_col(x, y):
-    ligne = y // BLOCKSIZE
-    col = x // BLOCKSIZE
-    return int(ligne), int(col)
+def get_line_col(x, y):
+    line = y // BLOCKSIZE
+    row = x // BLOCKSIZE
+    return int(line), int(row)
 
 
 class Game:
@@ -72,7 +77,7 @@ class Game:
 
         self.menu = VerticalMenu(self.width - side_img.get_width() + 70, 250, side_img)
         self.menu.add_btn(buy_canon, "buy_canon", price_canon)
-        self.menu.add_btn(buy_conscrit, "buy_conscript", price_conscrit)
+        self.menu.add_btn(buy_conscript, "buy_conscript", price_conscript)
 
         self.moving_object = None
         self.money = 150
@@ -108,6 +113,7 @@ class Game:
             clock.tick(FPS)
             self.time = pygame.time.get_ticks()
             self.play_sounds()
+            self.draw()
             pos = pygame.mouse.get_pos()
 
             if pygame.time.get_ticks() > 10000:
@@ -117,27 +123,26 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
-                # deployement phase
+                # Deployment phase
                 if pygame.time.get_ticks():
                     if event.type == pygame.MOUSEBUTTONUP:
                         if self.selected_unit_to_buy:
-                            get_ligne_col(pos[0], pos[1])
+                            get_line_col(pos[0], pos[1])
                             if event.button == 1:
                                 ally = True
                             else:
                                 ally = False
 
-                            if self.check_free(get_ligne_col(pos[0], pos[1])[0],
-                                               get_ligne_col(pos[0], pos[1])[1]):
-                                self.Add_unit(self.selected_unit_to_buy, ally, get_ligne_col(pos[0], pos[1])[0],
-                                              get_ligne_col(pos[0], pos[1])[1])
+                            if self.check_free(get_line_col(pos[0], pos[1])[0],
+                                               get_line_col(pos[0], pos[1])[1]):
+                                self.Add_unit(self.selected_unit_to_buy, ally, get_line_col(pos[0], pos[1])[0],
+                                              get_line_col(pos[0], pos[1])[1])
 
-                if event.type == pygame.MOUSEBUTTONUP:
+                if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     # SELECT UNIT ON THE BOARD TO BUY
-                    # SELECT UNIT TO SHOW INFO
-                    self.x, self.y = get_ligne_col(pygame.mouse.get_pos()[0],
-                                                   pygame.mouse.get_pos()[1])[0], \
-                                     get_ligne_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])[1]
+                    self.x, self.y = get_line_col(pygame.mouse.get_pos()[0],
+                                                  pygame.mouse.get_pos()[1])[0], \
+                                     get_line_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])[1]
                     self.selected_unit = self.detect_select_unit()
 
                     side_menu_button = self.menu.get_clicked(pos[0], pos[1])
@@ -145,11 +150,13 @@ class Game:
                         cost = self.menu.get_item_cost(side_menu_button)
                         if self.money >= cost:
                             self.selected_unit_to_buy = side_menu_button
+                if event.type == pygame.MOUSEBUTTONUP and event.button == 3:
                     if self.unit_menu:
                         unit_button = self.unit_menu.get_clicked(pos[0], pos[1])
-                        if unit_button:
-                            if str(unit_button) == "Level Up":
-                                self.upgrade_unit(self.selected_unit)
+                        if self.selected_unit:
+                            if unit_button:
+                                if str(unit_button) == "Level Up":
+                                    self.upgrade_unit(self.selected_unit)
 
                 if event.type == pygame.KEYDOWN:
                     if self.selected_unit:
@@ -163,7 +170,7 @@ class Game:
                         if event.key == pygame.K_l:
                             self.upgrade_unit(self.selected_unit)
 
-            # MOVING ALL UNITS IN THe BATTLE FIELD
+            # MOVING ALL UNITS IN THE BATTLE FIELD
             unites = []
             for k in range(len(self.enemies) + len(self.allies)):
                 if k < len(self.enemies):
@@ -189,17 +196,23 @@ class Game:
                 else:
                     element.attack(self.allies)
 
-            self.draw()
-
         pygame.quit()
 
     def play_sounds(self):
+        """
+        Play sounds of allies units
+        :return: None
+        """
         if self.time >= 10000:
             self.time = 0
             for element in self.allies:
                 element.play_sound()
 
     def draw(self):
+        """
+        Draw all elements on the screen
+        :return: None
+        """
         phase = False
         if self.selected_unit_to_buy:
             phase = True
@@ -209,8 +222,10 @@ class Game:
         if self.selected_unit:
             self.unit_menu = VerticalMenu(self.width - side_img.get_width() + 70, 800, unit_menu_img)
             self.selected_unit.draw_selected_unit(self.screen)
-            self.unit_menu.add_btn(bayonet, "Baïonnette")
-            self.unit_menu.add_btn(level_up, "Level Up")
+            self.unit_menu.add_btn(bayonet, "bayonet")
+            self.unit_menu.add_btn(scope, "scope")
+            self.unit_menu.add_btn(special, "special")
+            self.unit_menu.add_btn(rifle, "rifle")
             # DO ACTION WHEN SELECTED UNIT
         for en in self.enemies:
             en.draw(self.screen)
@@ -240,39 +255,34 @@ class Game:
         self.screen.blit(money, (start_x, 65))
         # draw clock
         timer = self.lines_font.render(str(round(pygame.time.get_ticks() / 1000, 1)), 1, (255, 0, 0))
-        if pygame.time.get_ticks() > 30000:
-            timer = self.lines_font.render(str(pygame.time.get_ticks() / 1000), 1, (255, 255, 255))
         clock = pygame.transform.scale(clock_img, (50, 50))
         self.screen.blit(timer, (self.width - text.get_width(), 20))
         self.screen.blit(clock, (self.width - text.get_width() - 50, 20))
 
         pygame.display.update()
 
-    def Add_unit(self, name, ally, ligne, col):
+    def Add_unit(self, name, ally, line, col):
         element = None
         if ally:
             if col < 4:
-                if self.MAT[ligne][col] == 0:
+                if self.MAT[line][col] == 0:
                     if name == "buy_conscript":
-                        element = Conscript(ligne, col, ally)
-                        self.allies.append(element)
-                    if name == "buy_old_gard":
-                        element = OldGard(ligne, col, ally)
+                        element = Conscript(line, col, ally)
                         self.allies.append(element)
                     if name == "buy_canon":
-                        element = Canon(ligne, col, ally)
+                        element = Canon(line, col, ally)
                         self.allies.append(element)
         if not ally:
-            if ligne < LIGNES and col < COLONNES:
-                if self.MAT[ligne][col] == 0:
+            if line < LIGNES and col < COLONNES:
+                if self.MAT[line][col] == 0:
                     if name == "buy_conscript":
-                        element = Conscript(ligne, col, ally)
+                        element = Conscript(line, col, ally)
                         self.enemies.append(element)
                     if name == "buy_old_gard":
-                        element = OldGard(ligne, col, ally)
+                        element = OldGard(line, col, ally)
                         self.enemies.append(element)
                     if name == "anglais":
-                        element = Anglais(ligne, col, ally)
+                        element = Anglais(line, col, ally)
                         self.enemies.append(element)
         if element:
             self.money -= element.price
@@ -289,16 +299,16 @@ class Game:
 
     def update_single_mat(self, element):
         unit_line = element.x
-        unit_col = element.y
-        line, col = get_ligne_col(unit_line, unit_col)
-        self.MAT[line][col] = element.slug
+        unit_row = element.y
+        line, row = get_line_col(unit_line, unit_row)
+        self.MAT[line][row] = element.slug
 
     def update_mat(self, units):
         self.MAT = [[0 for _ in range(self.rows)] for _ in range(self.lines)]
         for element in units:
             unit_line = element.x
             unit_col = element.y
-            line, col = get_ligne_col(unit_line, unit_col)
+            line, col = get_line_col(unit_line, unit_col)
             self.MAT[line][col] = element.slug
 
     def drawGrid(self, phase):
@@ -320,9 +330,9 @@ class Game:
                         pygame.draw.rect(self.screen, (200, 200, 200), rect, 1)
 
     def draw_hover(self):
-        l, c = get_ligne_col(pygame.mouse.get_pos()[0],
-                             pygame.mouse.get_pos()[1])[0], \
-               get_ligne_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])[1]
+        l, c = get_line_col(pygame.mouse.get_pos()[0],
+                            pygame.mouse.get_pos()[1])[0], \
+               get_line_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])[1]
         if l < LIGNES and c < COLONNES:
             slug = self.MAT[l][c]
             unit_hovered = find_unit_with_slug(self.enemies + self.allies, slug)
@@ -341,40 +351,72 @@ class Game:
             if line <= LIGNES and row <= COLONNES:
                 slug = self.MAT[line][row]
                 unit_selected = find_unit_with_slug(self.enemies + self.allies, slug)
-                if unit_selected:
+                if unit_selected and unit_selected.ally:
                     return unit_selected
             return None
         except IndexError:
             pass
 
     def upgrade_unit(self, element):
+        """
+        self.upgrade_cost = {"price_conscript": price_conscript,
+                             "price_line_infantry": price_line_infantry,
+                             "price_grenadier": price_grenadier,
+                             "price_young_guard": price_young_guard,
+                             "price_med_guard": price_med_guard,
+                             "price_old_guard": price_old_guard,
+                             "price_chasseur": price_chasseur,
+                             "price_fanqueur": price_fanqueur,
+                             "price_guard_chasseur": price_guard_chasseur,
+                             "price_voltigeur": price_voltigeur,
+                             "price_guard_voltigeur": price_guard_voltigeur}
+        :param element:
+        :return:
+        """
         # Upgrade conscript to line infantry
-        if element.level == 0:
-            unit_leveled_up = Infanterie_de_ligne(element.ligne, element.colonne, element.ally)
-            self.allies.append(unit_leveled_up)
-            self.allies.remove(element)
-        # Upgrade line infantry to grenadier
-        if element.level == 1:
-            unit_leveled_up = Grenadier(element.ligne, element.colonne, element.ally)
-            self.allies.append(unit_leveled_up)
-            self.allies.remove(element)
-            return
-        # Upgrade grenadier to old gard
-        if element.level == 2:
-            unit_leveled_up = OldGard(element.ligne, element.colonne, element.ally)
-            self.allies.append(unit_leveled_up)
-            self.allies.remove(element)
-            return
+        try:
+            self.selected_unit = None
+            if element.level == 0:
+                unit_leveled_up = LineInfantry(element.line, element.row, element.ally)
+                self.allies.append(unit_leveled_up)
+                self.allies.remove(element)
+                return
+            # Upgrade line infantry to grenadier
+            if element.level == 1:
+                unit_leveled_up = Grenadier(element.line, element.row, element.ally)
+                self.allies.append(unit_leveled_up)
+                self.allies.remove(element)
+                return
+            # Upgrade grenadier to young guard
+            if element.level == 2:
+                unit_leveled_up = MedGuard(element.line, element.row, element.ally)
+                self.allies.append(unit_leveled_up)
+                self.allies.remove(element)
+                return
+            # Upgrade young guard to med guard
+            if element.level == 3:
+                unit_leveled_up = MedGuard(element.line, element.row, element.ally)
+                self.allies.append(unit_leveled_up)
+                self.allies.remove(element)
+                return
+            # Upgrade med guard to old guard
+            if element.level == 4:
+                unit_leveled_up = OldGard(element.line, element.row, element.ally)
+                self.allies.append(unit_leveled_up)
+                self.allies.remove(element)
+                return
+        except Exception as e:
+            pass
 
     def gen_army(self):
-        self.Add_unit("anglais", False, 0, 24)
-        self.Add_unit("anglais", False, 2, 24)
-        self.Add_unit("anglais", False, 4, 24)
-        self.Add_unit("anglais", False, 6, 24)
-        self.Add_unit("anglais", False, 8, 24)
-        self.Add_unit("anglais", False, 10, 24)
-        self.Add_unit("anglais", False, 12, 24)
-        self.Add_unit("anglais", False, 14, 24)
+        self.Add_unit("buy_conscript", False, 0, 24)
+        self.Add_unit("buy_conscript", False, 2, 24)
+        self.Add_unit("buy_conscript", False, 4, 24)
+        self.Add_unit("buy_conscript", False, 6, 24)
+        self.Add_unit("buy_conscript", False, 8, 24)
+        self.Add_unit("buy_conscript", False, 10, 24)
+        self.Add_unit("buy_conscript", False, 12, 24)
+        self.Add_unit("buy_conscript", False, 14, 24)
 
 
 def find_unit_with_slug(units, slug):

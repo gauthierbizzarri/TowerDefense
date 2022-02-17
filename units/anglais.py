@@ -33,7 +33,7 @@ class Anglais(Unit):
         self.cac_reload = 2500
         self.cac_dommages = 20
         self.cacing = False
-        self.price = price_infanterie_de_ligne
+        self.price = price_line_infantry
 
     def attack(self, ennemies):
         self.inRange = False

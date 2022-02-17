@@ -1,41 +1,41 @@
-import math
-import os
-
 import pygame
-
-from settings import *
+import os
 from units.unit import Unit
+import math
+import random
+from settings import *
 
-imgs = []
-img = pygame.image.load(os.path.join("game_assets", "infantry/images/viellegarde.png"))
+images = []
+img = pygame.image.load(os.path.join("game_assets", "infantry/images/jeune_garde.png"))
 img = pygame.transform.scale(img, (BLOCKSIZE, BLOCKSIZE))
-imgs.append(img)
+images.append(img)
 
 
-class OldGard(Unit):
-    def __init__(self, line, row, ally):
-        super().__init__(line, row, ally)
-        self.level = 5
+class YoungGuard(Unit):
+    def __init__(self, ligne, colone, ally):
+        super().__init__(ligne, colone, ally)
+        self.level = 3
         self.inRange = False
         self.range = 10 * BLOCKSIZE
-        self.proba_tir_reussi = 70
+        self.proba_tir_reussi = 30
         self.proba_prendre_balle = 10
-        self.proba_prendre_cac = 30
-        self.proba_reussire_cac = 90
+        self.proba_prendre_cac = 60
+        self.proba_reussire_cac = 60
         self.last = pygame.time.get_ticks()
-        self.reload_time = 10000
+        self.reload_time = 20000
         self.shooting = False
         self.reloading = False
-        self.images = imgs
-        self.max_health = 150
+        self.images = images
+        self.max_health = 17
         self.health = self.max_health
-        self.ammo = 25
-        self.name = "VielleGarde"
+        self.ammo = 15
+        self.name = "Jeune_garde"
+        self.moral = 9
         self.cac = False
         self.cac_reload = 2500
         self.cac_dommages = 20
         self.cacing = False
-        self.price = price_old_guard
+        self.price = price_young_guard
 
     def attack(self, ennemies):
         self.inRange = False
@@ -57,7 +57,6 @@ class OldGard(Unit):
 
         if ennemy_closest:
             # ATTACKING WITH BAYONET
-            print(ennemy_closest_distance)
             if self.cac and ennemy_closest_distance <= BLOCKSIZE:
                 self.cacing = True
                 now = pygame.time.get_ticks()

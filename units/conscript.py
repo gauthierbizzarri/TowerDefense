@@ -25,7 +25,7 @@ class Conscript(Unit):
 
         self.inRange = False
         self.name = "Conscript"
-        self.price = price_conscrit
+        self.price = price_conscript
         self.last = pygame.time.get_ticks()
         self.reload_time = 25000
         self.shooting = False
@@ -60,7 +60,6 @@ class Conscript(Unit):
 
         if ennemy_closest:
             # ATTACKING WITH BAYONET
-            print(ennemy_closest_distance)
             if self.cac and ennemy_closest_distance <= BLOCKSIZE:
                 self.cacing = True
                 now = pygame.time.get_ticks()

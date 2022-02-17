@@ -23,11 +23,11 @@ class Unit:
         self.dis = 0
         self.proba_prendre_balle = 0
         self.proba_prendre_cac = 0
-        self.level = 0
+        self.level = None
         self.playing = False
         self.img = []
         self.images = None
-        self.font = pygame.font.SysFont("comicsans", 25)
+        self.font = pygame.font.SysFont("franklingothicmedium", 25)
         self.slug = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
         self.animation_count = 0
         self.width = width
@@ -37,14 +37,21 @@ class Unit:
         self.max_health = 10
         self.health = 10
         self.flipped = False
-        self.ammo = [1, 2, 3, 4, 5]
-        self.accuracy = [1, 2, 3, 4, 5]
-        self.reload_time = [1, 2, 3, 4, 5]
-        self.upgrade_cost = [1, 2, 3, 4, 5]
+        self.upgrade_cost = {"price_conscript": price_conscript,
+                             "price_line_infantry": price_line_infantry,
+                             "price_grenadier": price_grenadier,
+                             "price_young_guard": price_young_guard,
+                             "price_med_guard": price_med_guard,
+                             "price_old_guard": price_old_guard,
+                             "price_chasseur": price_chasseur,
+                             "price_fanqueur": price_fanqueur,
+                             "price_guard_chasseur": price_guard_chasseur,
+                             "price_voltigeur": price_voltigeur,
+                             "price_guard_voltigeur": price_guard_voltigeur}
         self.sell_price = [1, 2, 3, 4, 5]
         self.selected = False
         self.menu = ""
-        self.ennemies = []
+        self.enemies = []
 
         self.hover = False
 
