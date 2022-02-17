@@ -4,12 +4,14 @@ from units.unit import Unit
 import math
 import random
 from settings import *
+
 imgs = []
-img = pygame.image.load(os.path.join("game_assets","infanterie/imgs/tirailleur.png"))
+img = pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png"))
 img = pygame.transform.scale(img, (BLOCKSIZE, BLOCKSIZE))
 imgs.append(img)
 
-class Infanterie_de_ligne(Unit) :
+
+class Infanterie_de_ligne(Unit):
     def __init__(self, ligne, colone, ally):
         super().__init__(ligne, colone, ally)
         self.level = 1
@@ -61,9 +63,9 @@ class Infanterie_de_ligne(Unit) :
                     knife_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/knife.mp3"))
                     knife_sound.set_volume(0.3)
                     pygame.mixer.Channel(1).play(knife_sound)
-                    ennemy_closest.hit(self.proba_reussire_cac,"c")
+                    ennemy_closest.hit(self.proba_reussire_cac, "c")
                     return
-            else :
+            else:
                 self.cacing = False
             if self.inRange and self.ammo > 0 and not self.cac:
                 now = pygame.time.get_ticks()
@@ -72,13 +74,12 @@ class Infanterie_de_ligne(Unit) :
                     self.last = now
                     rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/musket.mp3"))
                     rifle_sound.set_volume(0.3)
-                    #ygame.mixer.Channel(1).play(rifle_sound)
-                    ennemy_closest.hit(self.proba_tir_reussi,"t")
+                    # ygame.mixer.Channel(1).play(rifle_sound)
+                    ennemy_closest.hit(self.proba_tir_reussi, "t")
                     self.ammo -= 1
                     return
-            else :
+            else:
                 self.shooting = False
-
 
     def change_range(self, r):
         self.range = r
@@ -94,4 +95,3 @@ class Infanterie_de_ligne(Unit) :
             self.playing = True
         if pygame.mixer.Channel(2).get_busy():
             self.playing = False"""
-

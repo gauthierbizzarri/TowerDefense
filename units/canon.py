@@ -5,7 +5,7 @@ import math
 import random
 from settings import *
 imgs = []
-img = pygame.image.load(os.path.join("game_assets","misc/imgs/canon.png"))
+img = pygame.image.load(os.path.join("game_assets","misc/images/canon.png"))
 img = pygame.transform.flip(img, True, False)
 img = pygame.transform.scale(img, (150, 65))
 imgs.append(img)

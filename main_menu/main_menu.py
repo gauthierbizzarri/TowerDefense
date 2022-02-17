@@ -1,15 +1,15 @@
-from tower import Game
+from wave_defense import Game
 import pygame
 import os
 
-start_btn = pygame.image.load(os.path.join("game_assets", "misc/imgs/play.png")).convert_alpha()
-logo = pygame.image.load(os.path.join("game_assets", "misc/imgs/logo.png")).convert_alpha()
+start_btn = pygame.image.load(os.path.join("game_assets", "misc/images/play.png")).convert_alpha()
+logo = pygame.image.load(os.path.join("game_assets", "misc/images/logo.png")).convert_alpha()
 
 class MainMenu:
     def __init__(self, win):
         self.width = 1350
         self.height = 700
-        self.bg = pygame.image.load(os.path.join("game_assets", "misc/imgs/bg.jpeg"))
+        self.bg = pygame.image.load(os.path.join("game_assets", "misc/images/bg.jpeg"))
         self.bg = pygame.transform.scale(self.bg, (self.width, self.height))
         self.win = win
         self.btn = (self.width/2 - start_btn.get_width()/2, 350, start_btn.get_width(), start_btn.get_height())

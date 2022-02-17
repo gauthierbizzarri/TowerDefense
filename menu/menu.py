@@ -1,15 +1,19 @@
 import pygame
 import os
+
 pygame.font.init()
 
-star = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/imgs/star.png")).convert_alpha(), (50,50))
-star2 = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/imgs/star.png")).convert_alpha(), (20,20))
+star = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/money.png")).convert_alpha(),
+                              (50, 50))
+star2 = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/money.png")).convert_alpha(),
+                               (20, 20))
 
 
 class Button:
     """
     Button class for menu objects
     """
+
     def __init__(self, menu, img, name):
         self.name = name
         self.img = img
@@ -70,7 +74,8 @@ class VerticalButton(Button):
     """
     Button class for menu objects
     """
-    def __init__(self, x, y, img, name, cost):
+
+    def __init__(self, x, y, img, name, cost=None):
         self.name = name
         self.img = img
         self.x = x
@@ -84,6 +89,7 @@ class Menu:
     """
     menu for holding items
     """
+
     def __init__(self, tower, x, y, img, item_cost):
         self.x = x
         self.y = y
@@ -106,9 +112,10 @@ class Menu:
         self.items += 1
         self.buttons.append(Button(self, img, name))
 
-    def remove_btn(self,name):
-        self.items -=1
+    def remove_btn(self, name):
+        self.items -= 1
         self.buttons.remove(name)
+
     def get_item_cost(self):
         """
         gets cost of upgrade to next level
@@ -122,12 +129,12 @@ class Menu:
         :param win: surface
         :return: None
         """
-        win.blit(self.bg, (self.x - self.bg.get_width()/2, self.y-120))
+        win.blit(self.bg, (self.x - self.bg.get_width() / 2, self.y - 120))
         for item in self.buttons:
             item.draw(win)
-            win.blit(star, (item.x + item.width + 5, item.y-9))
-            text = self.font.render(str(self.item_cost[self.tower.level - 1]), 1, (255,255,255))
-            win.blit(text, (item.x + item.width + 30 - text.get_width()/2, item.y + star.get_height() -8))
+            win.blit(star, (item.x + item.width + 5, item.y - 9))
+            text = self.font.render(str(self.item_cost[self.tower.level - 1]), 1, (255, 255, 255))
+            win.blit(text, (item.x + item.width + 30 - text.get_width() / 2, item.y + star.get_height() - 8))
 
     def get_clicked(self, X, Y):
         """
@@ -137,7 +144,7 @@ class Menu:
         :return: str
         """
         for btn in self.buttons:
-            if btn.click(X,Y):
+            if btn.click(X, Y):
                 return btn.name
 
         return None
@@ -155,6 +162,7 @@ class VerticalMenu(Menu):
     """
     Vertical Menu for side bar of game
     """
+
     def __init__(self, x, y, img):
         self.x = x
         self.y = y
@@ -165,7 +173,7 @@ class VerticalMenu(Menu):
         self.bg = img
         self.font = pygame.font.SysFont("comicsans", 25)
 
-    def add_btn(self, img, name, cost):
+    def add_btn(self, img, name, cost=None):
         """
         adds buttons to menu
         :param img: surface
@@ -174,8 +182,11 @@ class VerticalMenu(Menu):
         """
         self.items += 1
         btn_x = self.x - 40
-        btn_y = self.y-100 + (self.items-1)*120
-        self.buttons.append(VerticalButton(btn_x, btn_y, img, name, cost))
+        btn_y = self.y - 100 + (self.items - 1) * 120
+        if cost:
+            self.buttons.append(VerticalButton(btn_x, btn_y, img, name, cost))
+        else:
+            self.buttons.append(VerticalButton(btn_x, btn_y, img, name, None))
 
     def get_item_cost(self, name):
         """
@@ -194,9 +205,11 @@ class VerticalMenu(Menu):
         :param win: surface
         :return: None
         """
-        win.blit(self.bg, (self.x - self.bg.get_width()/2, self.y-120))
+        win.blit(self.bg, (self.x - self.bg.get_width() / 2, self.y - 120))
         for item in self.buttons:
             item.draw(win)
-            win.blit(star2, (item.x+2, item.y + item.height))
-            text = self.font.render(str(item.cost), 1, (255,255,255))
-            win.blit(text, (item.x + item.width/2 - text.get_width()/2 + 7, item.y + item.height + 5))
+
+            if item.cost:
+                win.blit(star2, (item.x + 2, item.y + item.height))
+                text = self.font.render(str(item.cost), 1, (255, 255, 255))
+                win.blit(text, (item.x + item.width / 2 - text.get_width() / 2 + 7, item.y + item.height + 5))

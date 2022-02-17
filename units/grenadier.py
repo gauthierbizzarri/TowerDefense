@@ -5,7 +5,7 @@ import math
 import random
 from settings import *
 imgs = []
-img = pygame.image.load(os.path.join("game_assets","infanterie/imgs/grenadier.png"))
+img = pygame.image.load(os.path.join("game_assets","infantry/images/grenadier.png"))
 img = pygame.transform.scale(img, (BLOCKSIZE, BLOCKSIZE))
 imgs.append(img)
 

@@ -5,12 +5,14 @@ import math
 import random
 from settings import *
 import string
-imgs = []
-img = pygame.image.load(os.path.join("game_assets","infanterie/imgs/infanterie_anglaise.png"))
-img = pygame.transform.scale(img, (BLOCKSIZE, BLOCKSIZE))
-imgs.append(img)
 
-class Anglais(Unit) :
+images = []
+img = pygame.image.load(os.path.join("game_assets", "infantry/images/infanterie_anglaise.png"))
+img = pygame.transform.scale(img, (BLOCKSIZE, BLOCKSIZE))
+images.append(img)
+
+
+class Anglais(Unit):
     def __init__(self, ligne, colone, ally):
         super().__init__(ligne, colone, ally)
         self.level = 1
@@ -23,7 +25,7 @@ class Anglais(Unit) :
         self.reload_time = 23000
         self.shooting = False
         self.reloading = False
-        self.imgs = imgs
+        self.images = images
         self.max_health = 15
         self.health = self.max_health
         self.ammo = 15
@@ -52,33 +54,32 @@ class Anglais(Unit) :
             self.cac = True
 
         if ennemy_closest:
-            ##ATTACKING WITH BAYONET
+            # ATTACKING WITH BAYONET
             if self.cac and ennemy_closest_distance <= BLOCKSIZE:
                 now = pygame.time.get_ticks()
                 self.cacing = True
                 if now - self.last >= self.cac_reload:
                     self.last = now
-                    knife_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/knife.mp3"))
+                    knife_sound = pygame.mixer.Sound(os.path.join("game_assets", "infantry/sounds/knife.mp3"))
                     knife_sound.set_volume(0.3)
                     pygame.mixer.Channel(1).play(knife_sound)
-                    ennemy_closest.hit(self.proba_reussire_cac,"c")
+                    ennemy_closest.hit(self.proba_reussire_cac, "c")
                     return
-            else :
+            else:
                 self.cacing = False
             if self.inRange and self.ammo > 0 and not self.cac:
                 now = pygame.time.get_ticks()
                 self.shooting = True
                 if now - self.last >= self.reload_time:
                     self.last = now
-                    rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infanterie/sounds/musket.mp3"))
+                    rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infantry/sounds/musket.mp3"))
                     rifle_sound.set_volume(0.3)
-                    #pygame.mixer.Channel(1).play(rifle_sound)
-                    ennemy_closest.hit(self.proba_tir_reussi,"t")
+                    # pygame.mixer.Channel(1).play(rifle_sound)
+                    ennemy_closest.hit(self.proba_tir_reussi, "t")
                     self.ammo -= 1
                     return
-            else :
+            else:
                 self.shooting = False
-
 
     def change_range(self, r):
         self.range = r
@@ -94,4 +95,3 @@ class Anglais(Unit) :
             self.playing = True
         if pygame.mixer.Channel(2).get_busy():
             self.playing = False"""
-
