@@ -21,9 +21,34 @@ pygame.init()
 
 side_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.jpeg"))
                                   .convert_alpha(), (130, 500))
+tree_image = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.jpeg"))
+                                    .convert_alpha(), (7 * BLOCKSIZE, 13 * BLOCKSIZE))
 unit_menu_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.jpeg"))
                                        .convert_alpha(), (180, 250))
 star_img = pygame.image.load(os.path.join("game_assets", "misc/images/star.png")).convert_alpha()
+
+Conscript_img = pygame.transform.scale(
+    pygame.image.load(os.path.join("game_assets", "infantry/images/conscrit.png")).convert_alpha(), (75, 75))
+LineInfantry_img = pygame.transform.scale(
+    pygame.image.load(os.path.join("game_assets", "infantry/images/infanterie_anglaise.png")).convert_alpha(), (75, 75))
+Grenadier_img = pygame.transform.scale(
+    pygame.image.load(os.path.join("game_assets", "infantry/images/grenadier.png")).convert_alpha(), (75, 75))
+YoungGuard_img = pygame.transform.scale(
+    pygame.image.load(os.path.join("game_assets", "infantry/images/jeune_garde.png")).convert_alpha(), (75, 75))
+MedGuard_img = pygame.transform.scale(
+    pygame.image.load(os.path.join("game_assets", "infantry/images/med_guard.png")).convert_alpha(), (75, 75))
+OldGuard_img = pygame.transform.scale(
+    pygame.image.load(os.path.join("game_assets", "infantry/images/viellegarde.png")).convert_alpha(), (75, 75))
+Chasseur_img = pygame.transform.scale(
+    pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png")).convert_alpha(), (75, 75))
+Flanqueur_img = pygame.transform.scale(
+    pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png")).convert_alpha(), (75, 75))
+GuardChasseur_img = pygame.transform.scale(
+    pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png")).convert_alpha(), (75, 75))
+Volitgeur_img = pygame.transform.scale(
+    pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png")).convert_alpha(), (75, 75))
+GuardVoltigeur_img = pygame.transform.scale(
+    pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png")).convert_alpha(), (75, 75))
 
 buy_old_gard = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/viellegarde.png")).convert_alpha(), (75, 75))
@@ -50,8 +75,18 @@ s = sched.scheduler(time.time, time.sleep)
 
 
 def get_line_col(x, y):
-    line = y // BLOCKSIZE
-    row = x // BLOCKSIZE
+    if x% BLOCKSIZE > BLOCKSIZE/2:
+        x +=x%BLOCKSIZE
+    else :
+        x -=x%BLOCKSIZE
+
+    if y % BLOCKSIZE > BLOCKSIZE / 2:
+        y += y % BLOCKSIZE
+    else:
+        y -= y % BLOCKSIZE
+    line = round(y) // BLOCKSIZE
+    row = round(x) // BLOCKSIZE
+    print(line,row)
     return int(line), int(row)
 
 
@@ -77,8 +112,8 @@ class Game:
 
         self.menu = VerticalMenu(self.width - side_img.get_width() + 70, 250, side_img)
         self.menu.add_btn(buy_canon, "buy_canon", price_canon)
+        self.menu.add_btn(buy_old_gard, "buy_old_gard", price_old_guard)
         self.menu.add_btn(buy_conscript, "buy_conscript", price_conscript)
-
         self.moving_object = None
         self.money = 150
         self.round = bool
@@ -101,6 +136,8 @@ class Game:
         self.x = 0
         self.y = 0
 
+        self.tree = None
+
     def run(self):
         music = pygame.mixer.Sound(os.path.join("game_assets", "misc/sounds/music.mp3"))
         music.set_volume(0.5)
@@ -109,6 +146,7 @@ class Game:
         generated = False
         run = True
         clock = pygame.time.Clock()
+        x=0
         while run:
             clock.tick(FPS)
             self.time = pygame.time.get_ticks()
@@ -155,8 +193,10 @@ class Game:
                         unit_button = self.unit_menu.get_clicked(pos[0], pos[1])
                         if self.selected_unit:
                             if unit_button:
-                                if str(unit_button) == "Level Up":
-                                    self.upgrade_unit(self.selected_unit)
+                                # Open the tree
+                                if str(unit_button) == "rifle":
+                                    self.open_tree()
+                                    # self.upgrade_unit(self.selected_unit)
 
                 if event.type == pygame.KEYDOWN:
                     if self.selected_unit:
@@ -172,13 +212,14 @@ class Game:
 
             # MOVING ALL UNITS IN THE BATTLE FIELD
             unites = []
+
             for k in range(len(self.enemies) + len(self.allies)):
                 if k < len(self.enemies):
                     unites.append(self.enemies[k])
                 if k < len(self.allies):
                     unites.append(self.allies[k])
-            self.update_mat(unites)
 
+            self.update_mat(unites)
             for element in unites:
                 if element.health <= 0:
                     if element.ally:
@@ -207,6 +248,26 @@ class Game:
             self.time = 0
             for element in self.allies:
                 element.play_sound()
+
+    def open_tree(self):
+        """
+            Open tree
+        """
+        self.tree = VerticalMenu(self.width / 2, 180, tree_image)
+        self.create_tree()
+
+    def create_tree(self):
+        self.tree.add_btn(Conscript_img, "Conscript")
+        self.tree.add_btn(LineInfantry_img, "LineInfantry")
+        self.tree.add_btn(Grenadier_img, "Grenadier")
+        self.tree.add_btn(YoungGuard_img, "YoungGuard")
+        self.tree.add_btn(MedGuard_img, "MedGuard")
+        self.tree.add_btn(OldGuard_img, "OldGuard")
+        self.tree.add_btn(Chasseur_img, "Chasseur")
+        self.tree.add_btn(Flanqueur_img, "Flanqueur")
+        self.tree.add_btn(GuardChasseur_img, "GuardChasseur")
+        self.tree.add_btn(Volitgeur_img, "Volitgeur")
+        self.tree.add_btn(GuardVoltigeur_img, "GuardVoltigeur")
 
     def draw(self):
         """
@@ -244,6 +305,9 @@ class Game:
         # draw unit_menu
         if self.unit_menu:
             self.unit_menu.draw(self.screen)
+        # draw tree
+        if self.tree:
+            self.tree.draw(self.screen)
 
         # draw menu , money
         self.menu.draw(self.screen)
@@ -262,13 +326,23 @@ class Game:
         pygame.display.update()
 
     def Add_unit(self, name, ally, line, col):
+        """
+        Add a unit and add it to the list of enemies or unit
+        :param name: name of the unit used to identify it
+        :param ally: if unit is on player side or not
+        :param line: position of the unit (y)
+        :param col: position of the unit (x)
+        """
         element = None
         if ally:
             if col < 4:
                 if self.MAT[line][col] == 0:
+                    if name == "buy_old_gard":
+                        element = OldGard(line, col, ally)
+                        self.allies.append(element)
                     if name == "buy_conscript":
                         element = Conscript(line, col, ally)
-                        self.allies.append(element)
+                        self.enemies.append(element)
                     if name == "buy_canon":
                         element = Canon(line, col, ally)
                         self.allies.append(element)
@@ -395,7 +469,7 @@ class Game:
                 return
             # Upgrade young guard to med guard
             if element.level == 3:
-                unit_leveled_up = MedGuard(element.line, element.row, element.ally)
+                unit_leveled_up = YoungGuard(element.line, element.row, element.ally)
                 self.allies.append(unit_leveled_up)
                 self.allies.remove(element)
                 return
@@ -409,14 +483,14 @@ class Game:
             pass
 
     def gen_army(self):
-        self.Add_unit("buy_conscript", False, 0, 24)
-        self.Add_unit("buy_conscript", False, 2, 24)
+        self.Add_unit("buy_old_gard", False, 0, 24)
+        """self.Add_unit("buy_conscript", False, 2, 24)
         self.Add_unit("buy_conscript", False, 4, 24)
         self.Add_unit("buy_conscript", False, 6, 24)
         self.Add_unit("buy_conscript", False, 8, 24)
         self.Add_unit("buy_conscript", False, 10, 24)
         self.Add_unit("buy_conscript", False, 12, 24)
-        self.Add_unit("buy_conscript", False, 14, 24)
+        self.Add_unit("buy_conscript", False, 14, 24)"""
 
 
 def find_unit_with_slug(units, slug):

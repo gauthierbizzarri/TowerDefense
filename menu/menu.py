@@ -195,6 +195,41 @@ class VerticalMenu(Menu):
         if name == "rifle":
             btn_x = self.x
             btn_y = self.y
+            # Tree
+        B=65
+        if name == "Conscript":
+            btn_x = self.x-1.25*B
+            btn_y = self.y-1.25*B
+        if name == "LineInfantry":
+            btn_x = self.x
+            btn_y = self.y
+        if name == "Grenadier":
+            btn_x = self.x
+            btn_y = self.y
+        if name == "YoungGuard":
+            btn_x = self.x
+            btn_y = self.y
+        if name == "MedGuard":
+            btn_x = self.x
+            btn_y = self.y
+        if name == "OldGuard":
+            btn_x = self.x
+            btn_y = self.y
+        if name == "Chasseur":
+            btn_x = self.x
+            btn_y = self.y
+        if name == "Flanqueur":
+            btn_x = self.x
+            btn_y = self.y
+        if name == "GuardChasseur":
+            btn_x = self.x
+            btn_y = self.y
+        if name == "Voltigeur":
+            btn_x = self.x
+            btn_y = self.y
+        if name == "GuardVoltigeur":
+            btn_x = self.x
+            btn_y = self.y
         if cost:
             self.buttons.append(VerticalButton(btn_x, btn_y, img, name, cost))
         else:

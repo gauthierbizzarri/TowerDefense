@@ -26,6 +26,10 @@ class Unit:
         self.level = None
         self.playing = False
         self.img = []
+        self.shooting_imgs = []
+        self.shooting_img = False
+        self.marching = False
+        self.marching_imgs = []
         self.images = None
         self.font = pygame.font.SysFont("franklingothicmedium", 25)
         self.slug = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
@@ -37,6 +41,7 @@ class Unit:
         self.max_health = 10
         self.health = 10
         self.flipped = False
+        self.last = pygame.time.get_ticks()
         self.upgrade_cost = {"price_conscript": price_conscript,
                              "price_line_infantry": price_line_infantry,
                              "price_grenadier": price_grenadier,
@@ -61,11 +66,29 @@ class Unit:
         :param surface: surface
         :return: None
         """
-        # self.animation_count += 1
+        now = pygame.time.get_ticks()
+        if now - self.last >=400:
+            self.last = now
+            self.animation_count +=1
 
-        if self.animation_count >= len(self.images):
-            self.animation_count = 0
-        self.img = self.images[self.animation_count]
+        # shooting
+        if self.shooting :
+            if self.animation_count >= len(self.shooting_imgs):
+                self.animation_count = 0
+            self.img = self.shooting_imgs[self.animation_count]
+        # marching
+        if self.marching and not self.shooting :
+            if self.animation_count >= len(self.marching_imgs):
+                self.animation_count = 0
+            self.img = self.marching_imgs[self.animation_count]
+
+        if not self.shooting and not self.marching :
+            if self.animation_count >= len(self.images):
+                self.animation_count = 0
+            self.img = self.images[self.animation_count]
+
+        if self.flipped:
+            self.img = pygame.transform.flip(self.img, True, False)
 
         surface.blit(self.img, (self.x, self.y))
         # self.draw_health_bar(surface)
@@ -171,10 +194,10 @@ class Unit:
         Move enemy
         :return: None
         """
+        self.marching = False
         if ennemies:
             self.add_closest_ennemy_to_path(ennemies)
             if not self.shooting and not self.cacing:
-                self.animation_count += 1
                 if self.animation_count >= len(self.images):
                     self.animation_count = 0
 
@@ -186,14 +209,10 @@ class Unit:
                     dirn = ((x2 - x1), (y2 - y1))
                     length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
                     dirn = (dirn[0] / length, dirn[1] / length)
-                    if dirn[0] < 0 and not (self.flipped):
+                    if dirn[0] < 0 and not self.flipped:
                         self.flipped = True
-                        for x, img in enumerate(self.images):
-                            self.images[x] = pygame.transform.flip(img, True, False)
-                    if not self.ally:
-                        pass
                     move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
-
+                    self.marching = True
                     self.x = move_x
                     self.y = move_y
                     ligne, col = int(self.y // BLOCKSIZE), int(self.x // BLOCKSIZE)
@@ -221,6 +240,7 @@ class Unit:
         returns if unit has died
         :return:
         """
+
         dommages_balle = 6
         dommages_bayonet = 10
         if type == "t":

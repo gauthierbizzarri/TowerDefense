@@ -7,10 +7,44 @@ from settings import *
 from units.unit import Unit
 
 imgs = []
-img = pygame.image.load(os.path.join("game_assets", "infantry/images/viellegarde.png"))
-img = pygame.transform.scale(img, (BLOCKSIZE, BLOCKSIZE))
-imgs.append(img)
 
+for x in range(1, 9):
+    add_str = str(x)
+    if x < 10:
+        add_str = add_str
+    imgs.append(pygame.transform.scale(
+        pygame.image.load(
+            os.path.join("game_assets/infantry/images/vielle_garde/waiting/" + add_str + ".png")).convert_alpha(),
+        (BLOCKSIZE*1.3, BLOCKSIZE*1.3)))
+
+shooting_imgs = []
+for x in range(1, 11):
+    add_str = str(x)
+    if x < 10:
+        add_str = add_str
+    shooting_imgs.append(pygame.transform.scale(
+        pygame.image.load(
+            os.path.join("game_assets/infantry/images/vielle_garde/shooting/" + add_str + ".png")).convert_alpha(),
+        (BLOCKSIZE*1.3, BLOCKSIZE*1.3)))
+
+for x in range(1,3):
+    add_str = str(x)
+    if x < 10:
+        add_str = add_str
+    shooting_imgs.append(pygame.transform.scale(
+        pygame.image.load(
+            os.path.join("game_assets/infantry/images/vielle_garde/reloading/" + add_str + ".png")).convert_alpha(),
+        (BLOCKSIZE*1.3, BLOCKSIZE*1.3)))
+
+marching_imgs = []
+for x in range(1, 5):
+    add_str = str(x)
+    if x < 10:
+        add_str = add_str
+    marching_imgs.append(pygame.transform.scale(
+        pygame.image.load(
+            os.path.join("game_assets/infantry/images/vielle_garde/marching/" + add_str + ".png")).convert_alpha(),
+        (BLOCKSIZE*1.3, BLOCKSIZE*1.3)))
 
 class OldGard(Unit):
     def __init__(self, line, row, ally):
@@ -22,11 +56,15 @@ class OldGard(Unit):
         self.proba_prendre_balle = 10
         self.proba_prendre_cac = 30
         self.proba_reussire_cac = 90
-        self.last = pygame.time.get_ticks()
         self.reload_time = 10000
         self.shooting = False
         self.reloading = False
-        self.images = imgs
+        self.marching = False
+        self.is_passing = True
+        self.images = imgs[:]
+        self.shooting_imgs = shooting_imgs[:]
+        self.marching_imgs = marching_imgs [:]
+        self.draw_shooting_imgs = False
         self.max_health = 150
         self.health = self.max_health
         self.ammo = 25
@@ -57,7 +95,6 @@ class OldGard(Unit):
 
         if ennemy_closest:
             # ATTACKING WITH BAYONET
-            print(ennemy_closest_distance)
             if self.cac and ennemy_closest_distance <= BLOCKSIZE:
                 self.cacing = True
                 now = pygame.time.get_ticks()
@@ -77,6 +114,7 @@ class OldGard(Unit):
                     rifle_sound.set_volume(0.3)
                     # pygame.mixer.Channel(1).play(rifle_sound)
                     ennemy_closest.hit(self.proba_tir_reussi, "t")
+                    self.is_passing = False
                     self.ammo -= 1
 
     def play_sound(self):
