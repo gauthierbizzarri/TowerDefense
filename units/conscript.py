@@ -69,12 +69,11 @@ class Conscript(Unit):
                     knife_sound.set_volume(0.3)
                     pygame.mixer.Channel(1).play(knife_sound)
                     ennemy_closest.hit(self.proba_reussire_cac, "c")
-
             if self.inRange and self.ammo > 0 and not self.cac:
                 now = pygame.time.get_ticks()
                 self.shooting = True
-                if now - self.last >= self.reload_time:
-                    self.last = now
+                if now - self.timer_reloading >= self.reload_time:
+                    self.timer_reloading = now
                     rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infantry/sounds/musket.mp3"))
                     rifle_sound.set_volume(0.3)
                     # pygame.mixer.Channel(1).play(rifle_sound)

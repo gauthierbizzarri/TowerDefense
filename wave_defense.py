@@ -75,10 +75,10 @@ s = sched.scheduler(time.time, time.sleep)
 
 
 def get_line_col(x, y):
-    if x% BLOCKSIZE > BLOCKSIZE/2:
-        x +=x%BLOCKSIZE
-    else :
-        x -=x%BLOCKSIZE
+    if x % BLOCKSIZE > BLOCKSIZE / 2:
+        x += x % BLOCKSIZE
+    else:
+        x -= x % BLOCKSIZE
 
     if y % BLOCKSIZE > BLOCKSIZE / 2:
         y += y % BLOCKSIZE
@@ -86,7 +86,6 @@ def get_line_col(x, y):
         y -= y % BLOCKSIZE
     line = round(y) // BLOCKSIZE
     row = round(x) // BLOCKSIZE
-    print(line,row)
     return int(line), int(row)
 
 
@@ -141,20 +140,18 @@ class Game:
     def run(self):
         music = pygame.mixer.Sound(os.path.join("game_assets", "misc/sounds/music.mp3"))
         music.set_volume(0.5)
-        pygame.mixer.Channel(0).play(music, loops=-1)
+        #pygame.mixer.Channel(0).play(music, loops=-1)
 
         generated = False
         run = True
         clock = pygame.time.Clock()
-        x=0
+        x = 0
         while run:
             clock.tick(FPS)
             self.time = pygame.time.get_ticks()
-            self.play_sounds()
-            self.draw()
             pos = pygame.mouse.get_pos()
 
-            if pygame.time.get_ticks() > 10000:
+            if pygame.time.get_ticks() > 5000:
                 if not generated:
                     self.gen_army()
                     generated = True
@@ -218,36 +215,31 @@ class Game:
                     unites.append(self.enemies[k])
                 if k < len(self.allies):
                     unites.append(self.allies[k])
-
-            self.update_mat(unites)
             for element in unites:
-                if element.health <= 0:
+                if element.is_dead:
                     if element.ally:
                         self.allies.remove(element)
                         break
                     else:
                         self.enemies.remove(element)
                         break
+                if element.health<=0:
+                    break
                 if element.ally:
                     element.move(self.MAT, self.enemies)
                 else:
                     element.move(self.MAT, self.allies)
+
                 if element.ally:
                     element.attack(self.enemies)
                 else:
                     element.attack(self.allies)
 
+            self.update_mat(unites)
+
+            self.draw()
         pygame.quit()
 
-    def play_sounds(self):
-        """
-        Play sounds of allies units
-        :return: None
-        """
-        if self.time >= 10000:
-            self.time = 0
-            for element in self.allies:
-                element.play_sound()
 
     def open_tree(self):
         """
@@ -300,7 +292,7 @@ class Game:
             for line in range(lines):
                 if self.MAT[line][row] != 0:
                     rect = pygame.Rect((row * BLOCKSIZE), (line * BLOCKSIZE), BLOCKSIZE, BLOCKSIZE)
-                    pygame.draw.rect(self.screen, [0, 0, 255, 0], rect, 1)
+                    #pygame.draw.rect(self.screen, [0, 0, 255, 0], rect, 1)
 
         # draw unit_menu
         if self.unit_menu:
@@ -335,28 +327,28 @@ class Game:
         """
         element = None
         if ally:
-            if col < 4:
+            if col < 15:
                 if self.MAT[line][col] == 0:
                     if name == "buy_old_gard":
-                        element = OldGard(line, col, ally)
+                        element = OldGard(line, col, ally, self.screen)
                         self.allies.append(element)
                     if name == "buy_conscript":
-                        element = Conscript(line, col, ally)
+                        element = Conscript(line, col, ally, self.screen)
                         self.enemies.append(element)
                     if name == "buy_canon":
-                        element = Canon(line, col, ally)
+                        element = Canon(line, col, ally, self.screen)
                         self.allies.append(element)
         if not ally:
             if line < LIGNES and col < COLONNES:
                 if self.MAT[line][col] == 0:
                     if name == "buy_conscript":
-                        element = Conscript(line, col, ally)
+                        element = Conscript(line, col, ally, self.screen)
                         self.enemies.append(element)
                     if name == "buy_old_gard":
-                        element = OldGard(line, col, ally)
+                        element = OldGard(line, col, ally, self.screen)
                         self.enemies.append(element)
                     if name == "anglais":
-                        element = Anglais(line, col, ally)
+                        element = Anglais(line, col, ally, self.screen)
                         self.enemies.append(element)
         if element:
             self.money -= element.price
@@ -483,14 +475,22 @@ class Game:
             pass
 
     def gen_army(self):
-        self.Add_unit("buy_old_gard", False, 0, 24)
-        """self.Add_unit("buy_conscript", False, 2, 24)
-        self.Add_unit("buy_conscript", False, 4, 24)
-        self.Add_unit("buy_conscript", False, 6, 24)
-        self.Add_unit("buy_conscript", False, 8, 24)
-        self.Add_unit("buy_conscript", False, 10, 24)
-        self.Add_unit("buy_conscript", False, 12, 24)
-        self.Add_unit("buy_conscript", False, 14, 24)"""
+        self.Add_unit("buy_old_gard", False,0 , 19)
+        """self.Add_unit("buy_old_gard", False, 1, 24)
+        self.Add_unit("buy_old_gard", False, 4, 24)
+        self.Add_unit("buy_old_gard", False, 6, 24)
+        self.Add_unit("buy_old_gard", False, 8, 24)
+        self.Add_unit("buy_old_gard", False, 10, 24)
+        self.Add_unit("buy_old_gard", False, 12, 24)
+        self.Add_unit("buy_old_gard", False, 14, 24)
+        self.Add_unit("buy_old_gard", True, 0, 0)
+        self.Add_unit("buy_old_gard", True, 2, 0)
+        self.Add_unit("buy_old_gard", True, 4, 0)
+        self.Add_unit("buy_old_gard", True, 6, 0)
+        self.Add_unit("buy_old_gard", True, 8, 0)
+        self.Add_unit("buy_old_gard", True, 10, 0)
+        self.Add_unit("buy_old_gard", True, 1, 6)"""
+        self.Add_unit("buy_old_gard", True, 0, 6)
 
 
 def find_unit_with_slug(units, slug):
