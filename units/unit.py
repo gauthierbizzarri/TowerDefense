@@ -7,6 +7,21 @@ import string
 import random
 
 
+def get_path(ally,ligne, colonne):
+    lignes = LIGNES
+    colonnes = COLONNES
+    all_path = []
+    for l in range(lignes):
+        new_path = []
+        for c in range(colonnes):
+            new_path.append((c * BLOCKSIZE, l * BLOCKSIZE))
+        all_path.append(new_path)
+    if ally :
+        return all_path[ligne][colonne:]
+    else :
+        return all_path[ligne][colonnes-colonne:]
+
+
 class Unit:
     channel = 1
 
@@ -20,7 +35,11 @@ class Unit:
         self.line = line
         self.row = row
         self.ally = ally
-        self.path = [(row * BLOCKSIZE, line * BLOCKSIZE)]
+        if self.ally:
+            self.path = get_path(self.ally,line, row)
+        else:
+            self.path = get_path(self.ally,line, row)[::-1]
+
         self.x = self.path[0][0]
         self.y = self.path[0][1]
         self.path_pos = 0
@@ -88,16 +107,36 @@ class Unit:
 
         # dying
         if self.health <= 0 and not self.is_dead:
-            self.draw_death(self,surface)
+            dying_timer_array = [1300, 1000, 500]
+            if self.animation_count >= len(dying_timer_array):
+                self.animation_count = 0
+            if not self.begin_death:
+                self.animation_count = 0
+                self.begin_death = True
 
+            if now - self.timer_animation >= dying_timer_array[self.animation_count]:
+                self.timer_animation = now
+                self.animation_count += 1
+
+            if self.animation_count >= len(self.dying_imgs):
+                self.is_dead = True
+                return
+
+            self.img = self.dying_imgs[self.animation_count]
+            if self.flipped:
+                self.img = pygame.transform.flip(self.img, True, False)
+                surface.blit(self.img, (self.x - BLOCKSIZE, self.y))
+
+            else:
+                surface.blit(self.img, (self.x, self.y))
+            return
 
         if self.shooting:
             shooting_timer_table = [200, 200, 200, 200, 100, 100, 100, 100, 100, 300, 300,
-                                    self.reload_time ]
+                                    self.reload_time]
             if self.animation_count >= len(shooting_timer_table):
                 self.animation_count = 0
 
-            print(shooting_timer_table[self.animation_count])
             if now - self.timer_animation >= shooting_timer_table[self.animation_count]:
                 self.timer_animation = now
                 self.animation_count += 1
@@ -109,7 +148,10 @@ class Unit:
             self.img = self.shooting_imgs[self.animation_count]
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(self.img, (self.x, self.y))
+                surface.blit(self.img, (self.x - BLOCKSIZE, self.y))
+
+            else:
+                surface.blit(self.img, (self.x, self.y))
             # Smoke effect
             smoke = pygame.image.load(os.path.join("game_assets", "infantry/images/smoke1.png"))
             smoke_img = pygame.transform.scale(smoke, (30, 40))
@@ -127,8 +169,6 @@ class Unit:
             self.draw_marching(surface)
         self.draw_passive(surface)
 
-
-
     def draw_radius(self, win):
         pygame.draw.circle(win, (255, 0, 0), (self.x, self.y), self.range, 1)
 
@@ -143,8 +183,6 @@ class Unit:
             win.blit(bayonet, (self.x - 50, self.y - 10))
         win.blit(text, (self.x + 3, self.y + 5))
 
-    def draw_reloading(self, win):
-        pass
 
     def draw_marching(self, surface):
 
@@ -162,10 +200,13 @@ class Unit:
 
         if self.flipped:
             self.img = pygame.transform.flip(self.img, True, False)
-        surface.blit(self.img, (self.x, self.y))
+            surface.blit(self.img, (self.x - BLOCKSIZE, self.y))
+
+        else:
+            surface.blit(self.img, (self.x, self.y))
         return
 
-    def draw_passive(self,surface):
+    def draw_passive(self, surface):
         now = pygame.time.get_ticks()
         passive_timer_array = [300, 300, 300, 300, 300, 300, 300, 300]
         if self.animation_count >= len(passive_timer_array):
@@ -183,28 +224,8 @@ class Unit:
             surface.blit(self.img, (self.x, self.y))
             return
 
-    def draw_death(self,surface):
-        now = pygame.time.get_ticks()
-        dying_timer_array = [1300, 1000, 500]
-        if self.animation_count >= len(dying_timer_array):
-            self.animation_count = 0
-        if not self.begin_death:
-            self.animation_count = 0
-            self.begin_death = True
-
-        if now - self.timer_animation >= dying_timer_array[self.animation_count]:
-            self.timer_animation = now
-            self.animation_count += 1
-
-        if self.animation_count >= len(self.dying_imgs):
-            self.is_dead = True
-            return
-
-        self.img = self.dying_imgs[self.animation_count]
-        if self.flipped:
-            self.img = pygame.transform.flip(self.img, True, False)
-        surface.blit(self.img, (self.x, self.y))
-        return
+    def draw_death(self, surface):
+       pass
 
     def draw_info(self, win):
         pass
@@ -251,7 +272,6 @@ class Unit:
                 return True
         return False
 
-
     def get_upgrade_cost(self):
         return self.upgrade_cost[self.level - 1]
 
@@ -261,8 +281,44 @@ class Unit:
         :return: None
         """
         self.marching = False
-        if ennemies:
+        if ennemies or not ennemies:
+            if not self.shooting and not self.cacing:
+                x1, y1 = self.path[self.path_pos]
+                if self.path_pos + 1 >= len(self.path):
+                    self.path = self.path[::-1]
+                    self.path_pos = 0
+                x2, y2 = self.path[self.path_pos + 1]
+                if check_free(mat, x2, y2):
+                    dirn = ((x2 - x1), (y2 - y1))
+                    length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
+                    dirn = (dirn[0] / length, dirn[1] / length)
+                    if dirn[0] < 0 and not (self.flipped):
+                        self.flipped = True
+                    move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
 
+                    self.x = move_x
+                    self.y = move_y
+                    self.marching = True
+                    ligne, col = int(self.y // BLOCKSIZE), int(self.x // BLOCKSIZE)
+                    self.ligne = ligne
+                    self.colonne = col
+
+                    # Go to next point
+                    if dirn[0] >= 0:  # moving right
+                        if dirn[1] >= 0:  # moving down
+                            if self.x >= x2 and self.y >= y2:
+                                self.path_pos += 1
+                        else:
+                            if self.x >= x2 and self.y <= y2:
+                                self.path_pos += 1
+                    else:  # moving left
+                        if dirn[1] >= 0:  # moving down
+                            if self.x <= x2 and self.y >= y2:
+                                self.path_pos += 1
+                        else:
+                            if self.x <= x2 and self.y >= y2:
+                                self.path_pos += 1
+            """
             self.add_closest_ennemy_to_path(ennemies)
             if not self.shooting and not self.cacing:
                 x1, y1 = self.path[self.path_pos]
@@ -295,7 +351,7 @@ class Unit:
                                 self.path_pos += 1
                         else:
                             if self.x <= x2 and self.y >= y2:
-                                self.path_pos += 1
+                                self.path_pos += 1"""
 
     def hit(self, proba_touche, type):
         """
@@ -304,7 +360,7 @@ class Unit:
         """
         dommages_balle = 6
         dommages_bayonet = 10
-        self.health -= 20
+        self.health -= 80
         surface = self.win
         if self.health <= 0:
             return True
@@ -345,7 +401,7 @@ def check_free(mat, x, y):
     ligne, col = int(y // BLOCKSIZE), int(x // BLOCKSIZE)
     if mat[ligne][col] == 0:
         return True
-    return False
+    return True
 
 
 def get_line_col(x, y):
@@ -361,3 +417,8 @@ def get_line_col(x, y):
     line = round(y) // BLOCKSIZE
     row = round(x) // BLOCKSIZE
     return int(line), int(row)
+
+def get_xy(line,row):
+    x = row * BLOCKSIZE
+    y = line * BLOCKSIZE
+    return x,y

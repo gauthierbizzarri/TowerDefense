@@ -119,20 +119,18 @@ class OldGard(Unit):
                     ennemy_closest.hit(self.proba_reussire_cac, "c")
                     return
             # Shooting
-            if self.reloading and pygame.time.get_ticks() - self.last_time_shoot > self.reload_time :  # 1000
+            if self.reloading and pygame.time.get_ticks() - self.last_time_shoot > self.reload_time +2000:  # 1000
                 self.reloading = False
 
             if self.inRange and self.ammo > 0 and not self.cac and not self.reloading:
                 now = pygame.time.get_ticks()
-                if now - self.timer_reloading >= 3000:
-                    self.timer_reloading = pygame.time.get_ticks()
-                    self.shooting = True
-                    self.is_passing = False
-                    self.ammo -= 1
-                    self.last_time_shoot = now
-                    self.reloading = True
-                    ennemy_closest.hit(self.proba_tir_reussi, "t")
-                    return
+                self.shooting = True
+                self.is_passing = False
+                self.ammo -= 1
+                self.last_time_shoot = now
+                self.reloading = True
+                ennemy_closest.hit(self.proba_tir_reussi, "t")
+                return
 
     def play_sound_shooting(self):
         rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infantry/sounds/musket.mp3"))

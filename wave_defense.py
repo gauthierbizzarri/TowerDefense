@@ -75,18 +75,11 @@ s = sched.scheduler(time.time, time.sleep)
 
 
 def get_line_col(x, y):
-    if x % BLOCKSIZE > BLOCKSIZE / 2:
-        x += x % BLOCKSIZE
-    else:
-        x -= x % BLOCKSIZE
-
-    if y % BLOCKSIZE > BLOCKSIZE / 2:
-        y += y % BLOCKSIZE
-    else:
-        y -= y % BLOCKSIZE
     line = round(y) // BLOCKSIZE
     row = round(x) // BLOCKSIZE
-    return int(line), int(row)
+    if row <= 24 and line <= 14:
+        return int(line), int(row)
+    return False
 
 
 class Game:
@@ -132,25 +125,24 @@ class Game:
         self.selected_unit_to_buy = None
         self.selected_unit = None
 
-        self.x = 0
-        self.y = 0
+        self.line = 0
+        self.row = 0
 
         self.tree = None
 
     def run(self):
         music = pygame.mixer.Sound(os.path.join("game_assets", "misc/sounds/music.mp3"))
         music.set_volume(0.5)
-        #pygame.mixer.Channel(0).play(music, loops=-1)
+        # pygame.mixer.Channel(0).play(music, loops=-1)
 
         generated = False
         run = True
         clock = pygame.time.Clock()
-        x = 0
         while run:
             clock.tick(FPS)
             self.time = pygame.time.get_ticks()
             pos = pygame.mouse.get_pos()
-
+            print(get_line_col(pos[0], pos[1]))
             if pygame.time.get_ticks() > 5000:
                 if not generated:
                     self.gen_army()
@@ -174,11 +166,11 @@ class Game:
                                               get_line_col(pos[0], pos[1])[1])
 
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                    # SELECT UNIT ON THE BOARD TO BUY
-                    self.x, self.y = get_line_col(pygame.mouse.get_pos()[0],
-                                                  pygame.mouse.get_pos()[1])[0], \
-                                     get_line_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])[1]
-                    self.selected_unit = self.detect_select_unit()
+                    if get_line_col(pos[0], pos[1]):
+                        self.line = get_line_col(pos[0], pos[1])[0]
+                        self.row = get_line_col(pos[0], pos[1])[1]
+                        # SELECT UNIT ON THE BOARD TO BUY
+                        self.selected_unit = self.detect_select_unit()
 
                     side_menu_button = self.menu.get_clicked(pos[0], pos[1])
                     if side_menu_button:
@@ -223,23 +215,21 @@ class Game:
                     else:
                         self.enemies.remove(element)
                         break
-                if element.health<=0:
+                if element.health <= 0:
                     break
                 if element.ally:
                     element.move(self.MAT, self.enemies)
                 else:
                     element.move(self.MAT, self.allies)
+                self.update_mat(unites)
 
                 if element.ally:
                     element.attack(self.enemies)
                 else:
                     element.attack(self.allies)
 
-            self.update_mat(unites)
-
             self.draw()
         pygame.quit()
-
 
     def open_tree(self):
         """
@@ -292,7 +282,7 @@ class Game:
             for line in range(lines):
                 if self.MAT[line][row] != 0:
                     rect = pygame.Rect((row * BLOCKSIZE), (line * BLOCKSIZE), BLOCKSIZE, BLOCKSIZE)
-                    #pygame.draw.rect(self.screen, [0, 0, 255, 0], rect, 1)
+                    # pygame.draw.rect(self.screen, [0, 0, 255, 0], rect, 1)
 
         # draw unit_menu
         if self.unit_menu:
@@ -381,9 +371,15 @@ class Game:
         blksize = BLOCKSIZE  # Set the size of the grid block
         for x in range(self.rows):
             for y in range(self.lines):
+
                 rect = pygame.Rect(x * blksize, y * blksize,
                                    blksize, blksize)
-                pygame.draw.rect(self.screen, (200, 200, 200), rect, 1)
+                if self.MAT[y][x] == 0:
+
+                    pygame.draw.rect(self.screen, (200, 200, 200), rect, 1)
+                else:
+                    pygame.draw.rect(self.screen, (200, 0, 0), rect, 1)
+
         if phase:
             for x in range(self.rows):
                 for y in range(self.lines):
@@ -396,24 +392,20 @@ class Game:
                         pygame.draw.rect(self.screen, (200, 200, 200), rect, 1)
 
     def draw_hover(self):
-        l, c = get_line_col(pygame.mouse.get_pos()[0],
-                            pygame.mouse.get_pos()[1])[0], \
-               get_line_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])[1]
-        if l < LIGNES and c < COLONNES:
+        if get_line_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]):
+            l, c = get_line_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])[0], \
+                   get_line_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])[1]
             slug = self.MAT[l][c]
             unit_hovered = find_unit_with_slug(self.enemies + self.allies, slug)
             if unit_hovered:
                 unit_hovered.draw_radius(self.screen)
                 unit_hovered.draw_health_bar(self.screen)
                 unit_hovered.draw_info(self.screen)
-            if self.MAT[l][c] == 0:
-                pygame.draw.circle(self.screen, (255, 0, 0), (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]),
-                                   BLOCKSIZE / 2, 1)
                 # self.rows licks.append(pos)
 
     def detect_select_unit(self):
         try:
-            line, row = self.x, self.y
+            line, row = self.line, self.row
             if line <= LIGNES and row <= COLONNES:
                 slug = self.MAT[line][row]
                 unit_selected = find_unit_with_slug(self.enemies + self.allies, slug)
@@ -475,8 +467,8 @@ class Game:
             pass
 
     def gen_army(self):
-        self.Add_unit("buy_old_gard", False,5 , 19)
-        self.Add_unit("buy_old_gard", False, 1, 24)
+        self.Add_unit("buy_old_gard", False, 5, 19)
+        """self.Add_unit("buy_old_gard", False, 1, 24)
         self.Add_unit("buy_old_gard", False, 4, 24)
         self.Add_unit("buy_old_gard", False, 6, 24)
         self.Add_unit("buy_old_gard", False, 8, 24)
@@ -489,7 +481,7 @@ class Game:
         self.Add_unit("buy_old_gard", True, 6, 0)
         self.Add_unit("buy_old_gard", True, 8, 0)
         self.Add_unit("buy_old_gard", True, 10, 0)
-        self.Add_unit("buy_old_gard", True, 1, 6)
+        self.Add_unit("buy_old_gard", True, 1, 6)"""
         self.Add_unit("buy_old_gard", True, 5, 0)
 
 
