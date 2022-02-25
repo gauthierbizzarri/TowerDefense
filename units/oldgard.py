@@ -2,7 +2,7 @@ import math
 import os
 
 import pygame
-
+import time
 from settings import *
 from units.unit import Unit
 
@@ -54,7 +54,6 @@ for x in range(2, 4):
         pygame.image.load(
             os.path.join("game_assets/infantry/images/vielle_garde/dying/" + add_str + ".png")).convert_alpha(),
         (BLOCKSIZE * 1.5, BLOCKSIZE * 1.5)))
-print(len(dying_imgs))
 
 
 class OldGard(Unit):
@@ -64,12 +63,12 @@ class OldGard(Unit):
         self.inRange = False
         self.range = 10 * BLOCKSIZE
         self.proba_tir_reussi = 70
+        self.last_time_shoot = None
         self.proba_prendre_balle = 10
         self.proba_prendre_cac = 30
         self.proba_reussire_cac = 90
-        self.reload_time = 1000
+        self.reload_time = 10000
         self.shooting = False
-        self.reloading = False
         self.marching = False
         self.is_passing = True
         self.images = imgs[:]
@@ -107,7 +106,7 @@ class OldGard(Unit):
             self.cac = True
         if not ennemy_closest :
             self.shooting = False
-        if ennemy_closest and not self.reloading:
+        if ennemy_closest :
             # ATTACKING WITH BAYONET
             if self.cac and ennemy_closest_distance <= BLOCKSIZE:
                 self.cacing = True
@@ -120,23 +119,25 @@ class OldGard(Unit):
                     ennemy_closest.hit(self.proba_reussire_cac, "c")
                     return
             # Shooting
+            if self.reloading and pygame.time.get_ticks() - self.last_time_shoot > self.reload_time :  # 1000
+                self.reloading = False
+
             if self.inRange and self.ammo > 0 and not self.cac and not self.reloading:
-                self.shooting = True
-                ennemy_closest.hit(self.proba_tir_reussi, "t")
-                self.is_passing = False
-                self.ammo -= 1
-                # Reloading
-                self.reloading = True
                 now = pygame.time.get_ticks()
-                if now - self.timer_reloading >= self.reload_time:
-                    self.reloading = False
-                    self.timer_reloading = now
+                if now - self.timer_reloading >= 3000:
+                    self.timer_reloading = pygame.time.get_ticks()
+                    self.shooting = True
+                    self.is_passing = False
+                    self.ammo -= 1
+                    self.last_time_shoot = now
+                    self.reloading = True
+                    ennemy_closest.hit(self.proba_tir_reussi, "t")
                     return
 
     def play_sound_shooting(self):
         rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infantry/sounds/musket.mp3"))
-        rifle_sound.set_volume(1)
-        pygame.mixer.Channel(self.channel).play(rifle_sound)
+        rifle_sound.set_volume(0.1)
+        #pygame.mixer.Channel(self.channel).play(rifle_sound)
 
     def change_range(self, r):
         self.range = r

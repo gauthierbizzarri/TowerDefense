@@ -21,7 +21,7 @@ pygame.init()
 
 side_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.jpeg"))
                                   .convert_alpha(), (130, 500))
-tree_image = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.jpeg"))
+tree_image = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/scroll.png"))
                                     .convert_alpha(), (7 * BLOCKSIZE, 13 * BLOCKSIZE))
 unit_menu_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.jpeg"))
                                        .convert_alpha(), (180, 250))
@@ -475,8 +475,8 @@ class Game:
             pass
 
     def gen_army(self):
-        self.Add_unit("buy_old_gard", False,0 , 19)
-        """self.Add_unit("buy_old_gard", False, 1, 24)
+        self.Add_unit("buy_old_gard", False,5 , 19)
+        self.Add_unit("buy_old_gard", False, 1, 24)
         self.Add_unit("buy_old_gard", False, 4, 24)
         self.Add_unit("buy_old_gard", False, 6, 24)
         self.Add_unit("buy_old_gard", False, 8, 24)
@@ -489,8 +489,8 @@ class Game:
         self.Add_unit("buy_old_gard", True, 6, 0)
         self.Add_unit("buy_old_gard", True, 8, 0)
         self.Add_unit("buy_old_gard", True, 10, 0)
-        self.Add_unit("buy_old_gard", True, 1, 6)"""
-        self.Add_unit("buy_old_gard", True, 0, 6)
+        self.Add_unit("buy_old_gard", True, 1, 6)
+        self.Add_unit("buy_old_gard", True, 5, 0)
 
 
 def find_unit_with_slug(units, slug):

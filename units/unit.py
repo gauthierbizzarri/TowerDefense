@@ -26,6 +26,7 @@ class Unit:
         self.path_pos = 0
         self.move_count = 0
         self.dis = 0
+        self.lastReloadTime = 0
         self.proba_prendre_balle = 0
         self.proba_prendre_cac = 0
         self.level = None
@@ -87,81 +88,46 @@ class Unit:
 
         # dying
         if self.health <= 0 and not self.is_dead:
-            dying_timer_array = [1600, 1000, 500]
-            if not self.begin_death:
-                    self.animation_count = 0
-                    self.begin_death = True
+            self.draw_death(self,surface)
 
-            if now - self.timer_animation >= dying_timer_array[self.animation_count]:
-                self.timer_animation = now
-                self.animation_count += 1
 
-            if self.animation_count >= len(self.dying_imgs):
-                self.is_dead = True
-                return
-
-            self.img = self.dying_imgs[self.animation_count]
-            if self.flipped:
-                self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(self.img, (self.x, self.y))
-            return
-
-        # shooting
         if self.shooting:
-            shooting_timer_table = [200, 200, 200, 200, 100, 100, 100, 100, 100, 300, 300, self.reload_time]
+            shooting_timer_table = [200, 200, 200, 200, 100, 100, 100, 100, 100, 300, 300,
+                                    self.reload_time ]
+            if self.animation_count >= len(shooting_timer_table):
+                self.animation_count = 0
+
+            print(shooting_timer_table[self.animation_count])
             if now - self.timer_animation >= shooting_timer_table[self.animation_count]:
                 self.timer_animation = now
                 self.animation_count += 1
-
-            if self.animation_count >= len(self.shooting_imgs) + len(self.reloading_imgs):
+            if self.animation_count >= len(self.shooting_imgs):
                 self.animation_count = 0
-            self.shooting_imgs += self.reloading_imgs
             if self.animation_count == 8:
                 self.play_sound_shooting()
+
             self.img = self.shooting_imgs[self.animation_count]
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
             surface.blit(self.img, (self.x, self.y))
             # Smoke effect
-            img = pygame.image.load(os.path.join("game_assets", "infantry/images/smoke1.png"))
-            img = pygame.transform.scale(img, (30, 40))
-
+            smoke = pygame.image.load(os.path.join("game_assets", "infantry/images/smoke1.png"))
+            smoke_img = pygame.transform.scale(smoke, (30, 40))
+            if not self.flipped:
+                pass
+                # smoke_img = pygame.transform.flip(smoke, True, False)
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(img, (self.x, self.y))
+            surface.blit(smoke_img, (self.x, self.y))
             return
 
         # marching
 
         if self.marching and not self.shooting:
-            marching_timer_array = [300, 300, 300, 300]
-            if now - self.timer_animation >= marching_timer_array[self.animation_count]:
-                self.timer_animation = now
-                self.animation_count += 1
+            self.draw_marching(surface)
+        self.draw_passive(surface)
 
-            if self.animation_count >= len(self.marching_imgs):
-                self.animation_count = 0
-            self.img = self.marching_imgs[self.animation_count]
 
-            if self.flipped:
-                self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(self.img, (self.x, self.y))
-            return
-
-        # Passive
-        passive_timer_array = [300, 300, 300, 300, 300, 300, 300, 300]
-        if now - self.timer_animation >= passive_timer_array[self.animation_count]:
-            self.timer_animation = now
-            self.animation_count += 1
-        if not self.shooting and not self.marching:
-            if self.animation_count >= len(self.images):
-                self.animation_count = 0
-            self.img = self.images[self.animation_count]
-
-            if self.flipped:
-                self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(self.img, (self.x, self.y))
-            return
 
     def draw_radius(self, win):
         pygame.draw.circle(win, (255, 0, 0), (self.x, self.y), self.range, 1)
@@ -177,27 +143,68 @@ class Unit:
             win.blit(bayonet, (self.x - 50, self.y - 10))
         win.blit(text, (self.x + 3, self.y + 5))
 
-    def draw_canon_ball(self, win):
-        """img = pygame.image.load(os.path.join("game_assets", "infantry/imgs/ball.png"))
-        canon = pygame.transform.scale(img, (30, 30))
-        m = 1
-        g = 9.81
-        v0 = 250 / 3.6
-        vx0 = v0 * math.cos(70)
-        vy0 = v0 * math.sin(70)
-        dt = 0.5
-        t = 0
-        x = 0
-        y = 0
-        vx = vx0
-        vy = vy0
-        while y >= 0:
-            x = x + dt * vx
-            y = y + dt * vy
-            vx = vx + dt * vx
-            vy = vy + dt * vy  - dt * g
-            t = t + dt
-            win.blit(canon, (self.x +x, self.y + y))"""
+    def draw_reloading(self, win):
+        pass
+
+    def draw_marching(self, surface):
+
+        now = pygame.time.get_ticks()
+        marching_timer_array = [300, 300, 300, 300]
+        if self.animation_count >= len(marching_timer_array):
+            self.animation_count = 0
+        if now - self.timer_animation >= marching_timer_array[self.animation_count]:
+            self.timer_animation = now
+            self.animation_count += 1
+
+        if self.animation_count >= len(self.marching_imgs):
+            self.animation_count = 0
+        self.img = self.marching_imgs[self.animation_count]
+
+        if self.flipped:
+            self.img = pygame.transform.flip(self.img, True, False)
+        surface.blit(self.img, (self.x, self.y))
+        return
+
+    def draw_passive(self,surface):
+        now = pygame.time.get_ticks()
+        passive_timer_array = [300, 300, 300, 300, 300, 300, 300, 300]
+        if self.animation_count >= len(passive_timer_array):
+            self.animation_count = 0
+        if now - self.timer_animation >= passive_timer_array[self.animation_count]:
+            self.timer_animation = now
+            self.animation_count += 1
+        if not self.shooting and not self.marching:
+            if self.animation_count >= len(self.images):
+                self.animation_count = 0
+            self.img = self.images[self.animation_count]
+
+            if self.flipped:
+                self.img = pygame.transform.flip(self.img, True, False)
+            surface.blit(self.img, (self.x, self.y))
+            return
+
+    def draw_death(self,surface):
+        now = pygame.time.get_ticks()
+        dying_timer_array = [1300, 1000, 500]
+        if self.animation_count >= len(dying_timer_array):
+            self.animation_count = 0
+        if not self.begin_death:
+            self.animation_count = 0
+            self.begin_death = True
+
+        if now - self.timer_animation >= dying_timer_array[self.animation_count]:
+            self.timer_animation = now
+            self.animation_count += 1
+
+        if self.animation_count >= len(self.dying_imgs):
+            self.is_dead = True
+            return
+
+        self.img = self.dying_imgs[self.animation_count]
+        if self.flipped:
+            self.img = pygame.transform.flip(self.img, True, False)
+        surface.blit(self.img, (self.x, self.y))
+        return
 
     def draw_info(self, win):
         pass
@@ -244,13 +251,6 @@ class Unit:
                 return True
         return False
 
-    def sell(self):
-        return self.sell_price
-
-    def upgrade(self):
-        if self.level < len(self.images):
-            self.level += 1
-            self.damage += 1
 
     def get_upgrade_cost(self):
         return self.upgrade_cost[self.level - 1]
@@ -302,25 +302,13 @@ class Unit:
         returns if unit has died
         :return:
         """
-
         dommages_balle = 6
         dommages_bayonet = 10
-        self.health -= 150
+        self.health -= 20
         surface = self.win
         if self.health <= 0:
             return True
         return False
-        # TEST CAC TOUCHE :
-        """if type =="t":
-            if randrange(101)<proba_touche:
-                if randrange(101)<self.proba_prendre_balle:
-                        self.health -= dommages_balle
-        if type == "c":
-            if randrange(101) < proba_touche:
-                if randrange(101) < self.proba_prendre_cac:
-                    self.health -= dommages_bayonet
-        if self.health <= 0: return True
-        return False"""
 
     def add_closest_ennemy_to_path(self, ennemies):
         ennemy_closest_distance = False
