@@ -181,8 +181,14 @@ class VerticalMenu(Menu):
         :return: None
         """
         self.items += 1
+
         btn_x = self.x - 40
         btn_y = self.y - 100 + (self.items - 1) * 120
+
+        if name == "close":
+            btn_x = self.x + 250
+            btn_y = self.y -100
+
         if name == "bayonet":
             btn_x = self.x - 80
             btn_y = self.y - 100
@@ -198,38 +204,38 @@ class VerticalMenu(Menu):
             # Tree
         B=65
         if name == "Conscript":
-            btn_x = self.x-1.25*B
+            btn_x = self.x-1*B
             btn_y = self.y-1.25*B
         if name == "LineInfantry":
-            btn_x = self.x
+            btn_x = self.x-3*B
             btn_y = self.y
         if name == "Grenadier":
-            btn_x = self.x
-            btn_y = self.y
+            btn_x = self.x-3*B
+            btn_y = self.y +2*B
         if name == "YoungGuard":
-            btn_x = self.x
-            btn_y = self.y
+            btn_x = self.x-3*B
+            btn_y = self.y +4*B
         if name == "MedGuard":
-            btn_x = self.x
-            btn_y = self.y
+            btn_x = self.x-3*B
+            btn_y = self.y + 6*B
         if name == "OldGuard":
-            btn_x = self.x
-            btn_y = self.y
+            btn_x = self.x -3*B
+            btn_y = self.y + 8*B
         if name == "Chasseur":
             btn_x = self.x
             btn_y = self.y
         if name == "Flanqueur":
             btn_x = self.x
-            btn_y = self.y
+            btn_y = self.y+2*B
         if name == "GuardChasseur":
             btn_x = self.x
-            btn_y = self.y
+            btn_y = self.y+4*B
         if name == "Voltigeur":
             btn_x = self.x
-            btn_y = self.y
+            btn_y = self.y+6*B
         if name == "GuardVoltigeur":
             btn_x = self.x
-            btn_y = self.y
+            btn_y = self.y +8*B
         if cost:
             self.buttons.append(VerticalButton(btn_x, btn_y, img, name, cost))
         else:

@@ -125,10 +125,10 @@ class Unit:
             self.img = self.dying_imgs[self.animation_count]
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
-                surface.blit(self.img, (self.x - BLOCKSIZE, self.y))
+                surface.blit(self.img, (self.x - BLOCKSIZE, self.y-0.5*BLOCKSIZE))
 
             else:
-                surface.blit(self.img, (self.x, self.y))
+                surface.blit(self.img, (self.x, self.y-0.5*BLOCKSIZE))
             return
 
         if self.shooting:
@@ -148,19 +148,14 @@ class Unit:
             self.img = self.shooting_imgs[self.animation_count]
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
-                surface.blit(self.img, (self.x - BLOCKSIZE, self.y))
+                surface.blit(self.img, (self.x - BLOCKSIZE, self.y-0.5*BLOCKSIZE))
 
             else:
-                surface.blit(self.img, (self.x, self.y))
+                surface.blit(self.img, (self.x, self.y-0.5*BLOCKSIZE))
             # Smoke effect
             smoke = pygame.image.load(os.path.join("game_assets", "infantry/images/smoke1.png"))
             smoke_img = pygame.transform.scale(smoke, (30, 40))
-            if not self.flipped:
-                pass
-                # smoke_img = pygame.transform.flip(smoke, True, False)
-            if self.flipped:
-                self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(smoke_img, (self.x, self.y))
+            surface.blit(smoke_img, (self.x, self.y-0.5*BLOCKSIZE))
             return
 
         # marching
@@ -200,10 +195,10 @@ class Unit:
 
         if self.flipped:
             self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(self.img, (self.x - BLOCKSIZE, self.y))
+            surface.blit(self.img, (self.x - BLOCKSIZE, self.y-0.5*BLOCKSIZE))
 
         else:
-            surface.blit(self.img, (self.x, self.y))
+            surface.blit(self.img, (self.x, self.y-0.5*BLOCKSIZE))
         return
 
     def draw_passive(self, surface):
@@ -221,7 +216,7 @@ class Unit:
 
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(self.img, (self.x, self.y))
+            surface.blit(self.img, (self.x, self.y-0.5*BLOCKSIZE))
             return
 
     def draw_death(self, surface):

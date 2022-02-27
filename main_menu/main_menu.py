@@ -16,8 +16,10 @@ class MainMenu:
 
     def run(self):
         run = True
-
-        while run:
+        game = Game(self.win)
+        game.run()
+        del game
+        """while run:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
@@ -31,9 +33,9 @@ class MainMenu:
                             game = Game(self.win)
                             game.run()
                             del game
-            self.draw()
+            self.draw()"""
 
-        pygame.quit()
+        #pygame.quit()
 
     def draw(self):
         self.win.blit(self.bg, (0,0))

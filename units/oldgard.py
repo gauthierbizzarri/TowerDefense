@@ -67,7 +67,7 @@ class OldGard(Unit):
         self.proba_prendre_balle = 10
         self.proba_prendre_cac = 30
         self.proba_reussire_cac = 90
-        self.reload_time = 10000
+        self.reload_time = 15000
         self.shooting = False
         self.marching = False
         self.is_passing = True
