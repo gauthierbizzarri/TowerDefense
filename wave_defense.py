@@ -2,7 +2,7 @@ import dataclasses
 import os
 import sched
 import time
-
+import numpy as np
 import pygame
 import sys
 from menu.menu import VerticalMenu
@@ -26,7 +26,7 @@ pygame.init()
 def get_line_col(x, y):
     line = round(y) // BLOCKSIZE
     row = round(x) // BLOCKSIZE
-    if row <= 24 and line <= 14:
+    if row <= 60 and line <= 14:
         return int(line), int(row)
     return False
 
@@ -39,7 +39,7 @@ class Game:
         # get the default size
         self.width, self.height = win.get_size()
         # Background
-        self.bg = pygame.image.load(os.path.join("game_assets", "misc/images/bg1.jpg"))
+        self.bg = pygame.image.load(os.path.join("game_assets", "misc/images/bg.jpeg"))
         self.bg = pygame.transform.scale(self.bg, (4000, self.height))
         # Dimensions of the matrix :
         self.lines = LIGNES
@@ -149,8 +149,11 @@ class Game:
                 tree_menu_button = None
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     if get_line_col(pos[0], pos[1]):
-                        self.line = get_line_col(pos[0], pos[1])[0]
-                        self.row = get_line_col(pos[0], pos[1])[1]
+                        l, c = \
+                        get_line_col(pygame.mouse.get_pos()[0] + self.rect.x, pygame.mouse.get_pos()[1] - BLOCKSIZE)[0], \
+                        get_line_col(pygame.mouse.get_pos()[0] + self.rect.x, pygame.mouse.get_pos()[1] - BLOCKSIZE)[1]
+                        self.line = l
+                        self.row = c
                         # SELECT UNIT ON THE BOARD TO BUY
                         self.selected_unit = self.detect_select_unit()
                     if self.menu: side_menu_button = self.menu.get_clicked(pos[0], pos[1])
@@ -291,9 +294,6 @@ class Game:
         self.screen.blit(self.bg, (-self.rect.x, 0))
         pygame.draw.rect(self.screen, (200, 0, 200), self.rect, 0)
 
-        text = self.lines_font.render(str(self.rect.x), 1, (255, 255, 255))
-
-        self.screen.blit(text, (0, 0))
         self.drawGrid(phase)
         self.draw_hover()
         if self.selected_unit:
@@ -304,18 +304,10 @@ class Game:
             self.unit_menu.add_btn(special, "special")
             # DO ACTION WHEN SELECTED UNIT
         for en in self.enemies:
-            en.draw(self.screen)
+            en.draw(self.screen,self.rect.x)
         for element in self.allies:
-            element.draw(self.screen)
-            if element.name == "canon":
-                element.draw_canon_ball(self.screen)
-        lines, rows = len(self.MAT), len(self.MAT[0])
+            element.draw(self.screen,self.rect.x)
 
-        for row in range(rows):
-            for line in range(lines):
-                if self.MAT[line][row] != 0:
-                    rect = pygame.Rect((row * BLOCKSIZE), (line * BLOCKSIZE), BLOCKSIZE, BLOCKSIZE)
-                    # pygame.draw.rect(self.screen, [0, 0, 255, 0], rect, 1)
 
         # draw unit_menu
         if self.unit_menu:
@@ -335,8 +327,11 @@ class Game:
         self.screen.blit(text, (start_x - text.get_width() - 10, 75))
         self.screen.blit(money, (start_x, 65))
         # draw clock
-        timer = self.lines_font.render(str(round(pygame.time.get_ticks() / 1000, 1)), 1, (255, 0, 0))
-        clock = pygame.transform.scale(clock_img, (50, 50))
+        text = self.lines_font.render(str(self.selected_unit), 1, (255, 255, 255))
+
+        self.screen.blit(text, (200 , 200))
+        timer = self.lower_font.render(str(round(pygame.time.get_ticks() / 1000, 1)), 1, (255, 0, 0))
+        clock = pygame.transform.scale(clock_img, (30, 30))
         self.screen.blit(timer, (self.width - text.get_width(), 20))
         self.screen.blit(clock, (self.width - text.get_width() - 50, 20))
 
@@ -352,7 +347,7 @@ class Game:
         """
         element = None
         if ally:
-            if col < 15:
+            if col < 60:
                 if self.MAT[line][col] == 0:
                     if name == "buy_old_gard":
                         element = OldGard(line, col, ally, self.screen)
@@ -392,6 +387,7 @@ class Game:
         unit_line = element.x
         unit_row = element.y
         line, row = get_line_col(unit_line, unit_row)
+
         self.MAT[line][row] = element.slug
 
     def update_mat(self, units):
@@ -411,9 +407,7 @@ class Game:
                     rect = pygame.Rect(x * blksize - self.rect.x, y * blksize+blksize,
                                    blksize, blksize)
                     if self.MAT[y][x] == 0:
-                        text = self.lower_font.render(str(x)+","+str(y), 1, (255, 255, 255))
                         pygame.draw.rect(self.screen, (200, 200, 200), rect, 1)
-                        self.screen.blit(text, (x*blksize-self.rect.x, y*blksize+blksize))
                     else:
                         pygame.draw.rect(self.screen, (200, 0, 0), rect, 1)
 
@@ -429,13 +423,19 @@ class Game:
                         pygame.draw.rect(self.screen, (200, 200, 200), rect, 1)
 
     def draw_hover(self):
-        if get_line_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]):
-            l, c = get_line_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])[0], \
-                   get_line_col(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])[1]
+        pos = pygame.mouse.get_pos()
+
+        if get_line_col(pos[0],pos[1]):
+            l, c = get_line_col(pygame.mouse.get_pos()[0]+self.rect.x, pygame.mouse.get_pos()[1]-BLOCKSIZE)[0], \
+                   get_line_col(pygame.mouse.get_pos()[0]+self.rect.x, pygame.mouse.get_pos()[1]-BLOCKSIZE)[1]
+            slug = None
+
             slug = self.MAT[l][c]
+            text = self.lines_font.render(str(" unit : {},line {} , row {} ".format(slug,self.line,self.row)), 1, (255, 255, 255))
+            self.screen.blit(text, (0, 75))
             unit_hovered = find_unit_with_slug(self.enemies + self.allies, slug)
             if unit_hovered:
-                unit_hovered.draw_radius(self.screen)
+                unit_hovered.draw_radius(self.screen,self.rect.x)
                 unit_hovered.draw_health_bar(self.screen)
                 unit_hovered.draw_info(self.screen)
                 # self.rows licks.append(pos)
@@ -504,22 +504,23 @@ class Game:
             pass
 
     def gen_army(self):
-        """self.Add_unit("buy_old_gard", False, 5, 19)
-        self.Add_unit("buy_old_gard", False, 1, 24)
-        self.Add_unit("buy_old_gard", False, 4, 24)
-        self.Add_unit("buy_old_gard", False, 6, 24)
-        self.Add_unit("buy_old_gard", False, 8, 24)
-        self.Add_unit("buy_old_gard", False, 10, 24)
-        self.Add_unit("buy_old_gard", False, 12, 24)
-        self.Add_unit("buy_old_gard", False, 14, 24)
-        self.Add_unit("buy_old_gard", True, 0, 0)
-        self.Add_unit("buy_old_gard", True, 2, 0)
-        self.Add_unit("buy_old_gard", True, 4, 0)
-        self.Add_unit("buy_old_gard", True, 6, 0)
-        self.Add_unit("buy_old_gard", True, 8, 0)
-        self.Add_unit("buy_old_gard", True, 10, 0)
-        self.Add_unit("buy_old_gard", True, 1, 6)
-        self.Add_unit("buy_old_gard", True, 5, 0)"""
+        self.Add_unit("buy_old_gard", False, 1, 50)
+        self.Add_unit("buy_old_gard", True, 1, 1)
+        """self.Add_unit("buy_old_gard", False, 2, 50)
+        self.Add_unit("buy_old_gard", False, 3, 50)
+        self.Add_unit("buy_old_gard", False, 4, 50)
+        self.Add_unit("buy_old_gard", False, 5, 50)
+        self.Add_unit("buy_old_gard", False, 6, 50)
+        self.Add_unit("buy_old_gard", False, 7, 50)
+        self.Add_unit("buy_old_gard", False, 8, 50)
+        
+        self.Add_unit("buy_old_gard", True, 2, 1)
+        self.Add_unit("buy_old_gard", True, 4, 1)
+        self.Add_unit("buy_old_gard", True, 5, 1)
+        self.Add_unit("buy_old_gard", True, 6,1)
+        self.Add_unit("buy_old_gard", True, 7, 1)
+        self.Add_unit("buy_old_gard", True, 8, 1)
+        self.Add_unit("buy_old_gard", True, 9, 1)"""
 
 
 def find_unit_with_slug(units, slug):

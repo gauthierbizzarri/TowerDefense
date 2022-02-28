@@ -14,7 +14,8 @@ def get_path(ally,ligne, colonne):
     for l in range(lignes):
         new_path = []
         for c in range(colonnes):
-            new_path.append((c * BLOCKSIZE, l * BLOCKSIZE))
+            if c*BLOCKSIZE>=500 and c*BLOCKSIZE<=3500:
+                new_path.append((c * BLOCKSIZE, l * BLOCKSIZE))
         all_path.append(new_path)
     if ally :
         return all_path[ligne][colonne:]
@@ -94,7 +95,7 @@ class Unit:
 
         self.hover = False
 
-    def draw(self, surface):
+    def draw(self, surface,pos):
         """
         draw the unit with the given images
         :param surface: surface
@@ -125,10 +126,10 @@ class Unit:
             self.img = self.dying_imgs[self.animation_count]
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
-                surface.blit(self.img, (self.x - BLOCKSIZE, self.y-0.5*BLOCKSIZE))
+                surface.blit(self.img, (self.x - BLOCKSIZE-pos, self.y+0.5*BLOCKSIZE))
 
             else:
-                surface.blit(self.img, (self.x, self.y-0.5*BLOCKSIZE))
+                surface.blit(self.img, (self.x-pos, self.y+0.5*BLOCKSIZE))
             return
 
         if self.shooting:
@@ -148,24 +149,24 @@ class Unit:
             self.img = self.shooting_imgs[self.animation_count]
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
-                surface.blit(self.img, (self.x - BLOCKSIZE, self.y-0.5*BLOCKSIZE))
+                surface.blit(self.img, (self.x - BLOCKSIZE-pos, self.y+0.5*BLOCKSIZE))
 
             else:
-                surface.blit(self.img, (self.x, self.y-0.5*BLOCKSIZE))
+                surface.blit(self.img, (self.x-pos, self.y+0.5*BLOCKSIZE))
             # Smoke effect
             smoke = pygame.image.load(os.path.join("game_assets", "infantry/images/smoke1.png"))
             smoke_img = pygame.transform.scale(smoke, (30, 40))
-            surface.blit(smoke_img, (self.x, self.y-0.5*BLOCKSIZE))
+            surface.blit(smoke_img, (self.x-pos, self.y+0.5*BLOCKSIZE))
             return
 
         # marching
 
         if self.marching and not self.shooting:
-            self.draw_marching(surface)
-        self.draw_passive(surface)
+            self.draw_marching(surface,pos)
+        self.draw_passive(surface,pos)
 
-    def draw_radius(self, win):
-        pygame.draw.circle(win, (255, 0, 0), (self.x, self.y), self.range, 1)
+    def draw_radius(self, win,pos):
+        pygame.draw.circle(win, (255, 0, 0), (self.x-pos, self.y), self.range, 1)
 
     def draw_selected_unit(self, win):
         text = self.font.render(str(self.ammo), 1, (255, 255, 255))
@@ -179,7 +180,7 @@ class Unit:
         win.blit(text, (self.x + 3, self.y + 5))
 
 
-    def draw_marching(self, surface):
+    def draw_marching(self, surface,pos):
 
         now = pygame.time.get_ticks()
         marching_timer_array = [300, 300, 300, 300]
@@ -195,13 +196,13 @@ class Unit:
 
         if self.flipped:
             self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(self.img, (self.x - BLOCKSIZE, self.y-0.5*BLOCKSIZE))
+            surface.blit(self.img, (self.x - BLOCKSIZE-pos, self.y+0.5*BLOCKSIZE))
 
         else:
-            surface.blit(self.img, (self.x, self.y-0.5*BLOCKSIZE))
+            surface.blit(self.img, (self.x-pos, self.y+0.5*BLOCKSIZE))
         return
 
-    def draw_passive(self, surface):
+    def draw_passive(self, surface,pos):
         now = pygame.time.get_ticks()
         passive_timer_array = [300, 300, 300, 300, 300, 300, 300, 300]
         if self.animation_count >= len(passive_timer_array):
@@ -216,7 +217,7 @@ class Unit:
 
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(self.img, (self.x, self.y-0.5*BLOCKSIZE))
+            surface.blit(self.img, (self.x-pos, self.y))
             return
 
     def draw_death(self, surface):
