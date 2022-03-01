@@ -11,13 +11,13 @@ from units import unit
 from units.anglais import Anglais
 from units.canon import Canon
 from units.conscript import Conscript
+from units.voltigeur import Voltigeur
 from units.line_infantry import LineInfantry
 from units.grenadier import Grenadier
 from units.young_guard import YoungGuard
 from units.med_guard import MedGuard
 from units.oldgard import OldGard
 from global_images import *
-from camera import Camera
 
 pygame.font.init()
 pygame.init()
@@ -29,6 +29,18 @@ def get_line_col(x, y):
     if row <= 60 and line <= 14:
         return int(line), int(row)
     return False
+
+
+def generate_mat(rows, lines):
+    #
+    mat = [[0 for _ in range(rows)] for _ in range(lines)]
+    for r in range(rows):
+        for l in range(lines):
+            if r < 6 or rows - r < 6:
+                mat[l][r] = -1
+            if r == 20 and l == 10:
+                mat[l][r] = 3
+    return mat
 
 
 class Game:
@@ -44,7 +56,7 @@ class Game:
         # Dimensions of the matrix :
         self.lines = LIGNES
         self.rows = COLONNES
-        self.MAT = [[0 for _ in range(self.rows)] for _ in range(self.lines)]
+        self.MAT = generate_mat(self.rows, self.lines)
         # Global values of the player :
 
         # List of enemies and units on the battle field :
@@ -97,10 +109,8 @@ class Game:
         clock = pygame.time.Clock()
         rect = pygame.Rect(0, 600, 100, 100)
         self.rect = rect
-        self.rect.x = 2000
+        self.rect.x = 1500
 
-        self.recte = pygame.Rect(0, 500,
-                            100, 100)
         while run:
             clock.tick(FPS)
             self.time = pygame.time.get_ticks()
@@ -121,15 +131,12 @@ class Game:
                 keys = pygame.key.get_pressed()
                 if keys[pygame.K_RIGHT]:
 
-                    if self.rect.x + 100 <= 1920:
+                    if self.rect.x + 100 <= 2000:
                         self.rect.x += 100
-                        self.recte.x = self.rect.x
                 if keys[pygame.K_LEFT]:
 
-                    if self.rect.x - 100 >= 1920-4000:
+                    if self.rect.x - 100 >= 0:
                         self.rect.x -= 100
-
-                        self.recte.x = self.rect.x
 
                 # Deployment phase
                 if pygame.time.get_ticks():
@@ -150,8 +157,10 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     if get_line_col(pos[0], pos[1]):
                         l, c = \
-                        get_line_col(pygame.mouse.get_pos()[0] + self.rect.x, pygame.mouse.get_pos()[1] - BLOCKSIZE)[0], \
-                        get_line_col(pygame.mouse.get_pos()[0] + self.rect.x, pygame.mouse.get_pos()[1] - BLOCKSIZE)[1]
+                            get_line_col(pygame.mouse.get_pos()[0] + self.rect.x,
+                                         pygame.mouse.get_pos()[1] - BLOCKSIZE)[0], \
+                            get_line_col(pygame.mouse.get_pos()[0] + self.rect.x,
+                                         pygame.mouse.get_pos()[1] - BLOCKSIZE)[1]
                         self.line = l
                         self.row = c
                         # SELECT UNIT ON THE BOARD TO BUY
@@ -207,6 +216,7 @@ class Game:
                     unites.append(self.enemies[k])
                 if k < len(self.allies):
                     unites.append(self.allies[k])
+
             for element in unites:
                 if element.is_dead:
                     if element.ally:
@@ -218,16 +228,20 @@ class Game:
                 if element.health <= 0:
                     break
                 if element.ally:
-                    element.move(self.MAT, self.enemies)
+                    if self.MAT[element.line][element.row+1] == 0 :
+                        element.move(self.MAT, self.enemies)
                 else:
                     element.move(self.MAT, self.allies)
-                self.update_mat(unites)
 
-                if element.ally:
-                    element.attack(self.enemies)
-                else:
-                    element.attack(self.allies)
+                self.update_single_mat(element)
 
+                if self.MAT[element.line][element.row - 8] == 0:
+                    if element.ally:
+                        element.attack(self.enemies)
+                    else:
+                        element.attack(self.allies)
+
+            self.update_mat(unites)
             self.draw()
         pygame.quit()
 
@@ -289,25 +303,24 @@ class Game:
         phase = False
         if self.selected_unit_to_buy:
             phase = True
-        """if self.rect.x - self.scroll.x != self.screen.get_width():
-            self.scroll.x += self.rect.x - (self.scroll.x + self.screen.get_width() / 2)"""
         self.screen.blit(self.bg, (-self.rect.x, 0))
-        pygame.draw.rect(self.screen, (200, 0, 200), self.rect, 0)
 
         self.drawGrid(phase)
         self.draw_hover()
         if self.selected_unit:
             self.unit_menu = VerticalMenu(self.width - side_img.get_width() + 70, 800, unit_menu_img)
-            self.selected_unit.draw_selected_unit(self.screen)
+            self.selected_unit.draw_selected_unit(self.screen, self.rect.x)
             self.unit_menu.add_btn(bayonet, "bayonet")
             self.unit_menu.add_btn(scope, "scope")
             self.unit_menu.add_btn(special, "special")
             # DO ACTION WHEN SELECTED UNIT
         for en in self.enemies:
-            en.draw(self.screen,self.rect.x)
-        for element in self.allies:
-            element.draw(self.screen,self.rect.x)
+            en.draw(self.screen, self.rect.x)
+            # en.draw_health_bar(self.screen, self.rect.x)
 
+        for element in self.allies:
+            element.draw(self.screen, self.rect.x)
+            # element.draw_health_bar(self.screen,self.rect.x)
 
         # draw unit_menu
         if self.unit_menu:
@@ -326,10 +339,9 @@ class Game:
 
         self.screen.blit(text, (start_x - text.get_width() - 10, 75))
         self.screen.blit(money, (start_x, 65))
-        # draw clock
-        text = self.lines_font.render(str(self.selected_unit), 1, (255, 255, 255))
 
-        self.screen.blit(text, (200 , 200))
+        # draw clock
+
         timer = self.lower_font.render(str(round(pygame.time.get_ticks() / 1000, 1)), 1, (255, 0, 0))
         clock = pygame.transform.scale(clock_img, (30, 30))
         self.screen.blit(timer, (self.width - text.get_width(), 20))
@@ -352,24 +364,20 @@ class Game:
                     if name == "buy_old_gard":
                         element = OldGard(line, col, ally, self.screen)
                         self.allies.append(element)
-                    if name == "buy_conscript":
-                        element = Conscript(line, col, ally, self.screen)
-                        self.enemies.append(element)
+                    if name == "buy_voltigeur":
+                        element = Voltigeur(line, col, ally, self.screen)
+                        self.allies.append(element)
                     if name == "buy_canon":
                         element = Canon(line, col, ally, self.screen)
                         self.allies.append(element)
         if not ally:
-            if line < LIGNES and col < COLONNES:
-                if self.MAT[line][col] == 0:
-                    if name == "buy_conscript":
-                        element = Conscript(line, col, ally, self.screen)
-                        self.enemies.append(element)
-                    if name == "buy_old_gard":
-                        element = OldGard(line, col, ally, self.screen)
-                        self.enemies.append(element)
-                    if name == "anglais":
-                        element = Anglais(line, col, ally, self.screen)
-                        self.enemies.append(element)
+            if self.MAT[line][col] == 0:
+                if name == "buy_old_gard":
+                    element = OldGard(line, col, ally, self.screen)
+                    self.enemies.append(element)
+                if name == "buy_voltigeur":
+                    element = Voltigeur(line, col, ally, self.screen)
+                    self.enemies.append(element)
         if element:
             self.money -= element.price
             self.update_single_mat(element)
@@ -391,11 +399,12 @@ class Game:
         self.MAT[line][row] = element.slug
 
     def update_mat(self, units):
-        self.MAT = [[0 for _ in range(self.rows)] for _ in range(self.lines)]
+        self.MAT = generate_mat(self.rows, self.lines)
         for element in units:
             unit_line = element.x
             unit_col = element.y
             line, col = get_line_col(unit_line, unit_col)
+            print("UNIT {} at {} {}".format(element.name, line, col))
             self.MAT[line][col] = element.slug
 
     def drawGrid(self, phase):
@@ -403,13 +412,24 @@ class Game:
         # GET grid size :
         for x in range(self.rows):
             for y in range(self.lines):
-                if x*blksize>=500 and x*blksize<=3500:
-                    rect = pygame.Rect(x * blksize - self.rect.x, y * blksize+blksize,
+                rect = pygame.Rect(x * blksize - self.rect.x, y * blksize + blksize,
                                    blksize, blksize)
-                    if self.MAT[y][x] == 0:
-                        pygame.draw.rect(self.screen, (200, 200, 200), rect, 1)
-                    else:
-                        pygame.draw.rect(self.screen, (200, 0, 0), rect, 1)
+                if self.MAT[y][x] == 0:
+                    pygame.draw.rect(self.screen, (200, 200, 200), rect, 1)
+                if self.MAT[y][x] == -1:
+                    pygame.draw.rect(self.screen, (0, 0, 0), rect, 1)
+                # ARBRE
+                if self.MAT[y][x] == 3:
+                    pygame.draw.rect(self.screen, (0, 200, 0), rect, 0)
+                    #self.screen.blit(tree_land, (rect.x, rect.y))
+                else :
+                    slug = self.MAT[y][x]
+                    unit = find_unit_with_slug(self.enemies+self.allies,slug)
+                    if unit :
+                        if unit.ally :
+                            pygame.draw.rect(self.screen, (0, 200, 0), rect, 0)
+                        if not unit.ally :
+                            pygame.draw.rect(self.screen, (200, 0, 0), rect, 0)
 
         if phase:
             for x in range(self.rows):
@@ -425,19 +445,18 @@ class Game:
     def draw_hover(self):
         pos = pygame.mouse.get_pos()
 
-        if get_line_col(pos[0],pos[1]):
-            l, c = get_line_col(pygame.mouse.get_pos()[0]+self.rect.x, pygame.mouse.get_pos()[1]-BLOCKSIZE)[0], \
-                   get_line_col(pygame.mouse.get_pos()[0]+self.rect.x, pygame.mouse.get_pos()[1]-BLOCKSIZE)[1]
+        if get_line_col(pos[0], pos[1]):
+            l, c = get_line_col(pygame.mouse.get_pos()[0] + self.rect.x, pygame.mouse.get_pos()[1] - BLOCKSIZE)[0], \
+                   get_line_col(pygame.mouse.get_pos()[0] + self.rect.x, pygame.mouse.get_pos()[1] - BLOCKSIZE)[1]
             slug = None
+            if c <= 60 and l <= 25:
+                slug = self.MAT[l][c]
 
-            slug = self.MAT[l][c]
-            text = self.lines_font.render(str(" unit : {},line {} , row {} ".format(slug,self.line,self.row)), 1, (255, 255, 255))
-            self.screen.blit(text, (0, 75))
-            unit_hovered = find_unit_with_slug(self.enemies + self.allies, slug)
+                unit_hovered = find_unit_with_slug(self.enemies + self.allies, slug)
             if unit_hovered:
-                unit_hovered.draw_radius(self.screen,self.rect.x)
-                unit_hovered.draw_health_bar(self.screen)
-                unit_hovered.draw_info(self.screen)
+                unit_hovered.draw_radius(self.screen, self.rect.x)
+                # unit_hovered.draw_health_bar(self.screen,self.rect.x)
+                unit_hovered.draw_info(self.screen, self.rect.x)
                 # self.rows licks.append(pos)
 
     def detect_select_unit(self):
@@ -504,19 +523,34 @@ class Game:
             pass
 
     def gen_army(self):
-        self.Add_unit("buy_old_gard", False, 1, 50)
-        self.Add_unit("buy_old_gard", True, 1, 1)
-        """self.Add_unit("buy_old_gard", False, 2, 50)
-        self.Add_unit("buy_old_gard", False, 3, 50)
-        self.Add_unit("buy_old_gard", False, 4, 50)
-        self.Add_unit("buy_old_gard", False, 5, 50)
-        self.Add_unit("buy_old_gard", False, 6, 50)
-        self.Add_unit("buy_old_gard", False, 7, 50)
-        self.Add_unit("buy_old_gard", False, 8, 50)
-        
-        self.Add_unit("buy_old_gard", True, 2, 1)
+
+        self.Add_unit("buy_old_gard", True, 8, 7)
+        self.Add_unit("buy_old_gard", True, 8, 6)
+        self.Add_unit("buy_old_gard", False, 8, 40)
+        """
+        self.Add_unit("buy_old_gard", False, 4, 40)
+        self.Add_unit("buy_old_gard", False, 5, 40)
+        self.Add_unit("buy_old_gard", False, 6, 40)
+        self.Add_unit("buy_old_gard", False, 7, 40)
+        self.Add_unit("buy_old_gard", False, 8, 40)
+        self.Add_unit("buy_old_gard", False, 9, 40)"""
+
+        #self.Add_unit("buy_old_gard", True, 1, 6)
+        #self.Add_unit("buy_voltigeur", True, 1, 7)
+        """self.Add_unit("buy_old_gard", True, 3, 1)
         self.Add_unit("buy_old_gard", True, 4, 1)
         self.Add_unit("buy_old_gard", True, 5, 1)
+        self.Add_unit("buy_old_gard", True, 1, 2)
+        self.Add_unit("buy_old_gard", True, 2, 2)
+        self.Add_unit("buy_old_gard", True, 3, 2)
+        self.Add_unit("buy_old_gard", True, 4, 2)
+        self.Add_unit("buy_old_gard", True, 5, 2)
+        self.Add_unit("buy_voltigeur", True, 1, 3)
+        self.Add_unit("buy_voltigeur", True, 2, 3)
+        self.Add_unit("buy_voltigeur", True, 3, 3)
+        self.Add_unit("buy_voltigeur", True, 4, 3)
+        self.Add_unit("buy_voltigeur", True, 5, 3)
+
         self.Add_unit("buy_old_gard", True, 6,1)
         self.Add_unit("buy_old_gard", True, 7, 1)
         self.Add_unit("buy_old_gard", True, 8, 1)

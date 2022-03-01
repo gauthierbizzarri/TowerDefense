@@ -14,7 +14,7 @@ for x in range(1, 9):
         add_str = add_str
     imgs.append(pygame.transform.scale(
         pygame.image.load(
-            os.path.join("game_assets/infantry/images/vielle_garde/waiting/" + add_str + ".png")).convert_alpha(),
+            os.path.join("game_assets/infantry/images/voltigeur/waiting/" + add_str + ".png")).convert_alpha(),
         (BLOCKSIZE * 1.5, BLOCKSIZE * 1.5)))
 
 shooting_imgs = []
@@ -24,7 +24,7 @@ for x in range(1, 11):
         add_str = add_str
     shooting_imgs.append(pygame.transform.scale(
         pygame.image.load(
-            os.path.join("game_assets/infantry/images/vielle_garde/shooting/" + add_str + ".png")).convert_alpha(),
+            os.path.join("game_assets/infantry/images/voltigeur/shooting/" + add_str + ".png")).convert_alpha(),
         (BLOCKSIZE * 1.5, BLOCKSIZE * 1.5)))
 
 for x in range(1, 3):
@@ -33,7 +33,7 @@ for x in range(1, 3):
         add_str = add_str
     shooting_imgs.append(pygame.transform.scale(
         pygame.image.load(
-            os.path.join("game_assets/infantry/images/vielle_garde/reloading/" + add_str + ".png")).convert_alpha(),
+            os.path.join("game_assets/infantry/images/voltigeur/reloading/" + add_str + ".png")).convert_alpha(),
         (BLOCKSIZE * 1.5, BLOCKSIZE * 1.5)))
 
 marching_imgs = []
@@ -43,7 +43,7 @@ for x in range(1, 5):
         add_str = add_str
     marching_imgs.append(pygame.transform.scale(
         pygame.image.load(
-            os.path.join("game_assets/infantry/images/vielle_garde/marching/" + add_str + ".png")).convert_alpha(),
+            os.path.join("game_assets/infantry/images/voltigeur/marching/" + add_str + ".png")).convert_alpha(),
         (BLOCKSIZE * 1.5, BLOCKSIZE * 1.5)))
 dying_imgs = []
 for x in range(2, 4):
@@ -52,7 +52,7 @@ for x in range(2, 4):
         add_str = add_str
     dying_imgs.append(pygame.transform.scale(
         pygame.image.load(
-            os.path.join("game_assets/infantry/images/vielle_garde/dying/" + add_str + ".png")).convert_alpha(),
+            os.path.join("game_assets/infantry/images/voltigeur/dying/" + add_str + ".png")).convert_alpha(),
         (BLOCKSIZE * 1.5, BLOCKSIZE * 1.5)))
 
 marching_bayonet_imgs = []
@@ -63,7 +63,7 @@ for x in range(5, 9):
     marching_bayonet_imgs.append(pygame.transform.scale(
         pygame.image.load(
             os.path.join(
-                "game_assets/infantry/images/vielle_garde/bayonet_marching/" + add_str + ".png")).convert_alpha(),
+                "game_assets/infantry/images/voltigeur/bayonet_marching/" + add_str + ".png")).convert_alpha(),
         (BLOCKSIZE * 1.5, BLOCKSIZE * 1.5)))
 attacking_bayonet_imgs = []
 for x in range(1, 7):
@@ -73,11 +73,11 @@ for x in range(1, 7):
     attacking_bayonet_imgs.append(pygame.transform.scale(
         pygame.image.load(
             os.path.join(
-                "game_assets/infantry/images/vielle_garde/bayonet_attacking/" + add_str + ".png")).convert_alpha(),
+                "game_assets/infantry/images/voltigeur/bayonet_attacking/" + add_str + ".png")).convert_alpha(),
         (BLOCKSIZE * 1.5, BLOCKSIZE * 1.5)))
 
 
-class OldGard(Unit):
+class Voltigeur(Unit):
     def __init__(self, line, row, ally, win):
         super().__init__(line, row, ally, win)
         self.level = 5
@@ -103,7 +103,7 @@ class OldGard(Unit):
         self.max_health = 150
         self.health = self.max_health
         self.ammo = 25
-        self.name = "VielleGarde"
+        self.name = "Voltigeur"
         self.cac = False
         self.cac_reload = 2500
         self.cac_dommages = 20
@@ -126,12 +126,11 @@ class OldGard(Unit):
             ennemy_closest = ennemies[index_closest]
             if ennemy_closest_distance <= self.range:
                 self.inRange = True
-            if ennemy_closest_distance >BLOCKSIZE :
-                self.cacing = False
         if self.ammo <= 0:
             self.cac = True
         if not ennemy_closest:
             self.shooting = False
+            self.cacing = False
         if ennemy_closest:
             # ATTACKING WITH BAYONET
             if self.reloading_cac and pygame.time.get_ticks() - self.last_time_cac > self.cac_reload + 2000:  # 1000

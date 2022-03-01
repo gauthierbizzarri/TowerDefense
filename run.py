@@ -7,7 +7,7 @@ def launch():
     Start game
     """
     pygame.init()
-    win = DISPLAYSURF = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    win =  pygame.display.set_mode((1920, 1080))
     from main_menu.main_menu import MainMenu
 
     mainMenu = MainMenu(win)

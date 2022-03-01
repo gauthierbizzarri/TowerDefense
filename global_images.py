@@ -48,7 +48,8 @@ special = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "
                                  (50, 50))
 tree = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/star.png")).convert_alpha(),
                                  (50, 50))
-
+tree_land = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/tree_land.png")).convert_alpha(),
+                                 (130, 65*4))
 scope = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "infantry/images/scope.png"))
                                .convert_alpha(), (50, 50))
 rifle = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "infantry/images/rifle.png"))
