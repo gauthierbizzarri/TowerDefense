@@ -82,7 +82,7 @@ class Voltigeur(Unit):
         super().__init__(line, row, ally, win)
         self.level = 5
         self.inRange = False
-        self.range = 10 * BLOCKSIZE
+        self.range = 15 * BLOCKSIZE
         self.proba_tir_reussi = 70
         self.last_time_shoot = None
         self.reloading_cac = False

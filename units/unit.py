@@ -7,22 +7,22 @@ import string
 import random
 
 
-def get_path(ally,ligne, colonne):
+def get_path(ally, ligne, colonne):
     lignes = LIGNES
     colonnes = COLONNES
     all_path = []
     for l in range(lignes):
         new_path = []
         for c in range(colonnes):
-            if not ally and c*BLOCKSIZE>500 or ally  and c*BLOCKSIZE<3500:
+            if ally and c * BLOCKSIZE > 500:
+                new_path.append((c * BLOCKSIZE, l * BLOCKSIZE))
+            if not ally and c * BLOCKSIZE < 3500:
                 new_path.append((c * BLOCKSIZE, l * BLOCKSIZE))
         all_path.append(new_path)
-    if ally :
-        print( all_path[ligne][colonne:])
+    if ally:
         return all_path[ligne][colonne:]
-    else :
-
-        return all_path[ligne][colonnes-colonne:]
+    else:
+        return all_path[ligne][colonnes - colonne:]
 
 
 class Unit:
@@ -39,12 +39,9 @@ class Unit:
         self.line = line
         self.row = row
         self.ally = ally
-        if self.ally:
-            self.path = get_path(self.ally,line, row)
-        else:
-            self.path = get_path(self.ally,line, row)[::-1]
-        self.x = self.path[0][0]
-        self.y = self.path[0][1]
+        self.x = row * BLOCKSIZE
+        self.y = line * BLOCKSIZE
+        self.path = []
         self.path_pos = 0
         self.move_count = 0
         self.dis = 0
@@ -59,6 +56,7 @@ class Unit:
         self.shooting_img = False
         self.marching = False
         self.reloading = False
+        self.pattern = False
         self.begin_death = False
         self.accel = 1
         self.marching_imgs = []
@@ -77,6 +75,7 @@ class Unit:
         self.reload_time = 10000
         self.is_dead = False
         self.flipped = False
+        self.halt_fire = False
         self.timer_animation = pygame.time.get_ticks()
         self.timer_reloading = pygame.time.get_ticks()
         self.timer_death_animation = pygame.time.get_ticks()
@@ -98,19 +97,17 @@ class Unit:
 
         self.hover = False
 
-    def draw(self, surface,pos):
+    def draw(self, surface, pos):
         """
         draw the unit with the given images
         :param surface: surface
         :return: None
         """
-        text = self.lines_font.render(str("{},{}".format(self.line,self.row)), 1, (255, 255, 255))
-        surface.blit(text, (self.x-pos, self.y-30))
 
         if self.cac:
             bayonet = pygame.image.load(os.path.join("game_assets", "infantry/images/bayonet.png"))
             bayonet = pygame.transform.scale(bayonet, (40, 40))
-            surface.blit(bayonet, (self.x - 50-pos, self.y+30))
+            surface.blit(bayonet, (self.x - 50 - pos, self.y + 30))
 
         if self.is_dead:
             return
@@ -136,10 +133,10 @@ class Unit:
             self.img = self.dying_imgs[self.animation_count]
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
-                surface.blit(self.img, (self.x - BLOCKSIZE-pos, self.y+0.5*BLOCKSIZE))
+                surface.blit(self.img, (self.x - BLOCKSIZE - pos, self.y + 0.5 * BLOCKSIZE))
 
             else:
-                surface.blit(self.img, (self.x-pos, self.y+0.5*BLOCKSIZE))
+                surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
             return
 
         if self.cacing:
@@ -156,10 +153,10 @@ class Unit:
             self.img = self.attacking_bayonet_imgs[self.animation_count]
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
-                surface.blit(self.img, (self.x - BLOCKSIZE-pos, self.y+0.5*BLOCKSIZE))
+                surface.blit(self.img, (self.x - BLOCKSIZE - pos, self.y + 0.5 * BLOCKSIZE))
 
             else:
-                surface.blit(self.img, (self.x-pos, self.y+0.5*BLOCKSIZE))
+                surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
             return
 
         if self.shooting:
@@ -179,39 +176,36 @@ class Unit:
             self.img = self.shooting_imgs[self.animation_count]
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
-                surface.blit(self.img, (self.x - BLOCKSIZE-pos, self.y+0.5*BLOCKSIZE))
+                surface.blit(self.img, (self.x - BLOCKSIZE - pos, self.y + 0.5 * BLOCKSIZE))
 
             else:
-                surface.blit(self.img, (self.x-pos, self.y+0.5*BLOCKSIZE))
+                surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
             # Smoke effect
             smoke = pygame.image.load(os.path.join("game_assets", "infantry/images/smoke1.png"))
             smoke_img = pygame.transform.scale(smoke, (30, 40))
-            surface.blit(smoke_img, (self.x-pos, self.y+0.5*BLOCKSIZE))
+            surface.blit(smoke_img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
             return
-
 
         # marching
 
-        if self.marching and not self.shooting :
+        if self.marching and not self.shooting:
             if not self.cac:
-                self.draw_marching(surface,pos)
-            else :
-                self.draw_bayonet_marching(surface,pos)
-        self.draw_passive(surface,pos)
+                self.draw_marching(surface, pos)
+            else:
+                self.draw_bayonet_marching(surface, pos)
+        self.draw_passive(surface, pos)
 
-    def draw_radius(self, win,pos):
-        pygame.draw.circle(win, (255, 0, 0), (self.x-pos, self.y), self.range, 1)
+    def draw_radius(self, win, pos):
+        pygame.draw.circle(win, (255, 0, 0), (self.x - pos, self.y), self.range, 1)
 
-    def draw_selected_unit(self, win,pos):
+    def draw_selected_unit(self, win, pos):
         text = self.font.render(str(self.ammo), 1, (255, 255, 255))
         # canon_ball = pygame.image.load(os.path.join("game_assets", "ball.png"))
         # img = pygame.transform.scale(canon_ball, (20, 20))
 
+        win.blit(text, (self.x + 3 - pos, self.y + 5))
 
-        win.blit(text, (self.x + 3-pos, self.y + 5))
-
-
-    def draw_marching(self, surface,pos):
+    def draw_marching(self, surface, pos):
 
         now = pygame.time.get_ticks()
         marching_timer_array = [300, 300, 300, 300]
@@ -227,16 +221,16 @@ class Unit:
 
         if self.flipped:
             self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(self.img, (self.x - BLOCKSIZE-pos, self.y+0.5*BLOCKSIZE))
+            surface.blit(self.img, (self.x - pos - BLOCKSIZE, self.y + 0.5 * BLOCKSIZE))
 
         else:
-            surface.blit(self.img, (self.x-pos, self.y+0.5*BLOCKSIZE))
+            surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
         return
 
-    def draw_bayonet_marching(self,surface,pos):
+    def draw_bayonet_marching(self, surface, pos):
 
         now = pygame.time.get_ticks()
-        marching_bayonet_timer_array = [300, 300, 300, 300,300, 300, 300, 300]
+        marching_bayonet_timer_array = [300, 300, 300, 300, 300, 300, 300, 300]
         if self.animation_count >= len(marching_bayonet_timer_array):
             self.animation_count = 0
         if now - self.timer_animation >= marching_bayonet_timer_array[self.animation_count]:
@@ -255,7 +249,7 @@ class Unit:
             surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
         return
 
-    def draw_passive(self, surface,pos):
+    def draw_passive(self, surface, pos):
         now = pygame.time.get_ticks()
         passive_timer_array = [300, 300, 300, 300, 300, 300, 300, 300]
         if self.animation_count >= len(passive_timer_array):
@@ -270,16 +264,16 @@ class Unit:
 
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(self.img, (self.x - BLOCKSIZE - pos, self.y + 0.5 * BLOCKSIZE))
+            surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
             return
 
     def draw_death(self, surface):
-       pass
-
-    def draw_info(self, win,pos):
         pass
 
-    def draw_health_bar(self, win,pos):
+    def draw_info(self, win, pos):
+        pass
+
+    def draw_health_bar(self, win, pos):
         """
         draw health bar above enemy
         :param win: surface
@@ -288,8 +282,8 @@ class Unit:
         length = 50
         move_by = length / self.max_health
         health_bar = round(move_by * self.health)
-        pygame.draw.rect(win, (255, 0, 0), (self.x -pos, self.y - 10, length, 10), 0)
-        pygame.draw.rect(win, (0, 255, 0), (self.x -pos, self.y - 10, health_bar, 10), 0)
+        pygame.draw.rect(win, (255, 0, 0), (self.x - pos, self.y - 10, length, 10), 0)
+        pygame.draw.rect(win, (0, 255, 0), (self.x - pos, self.y - 10, health_bar, 10), 0)
 
     def collide(self, x, y):
         """
@@ -325,49 +319,77 @@ class Unit:
         Move enemy
         :return: None
         """
-        self.marching = False
-        if self.cac :
+        if not self.path:
+
+            if self.ally:
+                self.path = get_path(self.ally, self.line, self.row)
+            else:
+                self.path = get_path(self.ally, self.line, self.row)[::-1]
+        if not self.shooting and not self.cacing:
+            x1, y1 = self.path[self.path_pos]
+            if self.path_pos + 1 >= len(self.path):
+                self.path = []
+                self.path_pos = 0
+                return
+            x2, y2 = self.path[self.path_pos + 1]
+            if True:
+                dirn = ((x2 - x1), (y2 - y1))
+                length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2) * 1 / self.accel
+                if length == 0:
+                    length = 0.0001
+                dirn = (dirn[0] / length, dirn[1] / length)
+                if dirn[0] < 0 and not (self.flipped):
+                    self.flipped = True
+                if dirn[0] > 0 and self.flipped:
+                    self.flipped = False
+                move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
+
+                self.x = move_x
+                self.y = move_y
+                self.marching = True
+                ligne, col = int(self.y // BLOCKSIZE), int(self.x // BLOCKSIZE)
+                self.line = ligne
+                self.row = col
+
+                # Go to next point
+                if dirn[0] >= 0:  # moving right
+                    if dirn[1] >= 0:  # moving down
+                        if self.x >= x2 and self.y >= y2:
+                            self.path_pos += 1
+                    else:
+                        if self.x >= x2 and self.y <= y2:
+                            self.path_pos += 1
+                else:  # moving left
+                    if dirn[1] >= 0:  # moving down
+                        if self.x <= x2 and self.y >= y2:
+                            self.path_pos += 1
+                    else:
+                        if self.x <= x2 and self.y >= y2:
+                            self.path_pos += 1
+        """if self.cac :
             self.accel =4
         if ennemies or not ennemies:
-            if not self.shooting and not self.cacing:
-                x1, y1 = self.path[self.path_pos]
-                if self.path_pos + 1 >= len(self.path):
-                    self.path = self.path[::-1]
-                    self.path_pos = 0
-                    reversed = True
-                    print(self.path)
-                x2, y2 = self.path[self.path_pos + 1]
-                if check_free(mat, x2, y2) or self.path_pos == 0:
-                    "I MOVE"
-                    dirn = ((x2 - x1), (y2 - y1))
-                    length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2) * 1/self.accel
-                    dirn = (dirn[0] / length, dirn[1] / length)
-                    if dirn[0] < 0 and not (self.flipped):
-                        self.flipped = True
-                    move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
+            if not self.shooting and not self.cacing:"""
 
-                    self.x = move_x
-                    self.y = move_y
-                    self.marching = True
-                    ligne, col = int(self.y // BLOCKSIZE), int(self.x // BLOCKSIZE)
-                    self.line = ligne
-                    self.row = col
-
-                    # Go to next point
-                    if dirn[0] >= 0:  # moving right
-                        if dirn[1] >= 0:  # moving down
-                            if self.x >= x2 and self.y >= y2:
-                                self.path_pos += 1
-                        else:
-                            if self.x >= x2 and self.y <= y2:
-                                self.path_pos += 1
-                    else:  # moving left
-                        if dirn[1] >= 0:  # moving down
-                            if self.x <= x2 and self.y >= y2:
-                                self.path_pos += 1
-                        else:
-                            if self.x <= x2 and self.y >= y2:
-                                self.path_pos += 1
+    def add_point(self, line, col):
+        xf = col * BLOCKSIZE
+        yf = line * BLOCKSIZE
+        posx = self.x
+        posy = self.y
+        self.path = []
+        path = [(posx, posy)]
+        distance = math.sqrt((posx - xf) ** 2 + (posy - yf) ** 2)
+        for i in range(int(distance / BLOCKSIZE)):
+            if xf - posx < 0:
+                posx = posx - BLOCKSIZE
+            if xf - posx > 0:
+                posx = posx + BLOCKSIZE
+            if yf - posy < 0:
+                posy = posy - BLOCKSIZE
+            if yf - posy > 0:
+                posy = posy + BLOCKSIZE
+            path.append((posx, posy))
+        self.path = path
 
     def hit(self, proba_touche, type):
         """

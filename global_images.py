@@ -2,7 +2,7 @@ from settings import *
 import pygame
 import os
 side_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.jpeg"))
-                                  .convert_alpha(), (130, 500))
+                                  .convert_alpha(), (1600, 65))
 tree_image = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/scroll.png"))
                                     .convert_alpha(), (10 * BLOCKSIZE, 13 * BLOCKSIZE))
 unit_menu_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.jpeg"))
@@ -20,15 +20,15 @@ YoungGuard_img = pygame.transform.scale(
 MedGuard_img = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/med_guard.png")).convert_alpha(), (75, 75))
 OldGuard_img = pygame.transform.scale(
-    pygame.image.load(os.path.join("game_assets", "infantry/images/viellegarde.png")).convert_alpha(), (75, 75))
+    pygame.image.load(os.path.join("game_assets", "infantry/images/vielle_garde/shooting/6.png")).convert_alpha(), (75, 75))
 Chasseur_img = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png")).convert_alpha(), (75, 75))
 Flanqueur_img = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png")).convert_alpha(), (75, 75))
 GuardChasseur_img = pygame.transform.scale(
-    pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png")).convert_alpha(), (75, 75))
+    pygame.image.load(os.path.join("game_assets", "infantry/images/voltigeur/shooting/6.png")).convert_alpha(), (65, 65))
 Volitgeur_img = pygame.transform.scale(
-    pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png")).convert_alpha(), (75, 75))
+    pygame.image.load(os.path.join("game_assets", "infantry/images/voltigeur/shooting/6.png")).convert_alpha(), (65, 65))
 GuardVoltigeur_img = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png")).convert_alpha(), (75, 75))
 
@@ -48,8 +48,8 @@ special = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "
                                  (50, 50))
 tree = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/star.png")).convert_alpha(),
                                  (50, 50))
-tree_land = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/tree_land.png")).convert_alpha(),
-                                 (130, 65*4))
+tree_land = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/rock.png")).convert_alpha(),
+                                 (65, 65))
 scope = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "infantry/images/scope.png"))
                                .convert_alpha(), (50, 50))
 rifle = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "infantry/images/rifle.png"))
@@ -60,4 +60,7 @@ clock_img = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "misc/images/clock.png")).convert_alpha(), (50, 50))
 
 close = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/cross.png"))
+                               .convert_alpha(), (50, 50))
+
+cross = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/cross_move.png"))
                                .convert_alpha(), (50, 50))

@@ -58,17 +58,19 @@ class Game:
         self.rows = COLONNES
         self.MAT = generate_mat(self.rows, self.lines)
         # Global values of the player :
-
+        self.pos = None
         # List of enemies and units on the battle field :
         self.enemies = []
         self.allies = []
         # Main menu buttons :
 
-        self.menu = VerticalMenu(self.width - side_img.get_width() + 70, 250, side_img)
-        self.menu.add_btn(buy_unit, "buy_unit")
+        self.menu = VerticalMenu(side_img.get_width()/2, self.height, side_img)
+        """ 
+       self.menu.add_btn(buy_unit, "buy_unit")
         self.menu.add_btn(tree, "Tree")
+        """
         self.moving_object = None
-        self.money = 150
+        self.money = 15000000
         self.round = bool
         self.pause = True
         self.unit_menu = None
@@ -86,7 +88,7 @@ class Game:
 
         self.selected_unit_to_buy = None
         self.selected_unit = None
-        self.upgrades = []
+        self.upgrades = ["OldGuard" , "Voltigeur"]
         self.line = 0
         self.row = 0
 
@@ -94,6 +96,7 @@ class Game:
         self.unit_to_buy_menu = None
 
     def run(self):
+
         @dataclasses.dataclass
         class Position:
             x = 0
@@ -112,9 +115,11 @@ class Game:
         self.rect.x = 1500
 
         while run:
+            self.create_unit_to_buy_menu()
             clock.tick(FPS)
             self.time = pygame.time.get_ticks()
             pos = pygame.mouse.get_pos()
+            self.pos = pos
             if pygame.time.get_ticks() > 5000:
                 if not generated:
                     self.gen_army()
@@ -142,18 +147,33 @@ class Game:
                 if pygame.time.get_ticks():
                     if event.type == pygame.MOUSEBUTTONUP:
                         if self.selected_unit_to_buy:
-                            get_line_col(pos[0], pos[1])
                             if event.button == 1:
                                 ally = True
                             else:
                                 ally = False
+                            l, c = \
+                                get_line_col(pygame.mouse.get_pos()[0] + self.rect.x,
+                                             pygame.mouse.get_pos()[1] - BLOCKSIZE)[0], \
+                                get_line_col(pygame.mouse.get_pos()[0] + self.rect.x,
+                                             pygame.mouse.get_pos()[1] - BLOCKSIZE)[1]
 
-                            if self.check_free(get_line_col(pos[0], pos[1])[0],
-                                               get_line_col(pos[0], pos[1])[1]):
-                                self.Add_unit(self.selected_unit_to_buy, ally, get_line_col(pos[0], pos[1])[0],
-                                              get_line_col(pos[0], pos[1])[1])
+                            self.Add_unit(self.selected_unit_to_buy, ally, l, c-8)
+                            #if self.check_free(l,c):
                 unit_to_buy = None
                 tree_menu_button = None
+                if self.selected_unit:
+                    l, c = \
+                        get_line_col(pygame.mouse.get_pos()[0] + self.rect.x,
+                                     pygame.mouse.get_pos()[1] - BLOCKSIZE)[0], \
+                        get_line_col(pygame.mouse.get_pos()[0] + self.rect.x,
+                                     pygame.mouse.get_pos()[1] - BLOCKSIZE)[1]
+                    self.line = l
+                    self.row = c
+                    if event.type == pygame.MOUSEBUTTONUP and event.button == 3:
+                        self.selected_unit.add_point(l, c)
+                        x = pygame.mouse.get_pos()[0] + self.rect.x
+                        y= pygame.mouse.get_pos()[1] + self.rect.x
+                        self.MAT[l][c] = 9
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     if get_line_col(pos[0], pos[1]):
                         l, c = \
@@ -165,6 +185,7 @@ class Game:
                         self.row = c
                         # SELECT UNIT ON THE BOARD TO BUY
                         self.selected_unit = self.detect_select_unit()
+
                     if self.menu: side_menu_button = self.menu.get_clicked(pos[0], pos[1])
                     if self.tree: tree_menu_button = self.tree.get_clicked(pos[0], pos[1])
                     if self.unit_to_buy_menu: unit_to_buy = self.unit_to_buy_menu.get_clicked(pos[0], pos[1])
@@ -183,7 +204,7 @@ class Game:
                         if str(unit_to_buy) == "close":
                             self.unit_to_buy_menu = None
                             break
-                        if str(unit_to_buy):
+                        if str(unit_to_buy) == "Voltigeur":
                             cost = self.menu.get_item_cost(unit_to_buy)
                             if self.money >= cost:
                                 self.selected_unit_to_buy = unit_to_buy
@@ -197,6 +218,7 @@ class Game:
 
                                 # self.upgrade_unit(self.selected_unit)
 
+                # KEYS UNITS
                 if event.type == pygame.KEYDOWN:
                     if self.selected_unit:
                         # BAYONET MODE
@@ -206,8 +228,11 @@ class Game:
                             else:
                                 self.selected_unit.cac = False
                         # LEVEL UP
-                        if event.key == pygame.K_l:
-                            self.upgrade_unit(self.selected_unit)
+                        if event.key == pygame.K_h:
+                            if not self.selected_unit.halt_fire :
+                                self.selected_unit.halt_fire = True
+                            else :
+                                self.selected_unit.halt_fire = False
 
             # MOVING ALL UNITS IN THE BATTLE FIELD
             unites = []
@@ -227,18 +252,23 @@ class Game:
                         break
                 if element.health <= 0:
                     break
-                if element.ally:
-                    if self.MAT[element.line][element.row+1] == 0 :
-                        element.move(self.MAT, self.enemies)
-                else:
+                if element.ally :
+
+                    element.marching = False
+                    element.move(self.MAT, self.enemies)
+                    #if self.MAT[element.line][element.row+1] == 0 :
+                if not element.ally :
+
+                    element.marching = False
+                    #if self.MAT[element.line][element.row-1] == 0 :
                     element.move(self.MAT, self.allies)
 
                 self.update_single_mat(element)
 
                 if self.MAT[element.line][element.row - 8] == 0:
-                    if element.ally:
+                    if element.ally and not element.halt_fire:
                         element.attack(self.enemies)
-                    else:
+                    if not element.ally and not element.halt_fire:
                         element.attack(self.allies)
 
             self.update_mat(unites)
@@ -257,28 +287,28 @@ class Game:
         self.create_unit_to_buy_menu()
 
     def create_unit_to_buy_menu(self):
-        self.unit_to_buy_menu.add_btn(close, "close")
-        self.unit_to_buy_menu.add_btn(Conscript_img, "Conscript")
+        #self.unit_to_buy_menu.add_btn(close, "close")
+        #self.menu.add_btn(Conscript_img, "Conscript")
         if "LineInfantry" in self.upgrades:
-            self.unit_to_buy_menu.add_btn(LineInfantry_img, "LineInfantry", 500)
+            self.menu.add_btn(LineInfantry_img, "LineInfantry", 500)
         if "Grenadier" in self.upgrades:
-            self.unit_to_buy_menu.add_btn(Grenadier_img, "Grenadier", 2300)
-        if "Grenadier" in self.upgrades:
-            self.unit_to_buy_menu.add_btn(YoungGuard_img, "YoungGuard", 1500)
-        if "Grenadier" in self.upgrades:
-            self.unit_to_buy_menu.add_btn(MedGuard_img, "MedGuard", 2300)
-        if "Grenadier" in self.upgrades:
-            self.unit_to_buy_menu.add_btn(OldGuard_img, "OldGuard", 4000)
-        if "Grenadier" in self.upgrades:
-            self.unit_to_buy_menu.add_btn(Chasseur_img, "Chasseur", 800)
-        if "Grenadier" in self.upgrades:
-            self.unit_to_buy_menu.add_btn(Flanqueur_img, "Flanqueur", 1200)
-        if "Grenadier" in self.upgrades:
-            self.unit_to_buy_menu.add_btn(GuardChasseur_img, "GuardChasseur", 2000)
-        if "Grenadier" in self.upgrades:
-            self.unit_to_buy_menu.add_btn(Volitgeur_img, "Voltigeur", 2900)
-        if "Grenadier" in self.upgrades:
-            self.unit_to_buy_menu.add_btn(GuardVoltigeur_img, "GuardVoltigeur", 4000)
+            self.menu.add_btn(Grenadier_img, "Grenadier", 2300)
+        if "YoungGuard" in self.upgrades:
+            self.menu.add_btn(YoungGuard_img, "YoungGuard", 1500)
+        if "MedGuard" in self.upgrades:
+            self.menu.add_btn(MedGuard_img, "MedGuard", 2300)
+        if "OldGuard" in self.upgrades:
+            self.menu.add_btn(OldGuard_img, "OldGuard", 4000)
+        if "Chasseur" in self.upgrades:
+            self.menu.add_btn(Chasseur_img, "Chasseur", 800)
+        if "Flanqueur" in self.upgrades:
+            self.menu.add_btn(Flanqueur_img, "Flanqueur", 1200)
+        if "GuardChasseur" in self.upgrades:
+            self.menu.add_btn(GuardChasseur_img, "GuardChasseur", 2000)
+        if "Voltigeur" in self.upgrades:
+            self.menu.add_btn(Volitgeur_img, "Voltigeur", 2900)
+        if "GuardVoltigeur" in self.upgrades:
+            self.menu.add_btn(GuardVoltigeur_img, "GuardVoltigeur", 4000)
 
     def create_tree(self):
 
@@ -306,6 +336,7 @@ class Game:
         self.screen.blit(self.bg, (-self.rect.x, 0))
 
         self.drawGrid(phase)
+
         self.draw_hover()
         if self.selected_unit:
             self.unit_menu = VerticalMenu(self.width - side_img.get_width() + 70, 800, unit_menu_img)
@@ -331,8 +362,12 @@ class Game:
 
         if self.unit_to_buy_menu:
             self.unit_to_buy_menu.draw(self.screen)
+
         # draw menu , money
-        self.menu.draw(self.screen)
+
+        if self.pos[1] > self.height * 0.9:
+            self.menu.draw(self.screen)
+
         text = self.lines_font.render(str(self.money), 1, (255, 255, 255))
         money = pygame.transform.scale(money_img, (50, 50))
         start_x = self.width - 50 - 10
@@ -364,7 +399,7 @@ class Game:
                     if name == "buy_old_gard":
                         element = OldGard(line, col, ally, self.screen)
                         self.allies.append(element)
-                    if name == "buy_voltigeur":
+                    if name == "Voltigeur":
                         element = Voltigeur(line, col, ally, self.screen)
                         self.allies.append(element)
                     if name == "buy_canon":
@@ -404,7 +439,6 @@ class Game:
             unit_line = element.x
             unit_col = element.y
             line, col = get_line_col(unit_line, unit_col)
-            print("UNIT {} at {} {}".format(element.name, line, col))
             self.MAT[line][col] = element.slug
 
     def drawGrid(self, phase):
@@ -416,31 +450,31 @@ class Game:
                                    blksize, blksize)
                 if self.MAT[y][x] == 0:
                     pygame.draw.rect(self.screen, (200, 200, 200), rect, 1)
-                if self.MAT[y][x] == -1:
-                    pygame.draw.rect(self.screen, (0, 0, 0), rect, 1)
+                if self.MAT[y][x] == -1:pass
+                    #pygame.draw.rect(self.screen, (0, 0, 0), rect, 1)
                 # ARBRE
                 if self.MAT[y][x] == 3:
-                    pygame.draw.rect(self.screen, (0, 200, 0), rect, 0)
-                    #self.screen.blit(tree_land, (rect.x, rect.y))
+                    #pygame.draw.rect(self.screen, (0, 200, 0), rect, 0)
+                    self.screen.blit(tree_land, (rect.x, rect.y))
+                if self.MAT[y][x] == 9:
+                    self.screen.blit(cross, (rect.x, rect.y))
                 else :
                     slug = self.MAT[y][x]
                     unit = find_unit_with_slug(self.enemies+self.allies,slug)
                     if unit :
-                        if unit.ally :
-                            pygame.draw.rect(self.screen, (0, 200, 0), rect, 0)
-                        if not unit.ally :
-                            pygame.draw.rect(self.screen, (200, 0, 0), rect, 0)
+                        if unit.ally :pass
+                            #pygame.draw.rect(self.screen, (0, 200, 0), rect, 0)
+                        if not unit.ally :pass
+                            #pygame.draw.rect(self.screen, (200, 0, 0), rect, 0)
 
         if phase:
             for x in range(self.rows):
                 for y in range(self.lines):
 
-                    rect = pygame.Rect(x * blksize, y * blksize,
+                    rect = pygame.Rect(x * blksize - self.rect.x, y * blksize + blksize,
                                        blksize, blksize)
-                    if x < 4:
+                    if x < 8 and x>6 and self.MAT[y][x] ==0 :
                         pygame.draw.rect(self.screen, (0, 200, 0), rect, 2)
-                    else:
-                        pygame.draw.rect(self.screen, (200, 200, 200), rect, 1)
 
     def draw_hover(self):
         pos = pygame.mouse.get_pos()
@@ -524,20 +558,34 @@ class Game:
 
     def gen_army(self):
 
-        self.Add_unit("buy_old_gard", True, 8, 7)
-        self.Add_unit("buy_old_gard", True, 8, 6)
-        self.Add_unit("buy_old_gard", False, 8, 40)
-        """
+        """self.Add_unit("Voltigeur", True, 1, 8)
+        self.Add_unit("Voltigeur", True, 2, 8)
+        self.Add_unit("Voltigeur", True, 3, 8)"""
+        self.Add_unit("Voltigeur", True, 4, 8)
+
+        self.Add_unit("buy_old_gard", True, 1, 7)
+        self.Add_unit("buy_old_gard", True, 2, 7)
+        self.Add_unit("buy_old_gard", True, 3, 7)
+        self.Add_unit("buy_old_gard", True, 4, 7)
+
+        self.Add_unit("buy_voltigeur", False, 1, 44)
+        self.Add_unit("buy_voltigeur", False, 2, 44)
+
+        self.Add_unit("buy_old_gard", False, 1, 45)
+        self.Add_unit("buy_old_gard", False, 2, 45)
+        self.Add_unit("buy_old_gard", False, 3, 45)
+
+
         self.Add_unit("buy_old_gard", False, 4, 40)
         self.Add_unit("buy_old_gard", False, 5, 40)
         self.Add_unit("buy_old_gard", False, 6, 40)
         self.Add_unit("buy_old_gard", False, 7, 40)
         self.Add_unit("buy_old_gard", False, 8, 40)
-        self.Add_unit("buy_old_gard", False, 9, 40)"""
+        self.Add_unit("buy_old_gard", False, 9, 40)
 
-        #self.Add_unit("buy_old_gard", True, 1, 6)
-        #self.Add_unit("buy_voltigeur", True, 1, 7)
-        """self.Add_unit("buy_old_gard", True, 3, 1)
+        self.Add_unit("buy_old_gard", True, 1, 6)
+        self.Add_unit("buy_voltigeur", True, 1, 7)
+        self.Add_unit("buy_old_gard", True, 3, 1)
         self.Add_unit("buy_old_gard", True, 4, 1)
         self.Add_unit("buy_old_gard", True, 5, 1)
         self.Add_unit("buy_old_gard", True, 1, 2)
@@ -551,10 +599,8 @@ class Game:
         self.Add_unit("buy_voltigeur", True, 4, 3)
         self.Add_unit("buy_voltigeur", True, 5, 3)
 
-        self.Add_unit("buy_old_gard", True, 6,1)
-        self.Add_unit("buy_old_gard", True, 7, 1)
-        self.Add_unit("buy_old_gard", True, 8, 1)
-        self.Add_unit("buy_old_gard", True, 9, 1)"""
+
+
 
 
 def find_unit_with_slug(units, slug):

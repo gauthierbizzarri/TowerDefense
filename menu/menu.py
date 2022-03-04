@@ -205,7 +205,7 @@ class VerticalMenu(Menu):
         B=65
         if name == "Conscript":
             btn_x = self.x-1*B
-            btn_y = self.y-1.25*B
+            btn_y = self.y-2*B
         if name == "LineInfantry":
             btn_x = self.x-3*B
             btn_y = self.y
@@ -220,7 +220,7 @@ class VerticalMenu(Menu):
             btn_y = self.y + 6*B
         if name == "OldGuard":
             btn_x = self.x -3*B
-            btn_y = self.y + 8*B
+            btn_y = self.y - 2* B
         if name == "Chasseur":
             btn_x = self.x
             btn_y = self.y
@@ -231,8 +231,8 @@ class VerticalMenu(Menu):
             btn_x = self.x
             btn_y = self.y+4*B
         if name == "Voltigeur":
-            btn_x = self.x
-            btn_y = self.y+6*B
+            btn_x = self.x - B
+            btn_y = self.y-2*B
         if name == "GuardVoltigeur":
             btn_x = self.x
             btn_y = self.y +8*B
