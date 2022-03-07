@@ -31,7 +31,8 @@ Volitgeur_img = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/voltigeur/shooting/6.png")).convert_alpha(), (65, 65))
 GuardVoltigeur_img = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png")).convert_alpha(), (75, 75))
-
+Canon_img = pygame.transform.scale(
+    pygame.image.load(os.path.join("game_assets/misc/images/canon/reloading/"+ "1.png")).convert_alpha(), (90, 75))
 buy_unit = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/jeune_garde.png")).convert_alpha(), (75, 75))
 buy_old_gard = pygame.transform.scale(
@@ -44,6 +45,11 @@ buy_canon = pygame.transform.scale(
 bayonet = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/bayonet.png")).convert_alpha(), (50, 50))
 
+
+bayonet_crossed= pygame.transform.scale(
+    pygame.image.load(os.path.join("game_assets", "infantry/images/not_bayonet.png")).convert_alpha(), (50, 50))
+
+
 special = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/up.png")).convert_alpha(),
                                  (50, 50))
 tree = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/star.png")).convert_alpha(),
@@ -53,7 +59,9 @@ tree_land = pygame.transform.scale(pygame.image.load(os.path.join("game_assets",
 scope = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "infantry/images/scope.png"))
                                .convert_alpha(), (50, 50))
 rifle = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "infantry/images/rifle.png"))
-                               .convert_alpha(), (50, 50))
+                               .convert_alpha(), (90, 50))
+not_rifle = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "infantry/images/not_rifle.png"))
+                               .convert_alpha(), (90, 50))
 money_img = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "misc/images/money.png")).convert_alpha(), (50, 50))
 clock_img = pygame.transform.scale(
@@ -63,4 +71,7 @@ close = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "mi
                                .convert_alpha(), (50, 50))
 
 cross = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/cross_move.png"))
+                               .convert_alpha(), (50, 50))
+
+MANUAL_CURSOR = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/cursor.png"))
                                .convert_alpha(), (50, 50))

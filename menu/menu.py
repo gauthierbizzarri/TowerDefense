@@ -233,6 +233,9 @@ class VerticalMenu(Menu):
         if name == "Voltigeur":
             btn_x = self.x - B
             btn_y = self.y-2*B
+        if name == "Canon":
+            btn_x = self.x+2*B
+            btn_y = self.y -2*B
         if name == "GuardVoltigeur":
             btn_x = self.x
             btn_y = self.y +8*B

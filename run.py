@@ -8,6 +8,7 @@ def launch():
     """
     pygame.init()
     win = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
     from main_menu.main_menu import MainMenu
 
     mainMenu = MainMenu(win)

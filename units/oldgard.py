@@ -100,7 +100,7 @@ class OldGard(Unit):
         self.dying_imgs = dying_imgs[:]
         self.marching_bayonet_imgs = marching_bayonet_imgs[:]
         self.attacking_bayonet_imgs = attacking_bayonet_imgs[:]
-        self.max_health = 150
+        self.max_health = 200
         self.health = self.max_health
         self.ammo = 25
         self.name = "VielleGarde"
@@ -116,6 +116,12 @@ class OldGard(Unit):
         ennemy_closest_distance = False
         distances = []
         ennemy_closest = None
+        # Shooting
+        if self.reloading and pygame.time.get_ticks() - self.last_time_shoot > self.reload_time + 2500:  # 1000
+            self.reloading = False
+            # ATTACKING WITH BAYONET
+        if self.reloading_cac and pygame.time.get_ticks() - self.last_time_cac > self.cac_reload + 2000:  # 1000
+            self.reloading_cac = False
         for ennemy in ennemies:
             ennemy_x, ennemy_y = ennemy.x, ennemy.y
             dis = math.sqrt((self.x - ennemy_x) ** 2 + (self.y - ennemy_y) ** 2)
@@ -126,16 +132,18 @@ class OldGard(Unit):
             ennemy_closest = ennemies[index_closest]
             if ennemy_closest_distance <= self.range:
                 self.inRange = True
+                if self.cac :
+                    self.accel = 1+ 10/(ennemy_closest_distance /(BLOCKSIZE))
             if ennemy_closest_distance >BLOCKSIZE :
                 self.cacing = False
         if self.ammo <= 0:
             self.cac = True
         if not ennemy_closest:
             self.shooting = False
+            self.cacing=False
+
+
         if ennemy_closest:
-            # ATTACKING WITH BAYONET
-            if self.reloading_cac and pygame.time.get_ticks() - self.last_time_cac > self.cac_reload + 2000:  # 1000
-                self.reloading_cac = False
             if self.cac and not self.reloading_cac and ennemy_closest_distance <= BLOCKSIZE:
                 now = pygame.time.get_ticks()
                 self.cacing = True
@@ -144,9 +152,6 @@ class OldGard(Unit):
                 self.reloading_cac = True
                 ennemy_closest.hit(self.proba_tir_reussi, "c")
                 return
-            # Shooting
-            if self.reloading and pygame.time.get_ticks() - self.last_time_shoot > self.reload_time + 2500:  # 1000
-                self.reloading = False
 
             if self.inRange and self.ammo > 0 and not self.cac and not self.reloading:
                 now = pygame.time.get_ticks()
@@ -161,7 +166,7 @@ class OldGard(Unit):
     def play_sound_shooting(self):
         rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infantry/sounds/musket.mp3"))
         rifle_sound.set_volume(0.1)
-        # pygame.mixer.Channel(self.channel).play(rifle_sound)
+        pygame.mixer.Channel(self.channel).play(rifle_sound)
 
     def play_sound_bayonet(self):
         knife_sound = pygame.mixer.Sound(os.path.join("game_assets", "infantry/sounds/knife.mp3"))

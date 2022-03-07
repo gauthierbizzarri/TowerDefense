@@ -58,7 +58,8 @@ class Unit:
         self.reloading = False
         self.pattern = False
         self.begin_death = False
-        self.accel = 1
+        self.spawn_ball = False
+        self.accel = 2
         self.marching_imgs = []
         self.reloading_imgs = []
         self.dying_imgs = []
@@ -68,7 +69,6 @@ class Unit:
         self.animation_count = 0
         self.width = width
         self.height = height
-        self.velocity = velocity
         self.range = 0
         self.max_health = 10
         self.health = 10
@@ -103,7 +103,33 @@ class Unit:
         :param surface: surface
         :return: None
         """
+        if self.name =="Canon":
+            now = pygame.time.get_ticks()
+            if self.shooting:
+                shooting_timer_table = [200 for x in range(33)]
+                shooting_timer_table.append(self.reload_time/2)
+                shooting_timer_table.append(self.reload_time / 2)
+                shooting_timer_table += [200 for x in range(10)]
+                if self.animation_count >= len(shooting_timer_table):
+                    self.animation_count = 0
 
+                if now - self.timer_animation >= shooting_timer_table[self.animation_count]:
+                    self.timer_animation = now
+                    self.animation_count += 1
+                if self.animation_count >= len(self.shooting_imgs):
+                    self.animation_count = 0
+                if self.animation_count == 10:
+                    self.play_sound_shooting()
+
+                self.img = self.shooting_imgs[self.animation_count]
+                if self.flipped:
+                    self.img = pygame.transform.flip(self.img, True, False)
+                surface.blit(self.img, (self.x - BLOCKSIZE - pos, self.y + 0.5 * BLOCKSIZE))
+
+            else:
+                self.img = self.images[0]
+                surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
+            return
         if self.cac:
             bayonet = pygame.image.load(os.path.join("game_assets", "infantry/images/bayonet.png"))
             bayonet = pygame.transform.scale(bayonet, (40, 40))
@@ -154,7 +180,8 @@ class Unit:
             if self.flipped:
                 self.img = pygame.transform.flip(self.img, True, False)
                 surface.blit(self.img, (self.x - BLOCKSIZE - pos, self.y + 0.5 * BLOCKSIZE))
-
+                if self.animation_count==0:
+                    self.play_sound_bayonet()
             else:
                 surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
             return
@@ -196,7 +223,10 @@ class Unit:
         self.draw_passive(surface, pos)
 
     def draw_radius(self, win, pos):
-        pygame.draw.circle(win, (255, 0, 0), (self.x - pos, self.y), self.range, 1)
+        if self.name =="Canon":
+            pygame.draw.circle(win, (255, 0, 0), (self.x - pos, self.y), self.range, 10)
+        else :
+         pygame.draw.circle(win, (255, 0, 0), (self.x - pos, self.y), self.range, 1)
 
     def draw_selected_unit(self, win, pos):
         text = self.font.render(str(self.ammo), 1, (255, 255, 255))
@@ -319,57 +349,60 @@ class Unit:
         Move enemy
         :return: None
         """
+        if self.name == "Canon": return
         if not self.path:
 
             if self.ally:
                 self.path = get_path(self.ally, self.line, self.row)
             else:
                 self.path = get_path(self.ally, self.line, self.row)[::-1]
-        if not self.shooting and not self.cacing:
-            x1, y1 = self.path[self.path_pos]
-            if self.path_pos + 1 >= len(self.path):
-                self.path = []
-                self.path_pos = 0
-                return
-            x2, y2 = self.path[self.path_pos + 1]
-            if True:
-                dirn = ((x2 - x1), (y2 - y1))
-                length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2) * 1 / self.accel
-                if length == 0:
-                    length = 0.0001
-                dirn = (dirn[0] / length, dirn[1] / length)
-                if dirn[0] < 0 and not (self.flipped):
-                    self.flipped = True
-                if dirn[0] > 0 and self.flipped:
-                    self.flipped = False
-                move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
+        try :
+            if not self.shooting and not self.cacing:
+                x1, y1 = self.path[self.path_pos]
 
-                self.x = move_x
-                self.y = move_y
-                self.marching = True
-                ligne, col = int(self.y // BLOCKSIZE), int(self.x // BLOCKSIZE)
-                self.line = ligne
-                self.row = col
+                if self.path_pos + 1 >= len(self.path):
+                    self.path = []
+                    self.path_pos = 0
+                    return
+                x2, y2 = self.path[self.path_pos + 1]
 
-                # Go to next point
-                if dirn[0] >= 0:  # moving right
-                    if dirn[1] >= 0:  # moving down
-                        if self.x >= x2 and self.y >= y2:
-                            self.path_pos += 1
-                    else:
-                        if self.x >= x2 and self.y <= y2:
-                            self.path_pos += 1
-                else:  # moving left
-                    if dirn[1] >= 0:  # moving down
-                        if self.x <= x2 and self.y >= y2:
-                            self.path_pos += 1
-                    else:
-                        if self.x <= x2 and self.y >= y2:
-                            self.path_pos += 1
-        """if self.cac :
-            self.accel =4
-        if ennemies or not ennemies:
-            if not self.shooting and not self.cacing:"""
+                if not check_free(mat, x2, y2): return
+                if True:
+                    dirn = ((x2 - x1), (y2 - y1))
+                    length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2) * 1 / self.accel
+                    if length == 0:
+                        length = 0.0001
+                    dirn = (dirn[0] / length, dirn[1] / length)
+                    if dirn[0] < 0 and not (self.flipped):
+                        self.flipped = True
+                    if dirn[0] > 0 and self.flipped:
+                        self.flipped = False
+                    move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
+
+                    self.x = move_x
+                    self.y = move_y
+                    self.marching = True
+                    ligne, col = int(self.y // BLOCKSIZE), int(self.x // BLOCKSIZE)
+                    self.line = ligne
+                    self.row = col
+
+                    # Go to next point
+                    if dirn[0] >= 0:  # moving right
+                        if dirn[1] >= 0:  # moving down
+                            if self.x >= x2 and self.y >= y2:
+                                self.path_pos += 1
+                        else:
+                            if self.x >= x2 and self.y <= y2:
+                                self.path_pos += 1
+                    else:  # moving left
+                        if dirn[1] >= 0:  # moving down
+                            if self.x <= x2 and self.y >= y2:
+                                self.path_pos += 1
+                        else:
+                            if self.x <= x2 and self.y >= y2:
+                                self.path_pos += 1
+        except:
+            pass
 
     def add_point(self, line, col):
         xf = col * BLOCKSIZE
@@ -399,8 +432,11 @@ class Unit:
         dommages_balle = 6
         dommages_bayonet = 10
         if type == "c": self.cac = True
-        self.health -= 40
-        surface = self.win
+        self.health -= 90
+
+        print("shoot", type)
+        if type =="can":
+            self.health -=500
         if self.health <= 0:
             return True
         return False
@@ -437,4 +473,7 @@ class Unit:
 
 
 def check_free(mat, x, y):
+    l,c = int(y // BLOCKSIZE), int(x // BLOCKSIZE)
+    if mat[l][c] == 0:
+        return True
     return True
