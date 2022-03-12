@@ -1,10 +1,11 @@
-import pygame
 import math
 import os
-import time
-from settings import *
-import string
 import random
+import string
+
+import pygame
+
+from settings import *
 
 
 def get_path(ally, ligne, colonne):
@@ -35,7 +36,7 @@ class Unit:
         self.shooting = False
         self.cacing = False
         self.name = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
-
+        self.spawn_ball = False
         self.line = line
         self.row = row
         self.ally = ally
@@ -50,7 +51,7 @@ class Unit:
         self.proba_prendre_cac = 0
         self.level = None
         self.playing = False
-        self.img = []
+        self.img = {}
         self.win = win
         self.shooting_imgs = []
         self.shooting_img = False
@@ -96,6 +97,8 @@ class Unit:
         self.enemies = []
 
         self.hover = False
+        self.behave = "passive"
+        self.finished_animation = False
 
     def draw(self, surface, pos):
         """
@@ -103,130 +106,19 @@ class Unit:
         :param surface: surface
         :return: None
         """
-        if self.name =="Canon":
-            now = pygame.time.get_ticks()
-            if self.shooting:
-                shooting_timer_table = [200 for x in range(33)]
-                shooting_timer_table.append(self.reload_time/2)
-                shooting_timer_table.append(self.reload_time / 2)
-                shooting_timer_table += [200 for x in range(10)]
-                if self.animation_count >= len(shooting_timer_table):
-                    self.animation_count = 0
 
-                if now - self.timer_animation >= shooting_timer_table[self.animation_count]:
-                    self.timer_animation = now
-                    self.animation_count += 1
-                if self.animation_count >= len(self.shooting_imgs):
-                    self.animation_count = 0
-                if self.animation_count == 10:
-                    self.play_sound_shooting()
+        if self.finished_animation =="death":
+            self.is_dead = True
+        if not self.is_dead:
+            self.draw_health_bar(surface, pos)
+            self.play_animation(surface, pos, self.behave)
 
-                self.img = self.shooting_imgs[self.animation_count]
-                if self.flipped:
-                    self.img = pygame.transform.flip(self.img, True, False)
-                surface.blit(self.img, (self.x - BLOCKSIZE - pos, self.y + 0.5 * BLOCKSIZE))
-
-            else:
-                self.img = self.images[0]
-                surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
-            return
-        if self.cac:
-            bayonet = pygame.image.load(os.path.join("game_assets", "infantry/images/bayonet.png"))
-            bayonet = pygame.transform.scale(bayonet, (40, 40))
-            surface.blit(bayonet, (self.x - 50 - pos, self.y + 30))
-
-        if self.is_dead:
-            return
-        now = pygame.time.get_ticks()
-
-        # dying
-        if self.health <= 0 and not self.is_dead:
-            dying_timer_array = [1300, 1000, 500]
-            if self.animation_count >= len(dying_timer_array):
-                self.animation_count = 0
-            if not self.begin_death:
-                self.animation_count = 0
-                self.begin_death = True
-
-            if now - self.timer_animation >= dying_timer_array[self.animation_count]:
-                self.timer_animation = now
-                self.animation_count += 1
-
-            if self.animation_count >= len(self.dying_imgs):
-                self.is_dead = True
-                return
-
-            self.img = self.dying_imgs[self.animation_count]
-            if self.flipped:
-                self.img = pygame.transform.flip(self.img, True, False)
-                surface.blit(self.img, (self.x - BLOCKSIZE - pos, self.y + 0.5 * BLOCKSIZE))
-
-            else:
-                surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
-            return
-
-        if self.cacing:
-            cacing_timer_table = [200, 200, 200, 200, 100, self.cac_reload]
-            if self.animation_count >= len(cacing_timer_table):
-                self.animation_count = 0
-
-            if now - self.timer_animation >= cacing_timer_table[self.animation_count]:
-                self.timer_animation = now
-                self.animation_count += 1
-            if self.animation_count >= len(self.attacking_bayonet_imgs):
-                self.animation_count = 0
-
-            self.img = self.attacking_bayonet_imgs[self.animation_count]
-            if self.flipped:
-                self.img = pygame.transform.flip(self.img, True, False)
-                surface.blit(self.img, (self.x - BLOCKSIZE - pos, self.y + 0.5 * BLOCKSIZE))
-                if self.animation_count==0:
-                    self.play_sound_bayonet()
-            else:
-                surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
-            return
-
-        if self.shooting:
-            shooting_timer_table = [200, 200, 200, 200, 100, 100, 100, 100, 100, 300, 300,
-                                    self.reload_time]
-            if self.animation_count >= len(shooting_timer_table):
-                self.animation_count = 0
-
-            if now - self.timer_animation >= shooting_timer_table[self.animation_count]:
-                self.timer_animation = now
-                self.animation_count += 1
-            if self.animation_count >= len(self.shooting_imgs):
-                self.animation_count = 0
-            if self.animation_count == 8:
-                self.play_sound_shooting()
-
-            self.img = self.shooting_imgs[self.animation_count]
-            if self.flipped:
-                self.img = pygame.transform.flip(self.img, True, False)
-                surface.blit(self.img, (self.x - BLOCKSIZE - pos, self.y + 0.5 * BLOCKSIZE))
-
-            else:
-                surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
-            # Smoke effect
-            smoke = pygame.image.load(os.path.join("game_assets", "infantry/images/smoke1.png"))
-            smoke_img = pygame.transform.scale(smoke, (30, 40))
-            surface.blit(smoke_img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
-            return
-
-        # marching
-
-        if self.marching and not self.shooting:
-            if not self.cac:
-                self.draw_marching(surface, pos)
-            else:
-                self.draw_bayonet_marching(surface, pos)
-        self.draw_passive(surface, pos)
 
     def draw_radius(self, win, pos):
-        if self.name =="Canon":
+        if self.name == "Canon":
             pygame.draw.circle(win, (255, 0, 0), (self.x - pos, self.y), self.range, 10)
-        else :
-         pygame.draw.circle(win, (255, 0, 0), (self.x - pos, self.y), self.range, 1)
+        else:
+            pygame.draw.circle(win, (255, 0, 0), (self.x - pos, self.y), self.range, 1)
 
     def draw_selected_unit(self, win, pos):
         text = self.font.render(str(self.ammo), 1, (255, 255, 255))
@@ -234,71 +126,6 @@ class Unit:
         # img = pygame.transform.scale(canon_ball, (20, 20))
 
         win.blit(text, (self.x + 3 - pos, self.y + 5))
-
-    def draw_marching(self, surface, pos):
-
-        now = pygame.time.get_ticks()
-        marching_timer_array = [300, 300, 300, 300]
-        if self.animation_count >= len(marching_timer_array):
-            self.animation_count = 0
-        if now - self.timer_animation >= marching_timer_array[self.animation_count]:
-            self.timer_animation = now
-            self.animation_count += 1
-
-        if self.animation_count >= len(self.marching_imgs):
-            self.animation_count = 0
-        self.img = self.marching_imgs[self.animation_count]
-
-        if self.flipped:
-            self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(self.img, (self.x - pos - BLOCKSIZE, self.y + 0.5 * BLOCKSIZE))
-
-        else:
-            surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
-        return
-
-    def draw_bayonet_marching(self, surface, pos):
-
-        now = pygame.time.get_ticks()
-        marching_bayonet_timer_array = [300, 300, 300, 300, 300, 300, 300, 300]
-        if self.animation_count >= len(marching_bayonet_timer_array):
-            self.animation_count = 0
-        if now - self.timer_animation >= marching_bayonet_timer_array[self.animation_count]:
-            self.timer_animation = now
-            self.animation_count += 1
-
-        if self.animation_count >= len(self.marching_bayonet_imgs):
-            self.animation_count = 0
-        self.img = self.marching_bayonet_imgs[self.animation_count]
-
-        if self.flipped:
-            self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(self.img, (self.x - BLOCKSIZE - pos, self.y + 0.5 * BLOCKSIZE))
-
-        else:
-            surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
-        return
-
-    def draw_passive(self, surface, pos):
-        now = pygame.time.get_ticks()
-        passive_timer_array = [300, 300, 300, 300, 300, 300, 300, 300]
-        if self.animation_count >= len(passive_timer_array):
-            self.animation_count = 0
-        if now - self.timer_animation >= passive_timer_array[self.animation_count]:
-            self.timer_animation = now
-            self.animation_count += 1
-        if not self.shooting and not self.marching:
-            if self.animation_count >= len(self.images):
-                self.animation_count = 0
-            self.img = self.images[self.animation_count]
-
-            if self.flipped:
-                self.img = pygame.transform.flip(self.img, True, False)
-            surface.blit(self.img, (self.x - pos, self.y + 0.5 * BLOCKSIZE))
-            return
-
-    def draw_death(self, surface):
-        pass
 
     def draw_info(self, win, pos):
         pass
@@ -315,35 +142,6 @@ class Unit:
         pygame.draw.rect(win, (255, 0, 0), (self.x - pos, self.y - 10, length, 10), 0)
         pygame.draw.rect(win, (0, 255, 0), (self.x - pos, self.y - 10, health_bar, 10), 0)
 
-    def collide(self, x, y):
-        """
-        return if position has hit
-        :param x:
-        :param y:
-        :return: bool
-        """
-        if x < self.x + self.width and x < self.x:
-            if y <= self.y + self.height and y >= self.y:
-                return True
-        return False
-
-    def click(self, x, y):
-        """
-                returns if unit has been clicked on
-                and selects unit if it was clicked
-                :param x: int
-                :param y: int
-                :return: bool
-                """
-        img = self.images[self.level - 1]
-        if x <= self.x - img.get_width() // 2 + self.width and x >= self.x - img.get_width() // 2:
-            if y <= self.y + self.height - img.get_height() // 2 and y >= self.y - img.get_height() // 2:
-                return True
-        return False
-
-    def get_upgrade_cost(self):
-        return self.upgrade_cost[self.level - 1]
-
     def move(self, mat, ennemies):
         """
         Move enemy
@@ -356,7 +154,7 @@ class Unit:
                 self.path = get_path(self.ally, self.line, self.row)
             else:
                 self.path = get_path(self.ally, self.line, self.row)[::-1]
-        try :
+        try:
             if not self.shooting and not self.cacing:
                 x1, y1 = self.path[self.path_pos]
 
@@ -378,7 +176,10 @@ class Unit:
                     if dirn[0] > 0 and self.flipped:
                         self.flipped = False
                     move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
-
+                    if self.cac:
+                        self.behave = "marche_bayonet"
+                    else:
+                        self.behave = "marche"
                     self.x = move_x
                     self.y = move_y
                     self.marching = True
@@ -432,12 +233,13 @@ class Unit:
         dommages_balle = 6
         dommages_bayonet = 10
         if type == "c": self.cac = True
-        self.health -= 90
+        self.health -= 70
 
         print("shoot", type)
-        if type =="can":
-            self.health -=500
+        if type == "can":
+            self.health -= 500
         if self.health <= 0:
+            self.behave = "death"
             return True
         return False
 
@@ -471,9 +273,33 @@ class Unit:
                 path.append((posx, posy))
             self.path = path
 
+    def play_animation(self, surface, pos, name):
+        now = pygame.time.get_ticks()
+        imgs_array = self.get_imgs(name)
+        timer_array = self.get_timer_array(name)
+
+        if self.animation_count >= len(timer_array):
+            self.animation_count = 0
+        if now - self.timer_animation >= timer_array[self.animation_count]:
+            self.timer_animation = now
+            self.animation_count += 1
+        if self.animation_count >= len(imgs_array):
+            self.animation_count = 0
+            self.finished_animation = self.behave
+        self.img = imgs_array[self.animation_count]
+        if self.flipped:
+            self.img = pygame.transform.flip(self.img, True, False)
+        surface.blit(self.img, (self.x - BLOCKSIZE - pos, self.y + 0.5 * BLOCKSIZE))
+
+    def get_imgs(self, name):
+        return self.imgs[name]
+
+    def get_timer_array(self, name):
+        return self.timers[name]
+
 
 def check_free(mat, x, y):
-    l,c = int(y // BLOCKSIZE), int(x // BLOCKSIZE)
+    l, c = int(y // BLOCKSIZE), int(x // BLOCKSIZE)
     if mat[l][c] == 0:
         return True
     return True

@@ -287,9 +287,9 @@ class Game:
                 self.update_single_mat(element)
 
                 if element.ally and not element.halt_fire:
-                    element.attack(self.enemies)
+                    element.attack(self.enemies,self.rect.x)
                 if not element.ally and not element.halt_fire:
-                    element.attack(self.allies)
+                    element.attack(self.allies,self.rect.x)
                 if element.name == "Canon" and element.spawn_ball:
                     self.spawn_ball(element.x, element.y)
                 for projectile in self.projectiles:
@@ -366,18 +366,19 @@ class Game:
 
         self.draw_hover()
         if self.selected_unit:
-            self.unit_menu = VerticalMenu(self.width - side_img.get_width() + 70, 800, unit_menu_img)
-            self.selected_unit.draw_selected_unit(self.screen, self.rect.x)
-            if not self.selected_unit.cac :
-                self.unit_menu.add_btn(bayonet, "bayonet")
-            else :
-                self.unit_menu.add_btn(bayonet_crossed, "bayonet")
-            self.unit_menu.add_btn(scope, "scope")
-            self.unit_menu.add_btn(special, "special")
-            if not self.selected_unit.halt_fire:
-                self.unit_menu.add_btn(not_rifle, "rifle")
-            else :
-                self.unit_menu.add_btn(rifle, "rifle")
+            if self.selected_unit and not self.selected_unit.is_dead:
+                self.unit_menu = VerticalMenu(self.width - side_img.get_width() + 70, 800, unit_menu_img)
+                self.selected_unit.draw_selected_unit(self.screen, self.rect.x)
+                if not self.selected_unit.cac :
+                    self.unit_menu.add_btn(bayonet, "bayonet")
+                else :
+                    self.unit_menu.add_btn(bayonet_crossed, "bayonet")
+                self.unit_menu.add_btn(scope, "scope")
+                self.unit_menu.add_btn(special, "special")
+                if not self.selected_unit.halt_fire:
+                    self.unit_menu.add_btn(not_rifle, "rifle")
+                else :
+                    self.unit_menu.add_btn(rifle, "rifle")
             # DO ACTION WHEN SELECTED UNIT
         for en in self.enemies:
             en.draw(self.screen, self.rect.x)
@@ -589,6 +590,8 @@ class Game:
         """self.Add_unit("Voltigeur", True, 1, 8)
         self.Add_unit("Voltigeur", True, 2, 8)
         self.Add_unit("Voltigeur", True, 3, 8)"""
+        self.Add_unit("buy_old_gard", True, 1, 7)
+        self.Add_unit("buy_old_gard", False, 4, 40)
         """
         self.Add_unit("Voltigeur", True, 4, 8)
 
@@ -597,7 +600,7 @@ class Game:
         self.Add_unit("buy_old_gard", True, 3, 7)
         self.Add_unit("buy_old_gard", True, 4, 7)
         """
-        self.Add_unit("buy_voltigeur", False, 7, 44)
+        #self.Add_unit("buy_voltigeur", False, 7, 44)
         """self.Add_unit("buy_voltigeur", False, 2, 44)
 
         self.Add_unit("buy_old_gard", False, 1, 45)

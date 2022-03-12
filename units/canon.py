@@ -7,7 +7,7 @@ from settings import *
 from units.unit import Unit
 
 imgs = [pygame.image.load(os.path.join("game_assets/misc/images/canon/reloading/" + "1.png")).convert_alpha(), \
-        (BLOCKSIZE * 5, BLOCKSIZE)]
+        (BLOCKSIZE * 5, BLOCKSIZE*2)]
 
 shooting_imgs = []
 for x in range(1, 46):
@@ -17,7 +17,7 @@ for x in range(1, 46):
     shooting_imgs.append(pygame.transform.scale(
         pygame.image.load(
             os.path.join("game_assets/misc/images/canon/reloading/" + add_str + ".png")).convert_alpha(),
-        (BLOCKSIZE * 5, BLOCKSIZE)))
+        (BLOCKSIZE * 4, BLOCKSIZE*1.60)))
 
 
 class Canon(Unit):
@@ -71,7 +71,7 @@ class Canon(Unit):
 
         if ennemy_closest:
             # Shooting
-            if self.reloading and pygame.time.get_ticks() - self.last_time_shoot > self.reload_time + 200 * 35:  # 1000
+            if self.reloading and pygame.time.get_ticks() - self.last_time_shoot > self.reload_time + 200*10 :  # 1000
                 self.reloading = False
 
             if self.inRange and self.ammo > 0 and not self.cac and not self.reloading:
@@ -82,10 +82,11 @@ class Canon(Unit):
                 self.last_time_shoot = now
                 self.reloading = True
                 # ennemy_closest.hit(0, "can")
-                self.spawn_ball = True
                 return
 
     def play_sound_shooting(self):
+
+        self.spawn_ball = True
         rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infantry/sounds/canon.mp3"))
         rifle_sound.set_volume(0.1)
         pygame.mixer.Channel(self.channel).play(rifle_sound)
