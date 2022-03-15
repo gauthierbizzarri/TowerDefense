@@ -1,11 +1,11 @@
 from settings import *
 import pygame
 import os
-side_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.jpeg"))
+side_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.png"))
                                   .convert_alpha(), (1600, 65))
 tree_image = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/scroll.png"))
                                     .convert_alpha(), (10 * BLOCKSIZE, 13 * BLOCKSIZE))
-unit_menu_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.jpeg"))
+unit_menu_img = pygame.transform.scale(pygame.image.load(os.path.join("game_assets", "misc/images/board.png"))
                                        .convert_alpha(), (180, 250))
 star_img = pygame.image.load(os.path.join("game_assets", "misc/images/star.png")).convert_alpha()
 
@@ -32,7 +32,7 @@ Volitgeur_img = pygame.transform.scale(
 GuardVoltigeur_img = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/tirailleur.png")).convert_alpha(), (75, 75))
 Canon_img = pygame.transform.scale(
-    pygame.image.load(os.path.join("game_assets/misc/images/canon/reloading/"+ "1.png")).convert_alpha(), (90, 75))
+    pygame.image.load(os.path.join("game_assets/misc/images/canon/reloading/"+ "1.png")).convert_alpha(), (120, 75))
 buy_unit = pygame.transform.scale(
     pygame.image.load(os.path.join("game_assets", "infantry/images/jeune_garde.png")).convert_alpha(), (75, 75))
 buy_old_gard = pygame.transform.scale(

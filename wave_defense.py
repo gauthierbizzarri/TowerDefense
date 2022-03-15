@@ -19,16 +19,17 @@ from units.young_guard import YoungGuard
 from units.med_guard import MedGuard
 from units.oldgard import OldGard
 from global_images import *
+import moviepy.editor
 
 pygame.font.init()
 pygame.init()
 
+from testvideo import  VideoSprite
 
 def get_line_col(x, y):
     line = round(y) // BLOCKSIZE
     row = round(x) // BLOCKSIZE
-    if row <= 60 and line <= 14:
-        return int(line), int(row)
+    return int(line), int(row)
     return False
 
 
@@ -48,9 +49,11 @@ class Game:
     def __init__(self, win):
         # VARS about screen :
         self.screen = win
-
+        self.sprite_group = pygame.sprite.Group()
         # get the default size
         self.width, self.height = win.get_size()
+
+        self.video_sprite2 = VideoSprite(pygame.Rect(100, self.height - 200, 160,90 ), 'e.mp4')
         # Background
         self.bg = pygame.image.load(os.path.join("game_assets", "misc/images/back.png"))
         self.bg = pygame.transform.scale(self.bg, (4000, self.height))
@@ -96,8 +99,10 @@ class Game:
         self.tree = None
         self.unit_to_buy_menu = None
 
-    def run(self):
 
+    def run(self):
+        #  video =
+        #video.preview()
         music = pygame.mixer.Sound(os.path.join("game_assets", "misc/sounds/music.mp3"))
         music.set_volume(0.5)
         # pygame.mixer.Channel(0).play(music, loops=-1)
@@ -112,6 +117,8 @@ class Game:
 
         pygame.mouse.set_visible(False)
         pygame.mouse.set_system_cursor(pygame.SYSTEM_CURSOR_HAND)
+
+
         while run:
             self.create_unit_to_buy_menu()
             clock.tick(FPS)
@@ -224,9 +231,6 @@ class Game:
                             if self.money >= cost:
                                 self.selected_unit_to_buy = unit_to_buy
 
-                if event.type == pygame.MOUSEBUTTONUP and event.button == 3:
-                    self.unit_menu = None
-                    self.selected_unit = None
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     if self.unit_menu:
                         unit_button = self.unit_menu.get_clicked(pos[0], pos[1])
@@ -266,13 +270,6 @@ class Game:
                     unites.append(self.allies[k])
 
             for element in unites:
-                if element.is_dead:
-                    if element.ally:
-                        self.allies.remove(element)
-                        break
-                    else:
-                        self.enemies.remove(element)
-                        break
                 if element.health <= 0:
                     break
                 if element.ally:
@@ -286,19 +283,51 @@ class Game:
 
                 self.update_single_mat(element)
 
-                if element.ally and not element.halt_fire:
+                if element.ally :
                     element.attack(self.enemies,self.rect.x)
-                if not element.ally and not element.halt_fire:
+                if not element.ally :
                     element.attack(self.allies,self.rect.x)
                 if element.name == "Canon" and element.spawn_ball:
+                    self.sprite_group.add(self.video_sprite2)
                     self.spawn_ball(element.x, element.y)
+
+
                 for projectile in self.projectiles:
-                    projectile.x += 50
+                    projectile.x += 9
+                    projectile.line, projectile.col = int(projectile.y // BLOCKSIZE), int(projectile.x // BLOCKSIZE)
 
-            self.update_mat(unites)
+            self.update_mat(unites,[])
+            self.ball_damages()
+            for element in unites:
+                if element.is_dead:
+                    if element.ally:
+                        self.allies.remove(element)
+                        break
+                    else:
+                        self.enemies.remove(element)
+                        break
+            pygame.display.update()
             self.draw()
-        pygame.quit()
+            self.sprite_group.update()
+            self.sprite_group.draw(self.screen)
 
+        pygame.quit()
+    def ball_damages(self):
+        for projectile in self.projectiles:
+            unit_line = projectile.x
+            unit_col = projectile.y
+            line, col = get_line_col(unit_line, unit_col)
+            try :
+                slug = self.MAT[line][col]
+                unit = find_unit_with_slug(self.enemies+self.allies , slug)
+                if unit :
+                    unit.hit(1000,"can")
+                    if unit not in projectile.cibles:
+                        projectile.cibles.append(unit)
+            except: pass
+            if len(projectile.cibles)>3:
+                self.projectiles.remove(projectile)
+                break
     def open_tree(self):
         """
             Open tree
@@ -362,7 +391,7 @@ class Game:
             phase = True
         self.screen.blit(self.bg, (-self.rect.x, 0))
 
-        self.drawGrid(phase)
+        #self.drawGrid(phase)
 
         self.draw_hover()
         if self.selected_unit:
@@ -419,7 +448,8 @@ class Game:
         self.screen.blit(clock, (self.width - text.get_width() - 50, 20))
 
         self.screen.blit(MANUAL_CURSOR, (pygame.mouse.get_pos()))
-        pygame.display.update()
+
+
 
     def Add_unit(self, name, ally, line, col):
         """
@@ -440,7 +470,7 @@ class Game:
                         element = Voltigeur(line, col, ally, self.screen)
                         self.allies.append(element)
                     if name == "Canon":
-                        element = Canon(line, col, ally, self.screen)
+                        element = Canon(5, 7, ally, self.screen)
                         self.allies.append(element)
         if not ally:
             if self.MAT[line][col] == 0:
@@ -459,12 +489,17 @@ class Game:
         unit_line = element.x
         unit_row = element.y
         line, row = get_line_col(unit_line, unit_row)
+        if line<16 and row<46 :
+            self.MAT[line][row] = element.slug
 
-        self.MAT[line][row] = element.slug
-
-    def update_mat(self, units):
+    def update_mat(self, units,projectiles):
         self.MAT = generate_mat(self.rows, self.lines)
         for element in units:
+            unit_line = element.x
+            unit_col = element.y
+            line, col = get_line_col(unit_line, unit_col)
+            self.MAT[line][col] = element.slug
+        for element in projectiles:
             unit_line = element.x
             unit_col = element.y
             line, col = get_line_col(unit_line, unit_col)
@@ -487,6 +522,8 @@ class Game:
                     self.screen.blit(tree_land, (rect.x, rect.y))
                 if self.MAT[y][x] == 9:
                     self.screen.blit(cross, (rect.x, rect.y))
+                if self.MAT[y][x] =="ball":
+                    pygame.draw.rect(self.screen, (0, 0, 200), rect, 0)
                 else:
                     slug = self.MAT[y][x]
                     unit = find_unit_with_slug(self.enemies + self.allies, slug)
@@ -512,15 +549,19 @@ class Game:
             l, c = get_line_col(pygame.mouse.get_pos()[0] + self.rect.x, pygame.mouse.get_pos()[1] - BLOCKSIZE)[0], \
                    get_line_col(pygame.mouse.get_pos()[0] + self.rect.x, pygame.mouse.get_pos()[1] - BLOCKSIZE)[1]
             slug = None
-            if c <= 60 and l <= 25:
+            try:
                 slug = self.MAT[l][c]
 
                 unit_hovered = find_unit_with_slug(self.enemies + self.allies, slug)
-            if unit_hovered:
-                unit_hovered.draw_radius(self.screen, self.rect.x)
-                # unit_hovered.draw_health_bar(self.screen,self.rect.x)
-                unit_hovered.draw_info(self.screen, self.rect.x)
-                # self.rows licks.append(pos)
+                if unit_hovered:
+                    unit_hovered.draw_radius(self.screen, self.rect.x)
+                    # unit_hovered.draw_health_bar(self.screen,self.rect.x)
+                    unit_hovered.draw_info(self.screen, self.rect.x)
+                    # self.rows licks.append(pos)
+            except :
+                pass
+
+
 
     def detect_select_unit(self):
         try:
@@ -590,8 +631,14 @@ class Game:
         """self.Add_unit("Voltigeur", True, 1, 8)
         self.Add_unit("Voltigeur", True, 2, 8)
         self.Add_unit("Voltigeur", True, 3, 8)"""
-        self.Add_unit("buy_old_gard", True, 1, 7)
-        self.Add_unit("buy_old_gard", False, 4, 40)
+        self.Add_unit("buy_old_gard", False, 5, 30)
+        self.Add_unit("buy_old_gard", False, 5, 31)
+        self.Add_unit("buy_old_gard", False, 5, 32)
+        self.Add_unit("buy_old_gard", False, 5, 33)
+        self.Add_unit("buy_old_gard", False, 5, 34)
+        self.Add_unit("buy_old_gard", False, 5, 35)
+        self.Add_unit("buy_old_gard", False, 5, 36)
+        self.Add_unit("buy_old_gard", False, 5, 37)
         """
         self.Add_unit("Voltigeur", True, 4, 8)
 

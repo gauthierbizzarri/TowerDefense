@@ -234,7 +234,6 @@ class Unit:
         dommages_bayonet = 10
         if type == "c": self.cac = True
         self.health -= 70
-
         print("shoot", type)
         if type == "can":
             self.health -= 500

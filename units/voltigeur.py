@@ -182,7 +182,7 @@ class Voltigeur(Unit):
         if not ennemy_closest:
             self.shooting = False
             self.cacing = False
-        print(self.finished_animation)
+            self.accel = 2
         if ennemy_closest:
             # Bayonet attack
             if self.cac and ennemy_closest_distance <= BLOCKSIZE:
@@ -204,26 +204,27 @@ class Voltigeur(Unit):
             # Shooting
             if self.finished_animation == "recha_fusil_tir":
                 self.reloading = False
-            if self.inRange and self.ammo > 0 and not self.cac and not self.reloading:
-                self.shooting = True
-                self.is_passing = False
-                # Aiming :
-                if self.finished_animation == "prepa_fusil_tir":
-                    self.behave = "fusil_tir"
-                    return
-                if self.finished_animation == "fusil_tir":
-                    self.behave = "recha_fusil_tir"
-                    self.play_sound_shooting()
-                    self.ammo -= 1
-                    self.reloading = True
-                    ennemy_closest.hit(self.proba_tir_reussi, "t")
-                    return
-                if self.finished_animation == "recha_fusil_tir":
-                    self.behave = "prepa_fusil_tir"
-                    return
-                else:
-                    self.behave = "prepa_fusil_tir"
-                    return
+            if not self.reloading:
+                if self.inRange and self.ammo > 0 and not self.cac and not self.halt_fire:
+                    self.shooting = True
+                    self.is_passing = False
+                    # Aiming :
+                    if self.finished_animation == "prepa_fusil_tir":
+                        self.behave = "fusil_tir"
+                        return
+                    if self.finished_animation == "fusil_tir":
+                        self.behave = "recha_fusil_tir"
+                        self.play_sound_shooting()
+                        self.ammo -= 1
+                        self.reloading = True
+                        ennemy_closest.hit(self.proba_tir_reussi, "t")
+                        return
+                    if self.finished_animation == "recha_fusil_tir":
+                        self.behave = "prepa_fusil_tir"
+                        return
+                    else:
+                        self.behave = "prepa_fusil_tir"
+                        return
 
     def play_sound_shooting(self):
         rifle_sound = pygame.mixer.Sound(os.path.join("game_assets", "infantry/sounds/musket.mp3"))

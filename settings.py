@@ -1,4 +1,4 @@
-FPS = 60
+FPS = 20
 BLOCKSIZE = 65
 
 LIGNES = 15
