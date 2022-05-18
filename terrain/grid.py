@@ -2,7 +2,12 @@ from config.settings import *
 from pyglet import shapes
 from terrain.case import Case
 
-
+def get_line_row(x,y):
+    x = x - LEFT_BORDER
+    y = y - TOP_BORDER
+    row = int(x//BLOCKSIZE)
+    line = int(y//BLOCKSIZE)
+    return line , row
 class Grid():
 
     def __init__(self, batch,group):
@@ -24,6 +29,14 @@ class Grid():
             for j in range (len(self.mat[0])):
                 self.mat[i][j].update()
 
+    def get_element(self,x,y):
+        line,row = get_line_row(x,y)
+        for i in range (len(self.mat)):
+            for j in range (len(self.mat[0])):
+                self.mat[i][j].is_selected = False
+        self.mat[line][row].is_selected = True
+        self.update()
+        return(self.mat[i][j])
 
     def create_grid(self):
         # GET grid size :

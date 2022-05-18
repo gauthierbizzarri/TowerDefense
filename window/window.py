@@ -44,15 +44,17 @@ class Window(pyglet.window.Window):
 
         self.move = False
         self.shoot = False
+    def get_element(self,x,y):
+        self.grid.get_element(x,y)
     def main(self):
         if self.move :
             for unit in self.game.units :
                 self.grid.unset_unit(unit)
                 unit.move()
                 self.grid.set_unit(unit)
-        """if self.shoot :
+        if self.shoot :
             for unit in self.game.units:
-                unit.shoot()"""
+                unit.shoot()
 
 
     def add_unit(self, unit):
