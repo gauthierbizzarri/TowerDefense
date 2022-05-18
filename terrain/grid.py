@@ -8,16 +8,31 @@ class Grid():
     def __init__(self, batch,group):
         self.batch = batch
         self.group = group
-        self.grid = self.create_grid()
+        self.mat = self.create_grid()
+
+    def set_unit(self,unit):
+
+        self.mat[int(unit.line)][int(unit.row)].content = "UNIT"
+        self.update()
+
+    def unset_unit(self,unit):
+
+        self.mat[int(unit.line)][int(unit.row)].content = "NONE"
+        self.update()
+    def update(self):
+        for i in range (len(self.mat)):
+            for j in range (len(self.mat[0])):
+                self.mat[i][j].update()
+
 
     def create_grid(self):
         # GET grid size :
-        Mat = []
+        mat = []
         for x in range(LIGNES):
             col = []
             for y in range(COLONNES):
-                case = Case(line=x, row=y,batch = self.batch,group = self.group).shape
+                case = Case(line=x, row=y,batch = self.batch,group = self.group)
                 col.append(case)
-            Mat.append(col)
-        return Mat
+            mat.append(col)
+        return mat
 

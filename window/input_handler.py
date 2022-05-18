@@ -21,6 +21,8 @@ def input_handler(window):
     @window.event
     def on_mouse_press(x, y, button, modifiers):
         if button == mouse.LEFT:
-            pass
+            window.move=True
+            window.shoot = False
         if button == mouse.RIGHT:
-            pass
+            window.shoot = True
+            window.move = False

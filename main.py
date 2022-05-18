@@ -23,6 +23,7 @@ def play_music():
 if __name__ == '__main__':
     game = Game()
     window = Window(game)
+    event_loop = pyglet.app.EventLoop()
     input_handler(window)
     pyglet.app.run()
     # window.update()

@@ -23,19 +23,12 @@ class Window(pyglet.window.Window):
         self.camera = Camera()
 
 
-        # LAYOUT 0 : BACKGROUND
-        # LAYOUT 1 : GRID
-        # LAYOUT 2 : LINE 12 ................
-        # LAYOUT 3 : LINE 11 ................
-        # LAYOUT 14: LINE 0
-
         self.background_group = pyglet.graphics.OrderedGroup(0)
         self.middleground_group = pyglet.graphics.OrderedGroup(1)
         self.foreground_group = pyglet.graphics.OrderedGroup(2)
 
 
-        self.grid = Grid(batch=self.batch,group=self.middleground_group).grid
-
+        self.grid = Grid(batch=self.batch,group=self.middleground_group)
 
         background_image = pyglet.resource.image('imgs/window/back.png')
         background_image.width = 4290
@@ -46,16 +39,33 @@ class Window(pyglet.window.Window):
 
         ### GEN ARMY :
         for i in range(12):
-            self.add_unit(OldGuard(line = i,row=0, batch=self.batch))
+            if i%3 ==0:
+                self.add_unit(OldGuard(line = i,row=0, batch=self.batch))
+
+        self.move = False
+        self.shoot = False
+    def main(self):
+        if self.move :
+            for unit in self.game.units :
+                self.grid.unset_unit(unit)
+                unit.move()
+                self.grid.set_unit(unit)
+        """if self.shoot :
+            for unit in self.game.units:
+                unit.shoot()"""
 
 
     def add_unit(self, unit):
         self.game.add_unit(unit)
+        self.grid.set_unit(unit)
+
 
 
     def update(self):
         self.label.x += self.camera.x
         self.label.text = str(self.camera.x)
+
     def on_draw(self):
         self.clear()
+        self.main()
         self.batch.draw()
