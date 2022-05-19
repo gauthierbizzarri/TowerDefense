@@ -18,10 +18,15 @@ def input_handler(window):
         if symbol == key.RIGHT:
             window.camera.move_right()
 
+
+    @window.event
+    def on_mouse_motion(x, y, dx, dy):
+        window.get_element(x,y,action="HOVER")
+
     @window.event
     def on_mouse_press(x, y, button, modifiers):
         if button == mouse.LEFT:
-            window.get_element(x,y)
+            window.get_element(x,y,action="CLICK")
             # window.move=True
             # window.shoot = False
         if button == mouse.RIGHT:

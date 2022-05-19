@@ -29,14 +29,23 @@ class Grid():
             for j in range (len(self.mat[0])):
                 self.mat[i][j].update()
 
-    def get_element(self,x,y):
+    def get_element(self,x,y,action):
         line,row = get_line_row(x,y)
         for i in range (len(self.mat)):
             for j in range (len(self.mat[0])):
-                self.mat[i][j].is_selected = False
-        self.mat[line][row].is_selected = True
-        self.update()
-        return(self.mat[i][j])
+                if action =="CLICK":
+                    self.mat[i][j].is_selected = False
+                if action =="HOVER":
+                    self.mat[i][j].is_hovered = False
+
+        if action == "CLICK":
+            self.mat[line][row].is_selected = True
+            self.update()
+            return (self.mat[i][j])
+        if action == "HOVER":
+            self.mat[line][row].is_hovered = True
+            self.update()
+        return self.mat[line][row].content
 
     def create_grid(self):
         # GET grid size :

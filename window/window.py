@@ -1,13 +1,12 @@
 import pyglet
 from pyglet import shapes
 from units.oldguard import OldGuard
+from units.oldguard import animate_waiting
 from window.camera import Camera
 from config.settings import *
 from terrain.grid import Grid
 
 class Window(pyglet.window.Window):
-
-
 
     def __init__(self, game):
         super(Window, self).__init__()
@@ -30,22 +29,45 @@ class Window(pyglet.window.Window):
 
         self.grid = Grid(batch=self.batch,group=self.middleground_group)
 
+        self.bandeau = []
+
         background_image = pyglet.resource.image('imgs/window/back.png')
         background_image.width = 4290
         background_image.height = 1300
         self.background = pyglet.sprite.Sprite(background_image,
                                                batch=self.batch, group=self.background_group)
 
-
         ### GEN ARMY :
         for i in range(12):
             if i%3 ==0:
-                self.add_unit(OldGuard(line = i,row=0, batch=self.batch))
+                self.add_unit(OldGuard(line = i,row=i+1, batch=self.batch))
 
         self.move = False
         self.shoot = False
-    def get_element(self,x,y):
-        self.grid.get_element(x,y)
+
+        self.init_bandeau()
+
+
+    def init_bandeau(self):
+        separator = 0
+        for element in self.game.units:
+            print(element)
+            self.bandeau.append(
+                (shapes.BorderedRectangle(LEFT_BORDER + separator, 0, BLOCKSIZE * 2, BLOCKSIZE * 1.7, border=3, color=(0, 0, 0),
+                                          border_color=(0, 255, 0), batch=self.batch, group=self.foreground_group),
+
+                 pyglet.sprite.Sprite(img=animate_waiting(), x=LEFT_BORDER, y=0,
+                                      batch=self.batch, group=self.foreground_group)))
+            separator +=150
+
+
+    def get_element(self,x,y,action):
+        element = self.grid.get_element(x,y,action)
+        if element =="UNIT":
+            ### DO SOMETHING UNIT HOVERED
+            pass
+
+
     def main(self):
         if self.move :
             for unit in self.game.units :
