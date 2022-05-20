@@ -37,7 +37,7 @@ class Grid():
                     self.mat[i][j].is_destination = False
         self.mat[line][row].is_destination = True
         self.update()
-    def get_element(self,x,y,action):
+    def get_element(self,x,y,action=None):
         line,row = get_line_row(x,y)
         if line>=LIGNES or row >=COLONNES: return None
         for i in range (len(self.mat)):
@@ -54,7 +54,8 @@ class Grid():
         if action == "HOVER":
             self.mat[line][row].is_hovered = True
             self.update()
-        return self.mat[line][row].unit
+
+        return self.mat[line][row].unit , self.mat[line][row].content
 
     def create_grid(self):
         ## create empty matrix
@@ -71,6 +72,9 @@ class Grid():
             random_line = random.randint(0, LIGNES-1)
             random_row = random.randint(0, COLONNES-1)
             mat[random_line][random_row].content = "OBSTACLE"
+
+        ## Create targets
+        mat[5][5].content = "TARGET"
 
         return mat
 

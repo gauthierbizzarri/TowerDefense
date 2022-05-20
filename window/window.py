@@ -66,21 +66,27 @@ class Window(pyglet.window.Window):
 
 
     def get_element(self,x,y,action):
-        element = self.grid.get_element(x,y,action)
+        element = self.grid.get_element(x,y,action)[0]
         if action =="CLICK":
             if element is not None :
                 self.clicked_unit = element
 
 
     def handle_left(self,x,y):
-        if self.clicked_unit :
-            # UNSET OLD  MOVE TILE
-            self.grid.set_move_tile(get_line_row(x,y)[0],get_line_row(x,y)[1])
-            ###MOVE UNIT
-            self.grid.unset_unit(self.clicked_unit)
-            self.clicked_unit.add_path(get_line_row(x,y)[0],get_line_row(x,y)[1])
-            self.grid.set_unit(self.clicked_unit)
+        content = self.grid.get_element(x, y)[1]
 
+        if self.clicked_unit :
+            ### CHECK FREE :
+            if content == "NONE":
+                # UNSET OLD  MOVE TILE
+                self.grid.set_move_tile(get_line_row(x,y)[0],get_line_row(x,y)[1])
+                ###MOVE UNIT
+                self.grid.unset_unit(self.clicked_unit)
+                self.clicked_unit.add_path(get_line_row(x,y)[0],get_line_row(x,y)[1])
+                self.grid.set_unit(self.clicked_unit)
+            if content == "TARGET":
+                # self.grid.set_move_tile(get_line_row(x, y)[0], get_line_row(x, y)[1])
+                self.clicked_unit.attack()
 
 
     def main(self):

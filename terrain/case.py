@@ -73,3 +73,10 @@ class Case():
                                              border_color=(255, 0, 0), batch=self.batch, group=self.group)
             shape.opacity = 100
             self.shape = shape
+
+        if self.content == "TARGET":
+            shape = shapes.BorderedRectangle(self.get_x(update=True), self.get_y(update=True), BLOCKSIZE, BLOCKSIZE,
+                                             border=3, color=(255, 0, 0+destination_color),
+                                             border_color=(255, 0, 0), batch=self.batch, group=self.group)
+            shape.opacity = 199
+            self.shape = shape

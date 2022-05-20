@@ -51,21 +51,21 @@ def animate_waiting():
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
-    return ani
+    return ani, "waiting "
 
 def animate_shooting():
     frames = []
     for i in range(1,13):
         if i == 12:
             img = pyglet.resource.image('ressources/imgs/units/grenadier/shooting/{}.png'.format(str((i))))
-            frame = pyglet.image.AnimationFrame(img, duration=5.7)
+            frame = pyglet.image.AnimationFrame(img, duration=3)
         else :
             img = pyglet.resource.image('ressources/imgs/units/grenadier/shooting/{}.png'.format(str((i))))
             frame = pyglet.image.AnimationFrame(img, duration=0.33)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
-    return ani
+    return ani , "shooting"
 
 def animate_marching():
     frames = []
@@ -75,7 +75,7 @@ def animate_marching():
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
-    return ani
+    return ani , "marching"
 
 
 
@@ -88,11 +88,20 @@ def place_unit_y(line):
 def get_group(line):
     # LAYOUT
     return pyglet.graphics.OrderedGroup(abs(line-13))
+
+
+class EffectSprite(pyglet.sprite.Sprite):
+
+    def on_animation_end(self):
+        if self.image =
+        self.image = animate_shooting()
+
+
 class OldGuard():
     def __init__(self,line,row,batch):
         self.line = line
         self.row = row
-        self.image =  pyglet.sprite.Sprite(img=animate_waiting(), x=place_unit_x(self.row), y=place_unit_y(self.line),batch=batch,group=get_group(self.line))
+        self.image =  EffectSprite(img=animate_waiting(), x=place_unit_x(self.row), y=place_unit_y(self.line),batch=batch,group=get_group(self.line))
         self.path_pos = 0
         self.path = []
         self.attitude= "waiting"
@@ -100,6 +109,11 @@ class OldGuard():
         self.id = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
         self.x = place_unit_x(self.row)
         self.y =  place_unit_y(self.line)
+
+    def on_animation_end(self):
+        print("ANIMATION END  CALLED ")
+        self.attitude = "shooting"
+        self.image.image = animate_waiting()
 
 
     def gen_path(self):
@@ -117,11 +131,6 @@ class OldGuard():
         self.image.x = place_unit_x(self.row)
         self.image.y = place_unit_y(self.line)
 
-
-    def shoot(self):
-        if self.attitude!="shooting":
-            self.image.image=animate_shooting()
-            self.attitude = "shooting"
 
 
 
@@ -147,24 +156,27 @@ class OldGuard():
                 path.append((posx, posy))
         self.path = path
 
+    def attack(self):
+        if self.attitude != "shooting":
+            self.attitude = "shooting"
+            self.image.image = animate_shooting()
+
+        # return
+
     def move(self):
         if self.path == []:
-            # self.image = animate_waiting()
-            self.attitude = "waiting"
-            self.image.image = animate_waiting()
+
             return
         if self.attitude != "marching":
             self.image.image = animate_marching()
             self.attitude = "marching"
         try:
             x1, y1 = self.path[self.path_pos]
-
-            print(self.path_pos,len(self.path))
             if self.path_pos + 1 >= len(self.path):
-                print(True)
                 self.path = []
                 self.path_pos = 0
                 self.attitude = "waiting"
+                self.image.image = animate_waiting()
                 return
             x2, y2 = self.path[self.path_pos + 1]
             if True:
