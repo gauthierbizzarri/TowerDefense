@@ -30,6 +30,6 @@ def input_handler(window):
             # window.move=True
             # window.shoot = False
         if button == mouse.RIGHT:
-            pass
+            window.handle_left(x,y)
             #window.shoot = True
             #window.move = False

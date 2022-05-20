@@ -16,8 +16,7 @@ class Grid():
         self.mat = self.create_grid()
 
     def set_unit(self,unit):
-
-        self.mat[int(unit.line)][int(unit.row)].content = "UNIT"
+        self.mat[int(unit.line)][int(unit.row)].set_content("UNIT",unit)
         self.update()
 
     def unset_unit(self,unit):
@@ -31,6 +30,7 @@ class Grid():
 
     def get_element(self,x,y,action):
         line,row = get_line_row(x,y)
+        if line>=LIGNES or row >=COLONNES: return None
         for i in range (len(self.mat)):
             for j in range (len(self.mat[0])):
                 if action =="CLICK":
@@ -41,11 +41,11 @@ class Grid():
         if action == "CLICK":
             self.mat[line][row].is_selected = True
             self.update()
-            return (self.mat[i][j])
+            self.mat[line][row].unit
         if action == "HOVER":
             self.mat[line][row].is_hovered = True
             self.update()
-        return self.mat[line][row].content
+        return self.mat[line][row].unit
 
     def create_grid(self):
         # GET grid size :

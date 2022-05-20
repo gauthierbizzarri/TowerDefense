@@ -13,16 +13,17 @@ pyglet.resource.reindex()
 
 def play_music():
     # streaming = False for longer tracks
-    music = pyglet.resource.media('music.mp3', streaming=True)
+    music = pyglet.resource.media('sounds/misc/music.mp3', streaming=True)
     # music.play()
-    vive_empereur = pyglet.resource.media('viveempereur.mp3', streaming=True)
-    vive_empereur.play()
+    # vive_empereur = pyglet.resource.media('viveempereur.mp3', streaming=True)
+    # music.play()
 
 
 
 if __name__ == '__main__':
     game = Game()
     window = Window(game)
+    play_music()
     event_loop = pyglet.app.EventLoop()
     input_handler(window)
     pyglet.app.run()

@@ -5,6 +5,7 @@ from units.oldguard import animate_waiting
 from window.camera import Camera
 from config.settings import *
 from terrain.grid import Grid
+from terrain.grid import get_line_row
 
 class Window(pyglet.window.Window):
 
@@ -31,6 +32,7 @@ class Window(pyglet.window.Window):
 
         self.bandeau = []
 
+        self.clicked_unit = None
         background_image = pyglet.resource.image('imgs/window/back.png')
         background_image.width = 4290
         background_image.height = 1300
@@ -51,29 +53,41 @@ class Window(pyglet.window.Window):
     def init_bandeau(self):
         separator = 0
         for element in self.game.units:
-            print(element)
             self.bandeau.append(
-                (shapes.BorderedRectangle(LEFT_BORDER + separator, 0, BLOCKSIZE * 2, BLOCKSIZE * 1.7, border=3, color=(0, 0, 0),
+                (shapes.BorderedRectangle(LEFT_BORDER + separator, 0, BLOCKSIZE * 1., BLOCKSIZE * 1.5, border=3, color=(0, 0, 0),
                                           border_color=(0, 255, 0), batch=self.batch, group=self.foreground_group),
 
-                 pyglet.sprite.Sprite(img=animate_waiting(), x=LEFT_BORDER, y=0,
+                 pyglet.sprite.Sprite(img=animate_waiting(), x=LEFT_BORDER + separator , y=0,
                                       batch=self.batch, group=self.foreground_group)))
-            separator +=150
+            separator +=BLOCKSIZE+20
 
 
     def get_element(self,x,y,action):
         element = self.grid.get_element(x,y,action)
-        if element =="UNIT":
-            ### DO SOMETHING UNIT HOVERED
-            pass
+        if action =="CLICK":
+            if element is not None :
+                self.clicked_unit = element
+    def handle_left(self,x,y):
+        if self.clicked_unit :
+            self.grid.unset_unit(self.clicked_unit)
+            print(get_line_row(x,y)[0],get_line_row(x,y)[1])
+            self.clicked_unit.add_path(get_line_row(x,y)[0],get_line_row(x,y)[1])
+            self.grid.set_unit(self.clicked_unit)
+
 
 
     def main(self):
-        if self.move :
-            for unit in self.game.units :
-                self.grid.unset_unit(unit)
-                unit.move()
-                self.grid.set_unit(unit)
+        """
+       for unit in self.game.units :
+            self.grid.unset_unit(unit)
+            unit.move(unit.line,unit.row+2)
+            self.grid.set_unit(unit)
+            """
+        self.init_bandeau()
+        for unit in self.game.units :
+            self.grid.unset_unit(unit)
+            unit.move()
+            self.grid.set_unit(unit)
         if self.shoot :
             for unit in self.game.units:
                 unit.shoot()

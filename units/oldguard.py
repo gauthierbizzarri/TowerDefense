@@ -2,7 +2,10 @@ import attitude as attitude
 import pyglet
 from config.settings import *
 import math
-
+import random
+import time
+import string
+from pyglet import clock
 def center_image(image):
     # Center image at middle bottom of the image
     image.anchor_x = image.width // 8
@@ -92,15 +95,15 @@ class OldGuard():
         self.path_pos = 0
         self.path = []
         self.attitude= "waiting"
+        self.type = "unit"
+        self.id = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
 
 
     def gen_path(self):
-        lignes = LIGNES
-        colonnes = COLONNES
         all_path = []
-        for l in range(lignes):
+        for l in range(LIGNES):
             new_path = []
-            for c in range(colonnes):
+            for c in range(COLONNES):
                 new_path.append((place_unit_x(c), place_unit_y(l)))
             all_path.append(new_path)
         return all_path[self.line]
@@ -116,18 +119,67 @@ class OldGuard():
             self.attitude = "shooting"
 
 
-    def move(self):
-        # UNSET POSITION
 
-        if int(self.row) ==5:
-            self.shoot()
+    def add_path(self,end_line,end_row):
+        self.path = []
+        xf = place_unit_x(end_row)
+        yf = place_unit_y(end_line)
+        posx = place_unit_x(self.row)
+        posy = place_unit_y(self.line)
+        path = [(posx,posy)]
+        distance = math.sqrt((posx - xf) ** 2 + (posy - yf) ** 2)
+        for i in range(int(distance / BLOCKSIZE)):
+            if xf - posx < 0:
+                posx = posx - BLOCKSIZE
+            if xf - posx > 0:
+                posx = posx + BLOCKSIZE
+            if yf - posy < 0:
+                posy = posy - BLOCKSIZE
+            if yf - posy > 0:
+                posy = posy + BLOCKSIZE
+            path.append((posx, posy))
+        self.path = path
+
+    def move(self):
+        if self.path == []:
+            # self.image = animate_waiting()
             return
-        if self.attitude!="marching":
-            self.image.image=animate_marching()
+        if self.attitude != "marching":
+            self.image.image = animate_marching()
             self.attitude = "marching"
-        if self.row <COLONNES and self.line<LIGNES:
-            self.row = self.row + 0.09
+        if self.row < COLONNES-1 and self.line < LIGNES-1:
+            x1, y1 = self.path[self.path_pos]
+            if self.path_pos + 1 >= len(self.path):
+                self.path = []
+                self.path_pos = 0
+                return
+            x2, y2 = self.path[self.path_pos + 1]
+            dirn = ((x2 - x1), (y2 - y1))
+            length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2) * 1 / 71
+            if length == 0:
+                length = 0.0001
+            dirn = (dirn[0] / length, dirn[1] / length)
+            move_x, move_y = ((BLOCKSIZE*self.row + dirn[0]), (BLOCKSIZE*self.line + dirn[1]))
+            self.row = int(move_x//BLOCKSIZE)
+            self.line = int(move_y//BLOCKSIZE)
             self.update_image()
+            self.path_pos += 1
+"""
+            if dirn[0] >= 0:  # moving right
+                if dirn[1] >= 0:  # moving down
+                    if move_x >= x2 and move_y >= y2:
+                        self.path_pos += 1
+                else:
+                    if move_x >= x2 and move_y <= y2:
+                        self.path_pos += 1
+            else:  # moving left
+                if dirn[1] >= 0:  # moving down
+                    if move_x <= x2 and move_y >= y2:
+                        self.path_pos += 1
+                else:
+                    if move_x <= x2 and move_y >= y2:
+                        self.path_pos += 1"""
+
 
 
 
