@@ -1,6 +1,7 @@
 from config.settings import *
 from pyglet import shapes
 from terrain.case import Case
+import random
 
 def get_line_row(x,y):
     x = x - LEFT_BORDER
@@ -28,6 +29,14 @@ class Grid():
             for j in range (len(self.mat[0])):
                 self.mat[i][j].update()
 
+
+    def set_move_tile(self,line,row):
+        for i in range(len(self.mat)):
+            for j in range(len(self.mat[0])):
+                if self.mat[i][j].is_destination:
+                    self.mat[i][j].is_destination = False
+        self.mat[line][row].is_destination = True
+        self.update()
     def get_element(self,x,y,action):
         line,row = get_line_row(x,y)
         if line>=LIGNES or row >=COLONNES: return None
@@ -48,7 +57,7 @@ class Grid():
         return self.mat[line][row].unit
 
     def create_grid(self):
-        # GET grid size :
+        ## create empty matrix
         mat = []
         for x in range(LIGNES):
             col = []
@@ -56,5 +65,12 @@ class Grid():
                 case = Case(line=x, row=y,batch = self.batch,group = self.group)
                 col.append(case)
             mat.append(col)
+
+        ### Create obstacles
+        for i in range(10):
+            random_line = random.randint(0, LIGNES-1)
+            random_row = random.randint(0, COLONNES-1)
+            mat[random_line][random_row].content = "OBSTACLE"
+
         return mat
 

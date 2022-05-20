@@ -1,6 +1,7 @@
 import pyglet
-from window.input_handler import input_handler
+from window.input_handler import input_handler, motion_handler
 from window.window import  Window
+from pyglet import clock
 from game import Game
 pyglet.resource.path = ['ressources']
 pyglet.resource.reindex()
@@ -26,6 +27,8 @@ if __name__ == '__main__':
     play_music()
     event_loop = pyglet.app.EventLoop()
     input_handler(window)
+
+    clock.schedule_once(motion_handler, 5,window)
     pyglet.app.run()
     # window.update()
     # play_music()

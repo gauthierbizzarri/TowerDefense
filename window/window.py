@@ -11,10 +11,13 @@ class Window(pyglet.window.Window):
 
     def __init__(self, game):
         super(Window, self).__init__()
+
+
         # window.set_exclusive_mouse(self)
         Window.set_caption(self, caption="Napoléon ")
         Window.style = pyglet.window.Window.WINDOW_STYLE_DIALOG
         Window.set_fullscreen(self, fullscreen=True)
+
 
         cursor = Window.get_system_mouse_cursor(self, Window.CURSOR_CROSSHAIR)
         Window.set_mouse_cursor(self, cursor)
@@ -67,10 +70,14 @@ class Window(pyglet.window.Window):
         if action =="CLICK":
             if element is not None :
                 self.clicked_unit = element
+
+
     def handle_left(self,x,y):
         if self.clicked_unit :
+            # UNSET OLD  MOVE TILE
+            self.grid.set_move_tile(get_line_row(x,y)[0],get_line_row(x,y)[1])
+            ###MOVE UNIT
             self.grid.unset_unit(self.clicked_unit)
-            print(get_line_row(x,y)[0],get_line_row(x,y)[1])
             self.clicked_unit.add_path(get_line_row(x,y)[0],get_line_row(x,y)[1])
             self.grid.set_unit(self.clicked_unit)
 

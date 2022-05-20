@@ -1,7 +1,14 @@
 from pyglet.window import key
 from pyglet.window import mouse
-
+from pyglet.clock import Clock
 from units.oldguard import OldGuard
+from pyglet import clock
+
+def motion_handler(dt,window):
+    @window.event
+    def on_mouse_motion(x, y, dx, dy):
+        print("CALLED")
+        window.get_element(x,y,action="HOVER")
 
 
 def input_handler(window):
@@ -19,9 +26,8 @@ def input_handler(window):
             window.camera.move_right()
 
 
-    @window.event
-    def on_mouse_motion(x, y, dx, dy):
-        window.get_element(x,y,action="HOVER")
+
+
 
     @window.event
     def on_mouse_press(x, y, button, modifiers):

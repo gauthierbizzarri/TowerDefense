@@ -5,6 +5,7 @@ import math
 import random
 import time
 import string
+from terrain.grid import  get_line_row
 from pyglet import clock
 def center_image(image):
     # Center image at middle bottom of the image
@@ -70,7 +71,7 @@ def animate_marching():
     frames = []
     for i in range(1,5):
         img = pyglet.resource.image('ressources/imgs/units/grenadier/marching/{}.png'.format(str((i))))
-        frame = pyglet.image.AnimationFrame(img, duration=0.22)
+        frame = pyglet.image.AnimationFrame(img, duration=0.1)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -97,14 +98,18 @@ class OldGuard():
         self.attitude= "waiting"
         self.type = "unit"
         self.id = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
+        self.x = place_unit_x(self.row)
+        self.y =  place_unit_y(self.line)
 
 
     def gen_path(self):
         all_path = []
+        precision = 5
         for l in range(LIGNES):
             new_path = []
             for c in range(COLONNES):
-                new_path.append((place_unit_x(c), place_unit_y(l)))
+                for i in range(precision):
+                    new_path.append((place_unit_x(c)/precision, place_unit_y(l)/precision))
             all_path.append(new_path)
         return all_path[self.line]
 
@@ -122,6 +127,7 @@ class OldGuard():
 
     def add_path(self,end_line,end_row):
         self.path = []
+        precision = 10
         xf = place_unit_x(end_row)
         yf = place_unit_y(end_line)
         posx = place_unit_x(self.row)
@@ -129,56 +135,72 @@ class OldGuard():
         path = [(posx,posy)]
         distance = math.sqrt((posx - xf) ** 2 + (posy - yf) ** 2)
         for i in range(int(distance / BLOCKSIZE)):
-            if xf - posx < 0:
-                posx = posx - BLOCKSIZE
-            if xf - posx > 0:
-                posx = posx + BLOCKSIZE
-            if yf - posy < 0:
-                posy = posy - BLOCKSIZE
-            if yf - posy > 0:
-                posy = posy + BLOCKSIZE
-            path.append((posx, posy))
+            for j in range(precision):
+                if xf - posx < 0:
+                    posx = posx - BLOCKSIZE/precision
+                if xf - posx > 0:
+                    posx = posx + BLOCKSIZE/precision
+                if yf - posy < 0:
+                    posy = posy - BLOCKSIZE/precision
+                if yf - posy > 0:
+                    posy = posy + BLOCKSIZE/precision
+                path.append((posx, posy))
         self.path = path
 
     def move(self):
         if self.path == []:
             # self.image = animate_waiting()
+            self.attitude = "waiting"
+            self.image.image = animate_waiting()
             return
         if self.attitude != "marching":
             self.image.image = animate_marching()
             self.attitude = "marching"
-        if self.row < COLONNES-1 and self.line < LIGNES-1:
+        try:
             x1, y1 = self.path[self.path_pos]
+
+            print(self.path_pos,len(self.path))
             if self.path_pos + 1 >= len(self.path):
+                print(True)
                 self.path = []
                 self.path_pos = 0
+                self.attitude = "waiting"
                 return
             x2, y2 = self.path[self.path_pos + 1]
-            dirn = ((x2 - x1), (y2 - y1))
-            length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2) * 1 / 71
-            if length == 0:
-                length = 0.0001
-            dirn = (dirn[0] / length, dirn[1] / length)
-            move_x, move_y = ((BLOCKSIZE*self.row + dirn[0]), (BLOCKSIZE*self.line + dirn[1]))
-            self.row = int(move_x//BLOCKSIZE)
-            self.line = int(move_y//BLOCKSIZE)
-            self.update_image()
-            self.path_pos += 1
-"""
-            if dirn[0] >= 0:  # moving right
-                if dirn[1] >= 0:  # moving down
-                    if move_x >= x2 and move_y >= y2:
-                        self.path_pos += 1
-                else:
-                    if move_x >= x2 and move_y <= y2:
-                        self.path_pos += 1
-            else:  # moving left
-                if dirn[1] >= 0:  # moving down
-                    if move_x <= x2 and move_y >= y2:
-                        self.path_pos += 1
-                else:
-                    if move_x <= x2 and move_y >= y2:
-                        self.path_pos += 1"""
+            if True:
+                dirn = ((x2 - x1), (y2 - y1))
+                length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2) *1/4
+                dirn = (dirn[0] / length, dirn[1] / length)
+                move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
+                self.x = move_x
+                self.y = move_y
+
+                x = self.x - LEFT_BORDER
+                y = self.y - TOP_BORDER
+                row = x / BLOCKSIZE
+                line = y  / BLOCKSIZE
+
+                self.line = line
+                self.row = row
+                # Go to next point
+                if dirn[0] >= 0:  # moving right
+                    if dirn[1] >= 0:  # moving down
+                        if self.x >= x2 and self.y >= y2:
+                            self.path_pos += 1
+                    else:
+                        if self.x >= x2 and self.y <= y2:
+                            self.path_pos += 1
+                else:  # moving left
+                    if dirn[1] >= 0:  # moving down
+                        if self.x <= x2 and self.y >= y2:
+                            self.path_pos += 1
+                    else:
+                        if self.x <= x2 and self.y >= y2:
+                            self.path_pos += 1
+                self.update_image()
+        except:
+            pass
+
 
 
 
