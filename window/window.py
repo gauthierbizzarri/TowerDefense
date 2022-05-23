@@ -60,7 +60,7 @@ class Window(pyglet.window.Window):
                 (shapes.BorderedRectangle(LEFT_BORDER + separator, 0, BLOCKSIZE * 1., BLOCKSIZE * 1.5, border=3, color=(0, 0, 0),
                                           border_color=(0, 255, 0), batch=self.batch, group=self.foreground_group),
 
-                 pyglet.sprite.Sprite(img=animate_waiting(), x=LEFT_BORDER + separator , y=0,
+                 pyglet.sprite.Sprite(img=animate_waiting()[0], x=LEFT_BORDER + separator , y=0,
                                       batch=self.batch, group=self.foreground_group)))
             separator +=BLOCKSIZE+20
 
@@ -100,6 +100,7 @@ class Window(pyglet.window.Window):
         for unit in self.game.units :
             self.grid.unset_unit(unit)
             unit.move()
+            unit.play_sound()
             self.grid.set_unit(unit)
         if self.shoot :
             for unit in self.game.units:

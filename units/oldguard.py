@@ -3,10 +3,15 @@ import pyglet
 from config.settings import *
 import math
 import random
-import time
 import string
-from terrain.grid import  get_line_row
+from terrain.grid import get_line_row
 from pyglet import clock
+
+
+
+def play_shooting_sound():
+    music = pyglet.resource.media('sounds/units/rifle_shoot.mp3', streaming=False)
+    music.play()
 def center_image(image):
     # Center image at middle bottom of the image
     image.anchor_x = image.width // 8
@@ -36,7 +41,6 @@ image_shooting_j = pyglet.resource.image('ressources/imgs/units/grenadier/shooti
 image_shooting_k = pyglet.resource.image('ressources/imgs/units/grenadier/shooting/11.png')
 image_shooting_l = pyglet.resource.image('ressources/imgs/units/grenadier/shooting/12.png')
 
-
 image_marching_a = pyglet.resource.image('ressources/imgs/units/grenadier/marching/1.png')
 image_marching_b = pyglet.resource.image('ressources/imgs/units/grenadier/marching/2.png')
 image_marching_c = pyglet.resource.image('ressources/imgs/units/grenadier/marching/3.png')
@@ -45,7 +49,7 @@ image_marching_d = pyglet.resource.image('ressources/imgs/units/grenadier/marchi
 
 def animate_waiting():
     frames = []
-    for i in range(1,9):
+    for i in range(1, 9):
         img = pyglet.resource.image('ressources/imgs/units/grenadier/waiting/{}.png'.format(str((i))))
         frame = pyglet.image.AnimationFrame(img, duration=0.33)
         frames.append(frame)
@@ -53,69 +57,79 @@ def animate_waiting():
     ani = pyglet.image.Animation(frames=frames)
     return ani, "waiting "
 
+
 def animate_shooting():
     frames = []
-    for i in range(1,13):
+    for i in range(1, 13):
         if i == 12:
             img = pyglet.resource.image('ressources/imgs/units/grenadier/shooting/{}.png'.format(str((i))))
-            frame = pyglet.image.AnimationFrame(img, duration=3)
-        else :
+            frame = pyglet.image.AnimationFrame(img, duration=0.5)
+        else:
             img = pyglet.resource.image('ressources/imgs/units/grenadier/shooting/{}.png'.format(str((i))))
             frame = pyglet.image.AnimationFrame(img, duration=0.33)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
-    return ani , "shooting"
+    return ani, "shooting"
+
 
 def animate_marching():
     frames = []
-    for i in range(1,5):
+    for i in range(1, 5):
         img = pyglet.resource.image('ressources/imgs/units/grenadier/marching/{}.png'.format(str((i))))
         frame = pyglet.image.AnimationFrame(img, duration=0.1)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
-    return ani , "marching"
-
+    return ani, "marching"
 
 
 # grenadier= center_image(grenadier)
 
 def place_unit_x(row):
-    return BLOCKSIZE*row +LEFT_BORDER
+    return BLOCKSIZE * row + LEFT_BORDER
+
+
 def place_unit_y(line):
-    return BLOCKSIZE * line  + TOP_BORDER
+    return BLOCKSIZE * line + TOP_BORDER
+
+
 def get_group(line):
     # LAYOUT
-    return pyglet.graphics.OrderedGroup(abs(line-13))
+    return pyglet.graphics.OrderedGroup(abs(line - 13))
 
 
 class EffectSprite(pyglet.sprite.Sprite):
 
+    def set_name(self,name):
+        self.name = name
+    def __title(self):
+        return self.name
+
     def on_animation_end(self):
-        if self.image =
-        self.image = animate_shooting()
+        if self.name =="shooting":
+            self.image = animate_waiting()[0]
 
 
 class OldGuard():
-    def __init__(self,line,row,batch):
+    def __init__(self, line, row, batch):
         self.line = line
         self.row = row
-        self.image =  EffectSprite(img=animate_waiting(), x=place_unit_x(self.row), y=place_unit_y(self.line),batch=batch,group=get_group(self.line))
+        self.image = EffectSprite(img=animate_waiting()[0], x=place_unit_x(self.row), y=place_unit_y(self.line),
+                                  batch=batch, group=get_group(self.line))
+        self.image.set_name(animate_waiting()[1])
         self.path_pos = 0
         self.path = []
-        self.attitude= "waiting"
+        self.attitude = "waiting"
         self.type = "unit"
         self.id = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
         self.x = place_unit_x(self.row)
-        self.y =  place_unit_y(self.line)
-
-    def on_animation_end(self):
-        print("ANIMATION END  CALLED ")
-        self.attitude = "shooting"
-        self.image.image = animate_waiting()
+        self.y = place_unit_y(self.line)
+        self.player =pyglet.media.Player()
 
 
+    def play_sound(self):
+        self.player.play()
     def gen_path(self):
         all_path = []
         precision = 5
@@ -123,7 +137,7 @@ class OldGuard():
             new_path = []
             for c in range(COLONNES):
                 for i in range(precision):
-                    new_path.append((place_unit_x(c)/precision, place_unit_y(l)/precision))
+                    new_path.append((place_unit_x(c) / precision, place_unit_y(l) / precision))
             all_path.append(new_path)
         return all_path[self.line]
 
@@ -131,57 +145,57 @@ class OldGuard():
         self.image.x = place_unit_x(self.row)
         self.image.y = place_unit_y(self.line)
 
-
-
-
-    def add_path(self,end_line,end_row):
+    def add_path(self, end_line, end_row):
         self.path = []
         precision = 10
         xf = place_unit_x(end_row)
         yf = place_unit_y(end_line)
         posx = place_unit_x(self.row)
         posy = place_unit_y(self.line)
-        path = [(posx,posy)]
+        path = [(posx, posy)]
         distance = math.sqrt((posx - xf) ** 2 + (posy - yf) ** 2)
         for i in range(int(distance / BLOCKSIZE)):
             for j in range(precision):
                 if xf - posx < 0:
-                    posx = posx - BLOCKSIZE/precision
+                    posx = posx - BLOCKSIZE / precision
                 if xf - posx > 0:
-                    posx = posx + BLOCKSIZE/precision
+                    posx = posx + BLOCKSIZE / precision
                 if yf - posy < 0:
-                    posy = posy - BLOCKSIZE/precision
+                    posy = posy - BLOCKSIZE / precision
                 if yf - posy > 0:
-                    posy = posy + BLOCKSIZE/precision
+                    posy = posy + BLOCKSIZE / precision
                 path.append((posx, posy))
         self.path = path
 
     def attack(self):
         if self.attitude != "shooting":
             self.attitude = "shooting"
-            self.image.image = animate_shooting()
+            self.image.image = animate_shooting()[0]
+            self.image.set_name(animate_shooting()[1])
 
         # return
 
     def move(self):
         if self.path == []:
-
             return
         if self.attitude != "marching":
-            self.image.image = animate_marching()
+            self.image.image = animate_marching()[0]
+            self.image.set_name(animate_marching()[1])
             self.attitude = "marching"
         try:
+            self.play_walking_sound()
             x1, y1 = self.path[self.path_pos]
             if self.path_pos + 1 >= len(self.path):
                 self.path = []
                 self.path_pos = 0
                 self.attitude = "waiting"
-                self.image.image = animate_waiting()
+                self.image.image = animate_waiting()[0]
+                self.image.set_name(animate_waiting()[1])
                 return
             x2, y2 = self.path[self.path_pos + 1]
             if True:
                 dirn = ((x2 - x1), (y2 - y1))
-                length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2) *1/4
+                length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2) * 1 / 4
                 dirn = (dirn[0] / length, dirn[1] / length)
                 move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
                 self.x = move_x
@@ -190,7 +204,7 @@ class OldGuard():
                 x = self.x - LEFT_BORDER
                 y = self.y - TOP_BORDER
                 row = x / BLOCKSIZE
-                line = y  / BLOCKSIZE
+                line = y / BLOCKSIZE
 
                 self.line = line
                 self.row = row
@@ -213,8 +227,6 @@ class OldGuard():
         except:
             pass
 
-
-
-
-
-
+    def play_walking_sound(self):
+        music = pyglet.resource.media('sounds/units/walking.mp3', streaming=False)
+        self.player.queue(music)
