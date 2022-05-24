@@ -97,6 +97,7 @@ class Window(pyglet.window.Window):
             self.grid.set_unit(unit)
             """
         self.init_bandeau()
+        self.grid.create_matrix_for_path()
         for unit in self.game.units :
             self.grid.unset_unit(unit)
             unit.move()

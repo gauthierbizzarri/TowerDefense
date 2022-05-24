@@ -9,9 +9,7 @@ from pyglet import clock
 
 
 
-def play_shooting_sound():
-    music = pyglet.resource.media('sounds/units/rifle_shoot.mp3', streaming=False)
-    music.play()
+
 def center_image(image):
     # Center image at middle bottom of the image
     image.anchor_x = image.width // 8
@@ -103,7 +101,7 @@ class EffectSprite(pyglet.sprite.Sprite):
 
     def set_name(self,name):
         self.name = name
-    def __title(self):
+    def __title__(self):
         return self.name
 
     def on_animation_end(self):
@@ -130,6 +128,7 @@ class OldGuard():
 
     def play_sound(self):
         self.player.play()
+        self.player.next_source()
     def gen_path(self):
         all_path = []
         precision = 5
@@ -172,8 +171,10 @@ class OldGuard():
             self.attitude = "shooting"
             self.image.image = animate_shooting()[0]
             self.image.set_name(animate_shooting()[1])
+            self.play_shooting_sound()
 
         # return
+
 
     def move(self):
         if self.path == []:
@@ -183,8 +184,9 @@ class OldGuard():
             self.image.set_name(animate_marching()[1])
             self.attitude = "marching"
         try:
-            self.play_walking_sound()
             x1, y1 = self.path[self.path_pos]
+            if self.path_pos %2==0:
+                self.play_walking_sound()
             if self.path_pos + 1 >= len(self.path):
                 self.path = []
                 self.path_pos = 0
@@ -229,4 +231,8 @@ class OldGuard():
 
     def play_walking_sound(self):
         music = pyglet.resource.media('sounds/units/walking.mp3', streaming=False)
+        self.player.queue(music)
+
+    def play_shooting_sound(self):
+        music = pyglet.resource.media('sounds/units/rifle_shoot.mp3', streaming=False)
         self.player.queue(music)
