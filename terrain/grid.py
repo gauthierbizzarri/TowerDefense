@@ -52,19 +52,22 @@ class Grid():
                 else :
                     element = 1
                 rows.append(element)
-            print("ROW : {}".format(str(rows)))
+            # print("ROW : {}".format(str(rows)))
             matrix.append(rows)
-        print(len(matrix),len(matrix[0]))
+
         grid = grid_path(matrix=matrix)
         start = grid.node(0, 0)
-        end = grid.node(10, 10)
+        end = grid.node(19, 11)
 
-        finder = AStarFinder(diagonal_movement=DiagonalMovement.always)
+        finder = AStarFinder()
         path, runs = finder.find_path(start, end, grid)
-
-        print(path)
+        for tile in path :
+            pass
+            self.mat[tile[1]][tile[0]].is_a_path = True
+        self.update()
+        """print(path)
         print('operations:', runs, 'path length:', len(path))
-        print(grid.grid_str(path=path, start=start, end=end))
+        print(grid.grid_str(path=path, start=start, end=end))"""
 
 
     def get_element(self,x,y,action=None):

@@ -27,6 +27,7 @@ if __name__ == '__main__':
     play_music()
     event_loop = pyglet.app.EventLoop()
     input_handler(window)
+    window.grid.create_matrix_for_path()
     clock.schedule_once(motion_handler, 5,window)
     pyglet.app.run()
     # window.update()

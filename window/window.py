@@ -6,7 +6,7 @@ from window.camera import Camera
 from config.settings import *
 from terrain.grid import Grid
 from terrain.grid import get_line_row
-
+from units.bataillon import Bataillon
 class Window(pyglet.window.Window):
 
     def __init__(self, game):
@@ -42,15 +42,14 @@ class Window(pyglet.window.Window):
         self.background = pyglet.sprite.Sprite(background_image,
                                                batch=self.batch, group=self.background_group)
 
-        ### GEN ARMY :
-        for i in range(12):
-            if i%3 ==0:
-                self.add_unit(OldGuard(line = i,row=i+1, batch=self.batch))
+
 
         self.move = False
         self.shoot = False
 
         self.init_bandeau()
+
+        self.bataillon = None
 
 
     def init_bandeau(self):
@@ -88,6 +87,19 @@ class Window(pyglet.window.Window):
                 # self.grid.set_move_tile(get_line_row(x, y)[0], get_line_row(x, y)[1])
                 self.clicked_unit.attack()
 
+    def init_armee(self):
+        ### GEN ARMY :
+        # CENTRE GRAVITE BATAILLON
+        self.add_unit(OldGuard(line=5, row=5, batch=self.batch))
+        self.add_unit(OldGuard(line=5+1, row=5, batch=self.batch))
+        self.add_unit(OldGuard(line=5, row=5+1, batch=self.batch))
+        self.add_unit(OldGuard(line=5-1, row=5, batch=self.batch))
+        self.add_unit(OldGuard(line=5-1, row=5+1, batch=self.batch))
+        self.add_unit(OldGuard(line=5-1, row=5-1, batch=self.batch))
+        self.add_unit(OldGuard(line=5+1, row=5-1, batch=self.batch))
+        bataillon = Bataillon(self.game.units,self.grid)
+        self.bataillon = bataillon
+
 
     def main(self):
         """
@@ -97,12 +109,10 @@ class Window(pyglet.window.Window):
             self.grid.set_unit(unit)
             """
         self.init_bandeau()
-        self.grid.create_matrix_for_path()
-        for unit in self.game.units :
-            self.grid.unset_unit(unit)
-            unit.move()
-            unit.play_sound()
-            self.grid.set_unit(unit)
+        self.init_armee()
+            # self.grid.unset_unit(unit)
+        self.bataillon.move_bataillon()
+            # self.grid.set_unit(unit)
         if self.shoot :
             for unit in self.game.units:
                 unit.shoot()
