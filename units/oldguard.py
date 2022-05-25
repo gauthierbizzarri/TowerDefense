@@ -3,6 +3,9 @@ import pyglet
 from config.settings import *
 import math
 import random
+from pathfinding.core.diagonal_movement import DiagonalMovement
+from pathfinding.core.grid import Grid
+from pathfinding.finder.a_star import AStarFinder
 import string
 from terrain.grid import get_line_row
 from pyglet import clock
@@ -129,23 +132,21 @@ class OldGuard():
     def play_sound(self):
         self.player.play()
         self.player.next_source()
-    def gen_path(self):
-        all_path = []
-        precision = 5
-        for l in range(LIGNES):
-            new_path = []
-            for c in range(COLONNES):
-                for i in range(precision):
-                    new_path.append((place_unit_x(c) / precision, place_unit_y(l) / precision))
-            all_path.append(new_path)
-        return all_path[self.line]
 
     def update_image(self):
         self.image.x = place_unit_x(self.row)
         self.image.y = place_unit_y(self.line)
 
-    def add_path(self, end_line, end_row):
+    def add_path(self,matrix, end_line, end_row):
         self.path = []
+
+        grid = Grid(matrix=matrix)
+
+        start = grid.node(0, 0)
+        end = grid.node(3, 3)
+        finder = AStarFinder()
+        path, runs = finder.find_path(start, end, grid)
+
         precision = 10
         xf = place_unit_x(end_row)
         yf = place_unit_y(end_line)

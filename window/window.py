@@ -52,6 +52,8 @@ class Window(pyglet.window.Window):
         self.bataillon = None
 
 
+        self.init_armee()
+
     def init_bandeau(self):
         separator = 0
         for element in self.game.units:
@@ -91,12 +93,14 @@ class Window(pyglet.window.Window):
         ### GEN ARMY :
         # CENTRE GRAVITE BATAILLON
         self.add_unit(OldGuard(line=5, row=5, batch=self.batch))
-        self.add_unit(OldGuard(line=5+1, row=5, batch=self.batch))
         self.add_unit(OldGuard(line=5, row=5+1, batch=self.batch))
+        self.add_unit(OldGuard(line=5, row=5-1, batch=self.batch))
+        self.add_unit(OldGuard(line=5+1, row=5, batch=self.batch))
+        self.add_unit(OldGuard(line=5+1, row=5-1, batch=self.batch))
+        self.add_unit(OldGuard(line=5 + 1, row=5 + 1, batch=self.batch))
         self.add_unit(OldGuard(line=5-1, row=5, batch=self.batch))
         self.add_unit(OldGuard(line=5-1, row=5+1, batch=self.batch))
         self.add_unit(OldGuard(line=5-1, row=5-1, batch=self.batch))
-        self.add_unit(OldGuard(line=5+1, row=5-1, batch=self.batch))
         bataillon = Bataillon(self.game.units,self.grid)
         self.bataillon = bataillon
 
@@ -109,13 +113,11 @@ class Window(pyglet.window.Window):
             self.grid.set_unit(unit)
             """
         self.init_bandeau()
-        self.init_armee()
             # self.grid.unset_unit(unit)
         self.bataillon.move_bataillon()
             # self.grid.set_unit(unit)
         if self.shoot :
-            for unit in self.game.units:
-                unit.shoot()
+            self.bataillon.shoot()
 
 
     def add_unit(self, unit):

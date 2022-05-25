@@ -7,7 +7,8 @@ from pyglet import clock
 def motion_handler(dt,window):
     @window.event
     def on_mouse_motion(x, y, dx, dy):
-        window.get_element(x,y,action="HOVER")
+        pass
+        # window.get_element(x,y,action="HOVER")
 
 
 def input_handler(window):
@@ -17,7 +18,6 @@ def input_handler(window):
             window.label.text = str(window.camera.x)
         elif symbol == key.ENTER:
             window.set_fullscreen()
-            print('The enter key was pressed.')
         # Camera Handler
         if symbol == key.LEFT:
             window.camera.move_left()

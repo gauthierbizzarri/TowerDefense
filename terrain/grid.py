@@ -63,7 +63,7 @@ class Grid():
         path, runs = finder.find_path(start, end, grid)
         for tile in path :
             pass
-            self.mat[tile[1]][tile[0]].is_a_path = True
+            # self.mat[tile[1]][tile[0]].is_a_path = True
         self.update()
         """print(path)
         print('operations:', runs, 'path length:', len(path))
