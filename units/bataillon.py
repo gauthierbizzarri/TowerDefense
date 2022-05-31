@@ -48,19 +48,4 @@ class Bataillon():
             posx = place_unit_x(unit.row)
             posy = place_unit_y(unit.line)
             path = [(posx, posy)]
-            """
-            path = [(posx, posy)]
-            distance = math.sqrt((posx - xf) ** 2 + (posy - yf) ** 2)
-            for i in range(int(distance / BLOCKSIZE)):
-                for j in range(precision):
-                    if xf - posx < 0:
-                        posx = posx - BLOCKSIZE / precision
-                    if xf - posx > 0:
-                        posx = posx + BLOCKSIZE / precision
-                    if yf - posy < 0:
-                        posy = posy - BLOCKSIZE / precision
-                    if yf - posy > 0:
-                        posy = posy + BLOCKSIZE / precision
-                    path.append((posx, posy))
-                    """
             unit.path = path
