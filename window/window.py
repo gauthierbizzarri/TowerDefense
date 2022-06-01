@@ -88,23 +88,57 @@ class Window(pyglet.window.Window):
                 # self.grid.set_unit(self.clicked_unit)
             if content == "TARGET":
                 # self.grid.set_move_tile(get_line_row(x, y)[0], get_line_row(x, y)[1])
-                self.clicked_unit.attack()
+                self.clicked_bataillon.shoot()
 
     def init_armee(self):
         ### GEN ARMY :
         # CENTRE GRAVITE BATAILLON
 
-        self.add_unit(OldGuard(line=5, row=5, batch=self.batch))
-        self.add_unit(OldGuard(line=5, row=5+1, batch=self.batch))
-        """self.add_unit(OldGuard(line=5, row=5-1, batch=self.batch))
-        self.add_unit(OldGuard(line=5+1, row=5, batch=self.batch))
-        self.add_unit(OldGuard(line=5+1, row=5-1, batch=self.batch))
-        self.add_unit(OldGuard(line=5 + 1, row=5 + 1, batch=self.batch))
-        self.add_unit(OldGuard(line=5-1, row=5, batch=self.batch))
-        self.add_unit(OldGuard(line=5-1, row=5+1, batch=self.batch))
-        self.add_unit(OldGuard(line=5-1, row=5-1, batch=self.batch))"""
-        bataillon = Bataillon(self.game.units,self.grid)
-        for unit in self.game.units:
+        ### 1 er Bataillon :
+
+        l = 5
+        r = 5
+        units = [
+            OldGuard(line=l,        row=r,          batch=self.batch),
+            OldGuard(line=l,        row=r + 1,      batch=self.batch),
+            OldGuard(line=l,        row=r - 1,      batch=self.batch),
+            OldGuard(line=l + 1,    row=r,          batch=self.batch),
+            OldGuard(line=l + 1,    row=r - 1,      batch=self.batch),
+            OldGuard(line=l + 1,    row=r + 1,      batch=self.batch),
+            OldGuard(line=l - 1,    row=r,          batch=self.batch),
+            OldGuard(line=l - 1,    row=r - 1,      batch=self.batch),
+            OldGuard(line=l - 1,    row=r + 1,      batch=self.batch),
+
+
+        ]
+        for unit in units :
+            self.add_unit(unit)
+        bataillon = Bataillon(units,self.grid)
+        for unit in units:
+            unit.set_bataillon(bataillon)
+        self.bataillon = bataillon
+
+
+        ### 2eme bataillon :
+
+        l = 10
+        r = 10
+        units = [
+            OldGuard(line=l,            row=r,          batch=self.batch),
+            OldGuard(line=l,            row=r + 1,      batch=self.batch),
+            OldGuard(line=l,            row=r - 1,      batch=self.batch),
+            OldGuard(line=l + 1,        row=r,          batch=self.batch),
+            OldGuard(line=l + 1,        row=r - 1,      batch=self.batch),
+            OldGuard(line=l + 1,        row=r + 1,      batch=self.batch),
+            OldGuard(line=l - 1,        row=r,          batch=self.batch),
+            OldGuard(line=l - 1,        row=r - 1,      batch=self.batch),
+            OldGuard(line=l - 1,        row=r + 1,      batch=self.batch),
+
+        ]
+        for unit in units:
+            self.add_unit(unit)
+        bataillon = Bataillon(units, self.grid)
+        for unit in units:
             unit.set_bataillon(bataillon)
         self.bataillon = bataillon
 

@@ -184,19 +184,14 @@ class OldGuard():
         end_line_1 = end_line    + self.line-etendard.line
         end_row_1 = end_row   + self.row -etendard.row
         grid = Grid(matrix=matrix)
-        print(("SELF",self.line,self.row))
-        print(("ETENDARD",etendard.line,etendard.row))
-        print("END",end_line_1,end_row_1)
 
         start = grid.node(int(self.row), int(self.line))
         end = grid.node(int(end_row_1), int(end_line_1))
 
         finder = AStarFinder()
         path, runs = finder.find_path(start, end, grid)
-        print(path)
         for element in path :
             self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
-        print(self.path)
 
     def attack(self):
         if self.attitude != "shooting":
@@ -233,7 +228,7 @@ class OldGuard():
             x2, y2 = self.path[self.path_pos + 1]
             if True:
                 dirn = ((x2 - x1), (y2 - y1))
-                length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
+                length = 1/10*math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
                 dirn = (dirn[0] / length, dirn[1] / length)
                 move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
                 self.x = move_x

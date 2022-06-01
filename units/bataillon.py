@@ -27,7 +27,7 @@ class Bataillon():
 
     def shoot(self):
         for unit in self.units:
-            unit.shoot()
+            unit.attack()
 
     def add_path(self,matrix, end_line, end_row,etendard):
         for unit in self.units :

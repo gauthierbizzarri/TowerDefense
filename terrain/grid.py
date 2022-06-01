@@ -53,21 +53,8 @@ class Grid():
                 rows.append(element)
             # print("ROW : {}".format(str(rows)))
             matrix.append(rows)
-
-        grid = grid_path(matrix=matrix)
-        start = grid.node(0, 0)
-        end = grid.node(19, 11)
-
-        finder = AStarFinder()
-        path, runs = finder.find_path(start, end, grid)
-        for tile in path :
-            pass
-            # self.mat[tile[1]][tile[0]].is_a_path = True
         return matrix
         self.update()
-        """print(path)
-        print('operations:', runs, 'path length:', len(path))
-        print(grid.grid_str(path=path, start=start, end=end))"""
 
 
     def get_element(self,x,y,action=None):
@@ -109,11 +96,11 @@ class Grid():
         """
         for i in range(LIGNES):
             if i !=5:
-                mat[i][2].content = "OBSTACLE"
+                mat[i][6].content = "OBSTACLE"
 
 
         ## Create targets
-        mat[5][5].content = "TARGET"
+        mat[10][10].content = "TARGET"
 
         return mat
 
