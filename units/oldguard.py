@@ -46,6 +46,15 @@ image_marching_b = pyglet.resource.image('ressources/imgs/units/grenadier/marchi
 image_marching_c = pyglet.resource.image('ressources/imgs/units/grenadier/marching/3.png')
 image_marching_d = pyglet.resource.image('ressources/imgs/units/grenadier/marching/4.png')
 
+image_bayonet_marching_a = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/1.png')
+image_bayonet_marching_b = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/2.png')
+image_bayonet_marching_c = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/3.png')
+image_bayonet_marching_d = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/4.png')
+image_bayonet_marching_e = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/5.png')
+image_bayonet_marching_f = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/6.png')
+image_bayonet_marching_g = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/7.png')
+image_bayonet_marching_h = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/8.png')
+
 
 def animate_waiting():
     frames = []
@@ -83,7 +92,35 @@ def animate_marching():
     ani = pyglet.image.Animation(frames=frames)
     return ani, "marching"
 
+def animate_prepare_bayonet():
+    frames = []
+    for i in range(1, 5):
+        img = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_attacking/{}.png'.format(str((i))))
+        frame = pyglet.image.AnimationFrame(img, duration=0.1)
+        frames.append(frame)
 
+    ani = pyglet.image.Animation(frames=frames)
+    return ani, "prepare_bayonet"
+
+def animate_marching_bayonet():
+    frames = []
+    for i in range(5, 9):
+        img = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_attacking/{}.png'.format(str((i))))
+        frame = pyglet.image.AnimationFrame(img, duration=0.1)
+        frames.append(frame)
+
+    ani = pyglet.image.Animation(frames=frames)
+    return ani, "marching_bayonet"
+
+def animate_dying():
+    frames = []
+    for i in range(2, 4):
+        img = pyglet.resource.image('ressources/imgs/units/grenadier/dying/{}.png'.format(str((i))))
+        frame = pyglet.image.AnimationFrame(img, duration=0.3)
+        frames.append(frame)
+
+    ani = pyglet.image.Animation(frames=frames)
+    return ani, "dying"
 # grenadier= center_image(grenadier)
 
 def place_unit_x(row):
@@ -109,6 +146,8 @@ class EffectSprite(pyglet.sprite.Sprite):
     def on_animation_end(self):
         if self.name =="shooting":
             self.image = animate_waiting()[0]
+        if self.name =="dying":
+            self.delete()
 
 
 class OldGuard():
@@ -131,6 +170,7 @@ class OldGuard():
 
     def set_bataillon(self,bataillon):
         self.bataillon = bataillon
+
     def play_sound(self):
         self.player.play()
         self.player.next_source()
@@ -141,20 +181,21 @@ class OldGuard():
 
     def add_path(self,matrix, end_line, end_row,etendard):
         self.path = []
-        end_line_1 = end_line   # + self.line-etendard.line
-        end_row_1 = end_row  # + self.row -etendard.row
+        end_line_1 = end_line    + self.line-etendard.line
+        end_row_1 = end_row   + self.row -etendard.row
         grid = Grid(matrix=matrix)
         print(("SELF",self.line,self.row))
         print(("ETENDARD",etendard.line,etendard.row))
-        print("END",end_row_1,end_line_1)
+        print("END",end_line_1,end_row_1)
 
-        start = grid.node(int(self.line), int(self.row))
+        start = grid.node(int(self.row), int(self.line))
         end = grid.node(int(end_row_1), int(end_line_1))
+
         finder = AStarFinder()
         path, runs = finder.find_path(start, end, grid)
-
-        for tuple in path :
-            self.path.append((place_unit_x(tuple[0]),place_unit_y(tuple[1])))
+        print(path)
+        for element in path :
+            self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
         print(self.path)
 
     def attack(self):
@@ -163,6 +204,12 @@ class OldGuard():
             self.image.image = animate_shooting()[0]
             self.image.set_name(animate_shooting()[1])
             self.play_shooting_sound()
+
+    def set_bayonet(self):
+        if self.attitude != "prepare_bayonet":
+            self.image.image = animate_bayonet()[0]
+            self.image.set_name(animate_bayonet()[1])
+
 
         # return
 

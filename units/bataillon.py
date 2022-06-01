@@ -32,3 +32,7 @@ class Bataillon():
     def add_path(self,matrix, end_line, end_row,etendard):
         for unit in self.units :
             unit.add_path(matrix,end_line,end_row,etendard)
+
+
+    def spawn_bataillon(self):
+        pass
