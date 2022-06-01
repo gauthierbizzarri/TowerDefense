@@ -41,13 +41,12 @@ class Grid():
         self.mat[line][row].is_destination = True
         self.update()
 
-    def create_matrix_for_path(self):
+    def get_matrix_for_path(self):
         matrix = []
-        print( len(self.mat), len(self.mat[0]))
         for line in range(len(self.mat)):
             rows = []
             for row in range(len(self.mat[0])):
-                if self.mat[line][row].content == "OBSTACLE" or self.mat[line][row].content == "UNIT" :
+                if self.mat[line][row].content == "OBSTACLE": # or self.mat[line][row].content == "UNIT" :
                     element = 0
                 else :
                     element = 1
@@ -64,6 +63,7 @@ class Grid():
         for tile in path :
             pass
             # self.mat[tile[1]][tile[0]].is_a_path = True
+        return matrix
         self.update()
         """print(path)
         print('operations:', runs, 'path length:', len(path))

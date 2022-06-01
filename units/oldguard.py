@@ -1,4 +1,3 @@
-import attitude as attitude
 import pyglet
 from config.settings import *
 import math
@@ -128,7 +127,10 @@ class OldGuard():
         self.y = place_unit_y(self.line)
         self.player =pyglet.media.Player()
 
+        self.bataillon = None
 
+    def set_bataillon(self,bataillon):
+        self.bataillon = bataillon
     def play_sound(self):
         self.player.play()
         self.player.next_source()
@@ -137,35 +139,23 @@ class OldGuard():
         self.image.x = place_unit_x(self.row)
         self.image.y = place_unit_y(self.line)
 
-    def add_path(self,matrix, end_line, end_row):
+    def add_path(self,matrix, end_line, end_row,etendard):
         self.path = []
-
+        end_line_1 = end_line   # + self.line-etendard.line
+        end_row_1 = end_row  # + self.row -etendard.row
         grid = Grid(matrix=matrix)
+        print(("SELF",self.line,self.row))
+        print(("ETENDARD",etendard.line,etendard.row))
+        print("END",end_row_1,end_line_1)
 
-        start = grid.node(0, 0)
-        end = grid.node(3, 3)
+        start = grid.node(int(self.line), int(self.row))
+        end = grid.node(int(end_row_1), int(end_line_1))
         finder = AStarFinder()
         path, runs = finder.find_path(start, end, grid)
 
-        precision = 10
-        xf = place_unit_x(end_row)
-        yf = place_unit_y(end_line)
-        posx = place_unit_x(self.row)
-        posy = place_unit_y(self.line)
-        path = [(posx, posy)]
-        distance = math.sqrt((posx - xf) ** 2 + (posy - yf) ** 2)
-        for i in range(int(distance / BLOCKSIZE)):
-            for j in range(precision):
-                if xf - posx < 0:
-                    posx = posx - BLOCKSIZE / precision
-                if xf - posx > 0:
-                    posx = posx + BLOCKSIZE / precision
-                if yf - posy < 0:
-                    posy = posy - BLOCKSIZE / precision
-                if yf - posy > 0:
-                    posy = posy + BLOCKSIZE / precision
-                path.append((posx, posy))
-        self.path = path
+        for tuple in path :
+            self.path.append((place_unit_x(tuple[0]),place_unit_y(tuple[1])))
+        print(self.path)
 
     def attack(self):
         if self.attitude != "shooting":
@@ -186,8 +176,6 @@ class OldGuard():
             self.attitude = "marching"
         try:
             x1, y1 = self.path[self.path_pos]
-            if self.path_pos %2==0:
-                self.play_walking_sound()
             if self.path_pos + 1 >= len(self.path):
                 self.path = []
                 self.path_pos = 0
@@ -198,7 +186,7 @@ class OldGuard():
             x2, y2 = self.path[self.path_pos + 1]
             if True:
                 dirn = ((x2 - x1), (y2 - y1))
-                length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2) * 1 / 4
+                length = math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
                 dirn = (dirn[0] / length, dirn[1] / length)
                 move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
                 self.x = move_x

@@ -49,7 +49,7 @@ class Window(pyglet.window.Window):
 
         self.init_bandeau()
 
-        self.bataillon = None
+        self.clicked_bataillon = None
 
 
         self.init_armee()
@@ -77,14 +77,15 @@ class Window(pyglet.window.Window):
         content = self.grid.get_element(x, y)[1]
 
         if self.clicked_unit :
+            self.clicked_bataillon = self.clicked_unit.bataillon
             ### CHECK FREE :
             if content == "NONE":
                 # UNSET OLD  MOVE TILE
-                self.grid.set_move_tile(get_line_row(x,y)[0],get_line_row(x,y)[1])
+                # self.grid.set_move_tile(get_line_row(x,y)[0],get_line_row(x,y)[1])
                 ###MOVE UNIT
-                self.grid.unset_unit(self.clicked_unit)
-                self.clicked_unit.add_path(get_line_row(x,y)[0],get_line_row(x,y)[1])
-                self.grid.set_unit(self.clicked_unit)
+                #self.grid.unset_unit(self.clicked_unit)
+                self.clicked_bataillon.add_path(self.grid.get_matrix_for_path(),get_line_row(x,y)[0],get_line_row(x,y)[1],self.clicked_unit)
+                # self.grid.set_unit(self.clicked_unit)
             if content == "TARGET":
                 # self.grid.set_move_tile(get_line_row(x, y)[0], get_line_row(x, y)[1])
                 self.clicked_unit.attack()
@@ -92,16 +93,19 @@ class Window(pyglet.window.Window):
     def init_armee(self):
         ### GEN ARMY :
         # CENTRE GRAVITE BATAILLON
+
         self.add_unit(OldGuard(line=5, row=5, batch=self.batch))
         self.add_unit(OldGuard(line=5, row=5+1, batch=self.batch))
-        self.add_unit(OldGuard(line=5, row=5-1, batch=self.batch))
+        """self.add_unit(OldGuard(line=5, row=5-1, batch=self.batch))
         self.add_unit(OldGuard(line=5+1, row=5, batch=self.batch))
         self.add_unit(OldGuard(line=5+1, row=5-1, batch=self.batch))
         self.add_unit(OldGuard(line=5 + 1, row=5 + 1, batch=self.batch))
         self.add_unit(OldGuard(line=5-1, row=5, batch=self.batch))
         self.add_unit(OldGuard(line=5-1, row=5+1, batch=self.batch))
-        self.add_unit(OldGuard(line=5-1, row=5-1, batch=self.batch))
+        self.add_unit(OldGuard(line=5-1, row=5-1, batch=self.batch))"""
         bataillon = Bataillon(self.game.units,self.grid)
+        for unit in self.game.units:
+            unit.set_bataillon(bataillon)
         self.bataillon = bataillon
 
 
