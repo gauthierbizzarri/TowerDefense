@@ -106,7 +106,7 @@ def animate_marching_bayonet():
     frames = []
     for i in range(5, 9):
         img = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/{}.png'.format(str((i))))
-        frame = pyglet.image.AnimationFrame(img, duration=0.1)
+        frame = pyglet.image.AnimationFrame(img, duration=0.2)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -171,6 +171,8 @@ class OldGuard():
         self.player =pyglet.media.Player()
 
         self.bataillon = None
+
+        self.bayonet = False
 
     def set_bataillon(self,bataillon):
         self.bataillon = bataillon
@@ -279,3 +281,4 @@ class OldGuard():
     def play_shooting_sound(self):
         music = pyglet.resource.media('sounds/units/rifle_shoot.mp3', streaming=False)
         self.player.queue(music)
+

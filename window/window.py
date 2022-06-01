@@ -55,6 +55,8 @@ class Window(pyglet.window.Window):
         self.bataillons = []
         self.init_armee()
 
+        self.grid.update()
+
 
     def init_bandeau(self):
         separator = 0
@@ -148,8 +150,6 @@ class Window(pyglet.window.Window):
 
     def handle_key(self,key):
         if key == pyglet.window.key.B:
-
-            print(self.clicked_bataillon)
             if self.clicked_bataillon:
                 self.clicked_bataillon.set_bayonet()
 

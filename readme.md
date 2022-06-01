@@ -3,8 +3,11 @@
 
 ## To do list 
 ```commandline
-Déplacement bataillon
-Déplacement et tir  baïonnette
-Déplacement et tir  canon
-Arrivée  unités
+V   Déplacement bataillon
+V   Déplacement et tir  baïonnette
+V   Déplacement et tir  canon
+
+
+0    Rechargement des armes
+    Arrivée  unités
 ```

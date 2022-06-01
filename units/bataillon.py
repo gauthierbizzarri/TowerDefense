@@ -37,4 +37,5 @@ class Bataillon():
 
 
     def spawn_bataillon(self):
-        pass
+        for unit in self.units:
+            unit.spawn()
