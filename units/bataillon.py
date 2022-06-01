@@ -15,15 +15,13 @@ class Bataillon():
     def __init__(self,units,grid):
         self.units = units
         self.grid = grid
-        # DEFINITION UNITE DE CENTRE DE GRAVITE
-        # BATAILLON DE 6 GRENADIERS2
 
     def move_bataillon(self):
         for unit in self.units:
             # CREATE PATH FOR UNIT :
-            # self.grid.unset_unit(unit)
+            self.grid.unset_unit(unit)
             unit.move()
-            # self.grid.set_unit(unit)
+            self.grid.set_unit(unit)
 
     def shoot(self):
         for unit in self.units:

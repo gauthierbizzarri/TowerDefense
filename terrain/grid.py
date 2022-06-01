@@ -21,12 +21,12 @@ class Grid():
 
     def set_unit(self,unit):
         self.mat[int(unit.line)][int(unit.row)].set_content("UNIT",unit)
-        self.update()
+        # self.update()
 
     def unset_unit(self,unit):
 
         self.mat[int(unit.line)][int(unit.row)].content = "NONE"
-        self.update()
+        # self.update()
     def update(self):
         for i in range (len(self.mat)):
             for j in range (len(self.mat[0])):
@@ -87,20 +87,13 @@ class Grid():
                 col.append(case)
             mat.append(col)
 
-        """
-        ### Create obstacles
-        for i in range(10):
-            random_line = random.randint(0, LIGNES-1)
-            random_row = random.randint(0, COLONNES-1)
-            mat[random_line][random_row].content = "OBSTACLE"
-        """
         for i in range(LIGNES):
             if i !=5:
                 mat[i][6].content = "OBSTACLE"
 
 
         ## Create targets
-        mat[10][10].content = "TARGET"
+        mat[10][1].content = "TARGET"
 
         return mat
 

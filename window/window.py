@@ -52,7 +52,9 @@ class Window(pyglet.window.Window):
         self.clicked_bataillon = None
 
 
+        self.bataillons = []
         self.init_armee()
+
 
     def init_bandeau(self):
         separator = 0
@@ -77,7 +79,7 @@ class Window(pyglet.window.Window):
         content = self.grid.get_element(x, y)[1]
 
         if self.clicked_unit :
-            self.clicked_bataillon = self.clicked_unit.bataillon
+            self.clicked_bataillon = self.bataillons[self.clicked_unit.bataillon]
             ### CHECK FREE :
             if content == "NONE":
                 # UNSET OLD  MOVE TILE
@@ -115,8 +117,8 @@ class Window(pyglet.window.Window):
             self.add_unit(unit)
         bataillon = Bataillon(units,self.grid)
         for unit in units:
-            unit.set_bataillon(bataillon)
-        self.bataillon = bataillon
+            unit.set_bataillon(len(self.bataillons))
+        self.bataillons.append(bataillon)
 
 
         ### 2eme bataillon :
@@ -139,8 +141,8 @@ class Window(pyglet.window.Window):
             self.add_unit(unit)
         bataillon = Bataillon(units, self.grid)
         for unit in units:
-            unit.set_bataillon(bataillon)
-        self.bataillon = bataillon
+            unit.set_bataillon(len(self.bataillons))
+        self.bataillons.append(bataillon)
 
 
     def main(self):
@@ -152,7 +154,8 @@ class Window(pyglet.window.Window):
             """
         self.init_bandeau()
             # self.grid.unset_unit(unit)
-        self.bataillon.move_bataillon()
+        for bat in self.bataillons :
+            bat.move_bataillon()
             # self.grid.set_unit(unit)
         if self.shoot :
             self.bataillon.shoot()
