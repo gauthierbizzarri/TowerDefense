@@ -14,6 +14,7 @@ def motion_handler(dt,window):
 def input_handler(window):
     @window.event
     def on_key_press(symbol, modifiers):
+        window.handle_key(symbol)
         if symbol == key.A:
             window.label.text = str(window.camera.x)
         elif symbol == key.ENTER:

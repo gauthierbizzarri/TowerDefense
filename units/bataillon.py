@@ -23,6 +23,10 @@ class Bataillon():
             unit.move()
             self.grid.set_unit(unit)
 
+    def set_bayonet(self):
+        for unit in self.units:
+            unit.set_bayonet()
+
     def shoot(self):
         for unit in self.units:
             unit.attack()

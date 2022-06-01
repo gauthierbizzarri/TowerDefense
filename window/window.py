@@ -73,6 +73,7 @@ class Window(pyglet.window.Window):
         if action =="CLICK":
             if element is not None :
                 self.clicked_unit = element
+                self.clicked_bataillon = self.bataillons[self.clicked_unit.bataillon]
 
 
     def handle_left(self,x,y):
@@ -144,6 +145,13 @@ class Window(pyglet.window.Window):
             unit.set_bataillon(len(self.bataillons))
         self.bataillons.append(bataillon)
 
+
+    def handle_key(self,key):
+        if key == pyglet.window.key.B:
+
+            print(self.clicked_bataillon)
+            if self.clicked_bataillon:
+                self.clicked_bataillon.set_bayonet()
 
     def main(self):
         """

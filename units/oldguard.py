@@ -95,8 +95,8 @@ def animate_marching():
 def animate_prepare_bayonet():
     frames = []
     for i in range(1, 5):
-        img = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_attacking/{}.png'.format(str((i))))
-        frame = pyglet.image.AnimationFrame(img, duration=0.1)
+        img = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/{}.png'.format(str((i))))
+        frame = pyglet.image.AnimationFrame(img, duration=0.3)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -105,7 +105,7 @@ def animate_prepare_bayonet():
 def animate_marching_bayonet():
     frames = []
     for i in range(5, 9):
-        img = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_attacking/{}.png'.format(str((i))))
+        img = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/{}.png'.format(str((i))))
         frame = pyglet.image.AnimationFrame(img, duration=0.1)
         frames.append(frame)
 
@@ -148,6 +148,10 @@ class EffectSprite(pyglet.sprite.Sprite):
             self.image = animate_waiting()[0]
         if self.name =="dying":
             self.delete()
+        if self.name =="prepare_bayonet":
+
+            self.image = animate_marching_bayonet()[0]
+
 
 
 class OldGuard():
@@ -201,9 +205,9 @@ class OldGuard():
             self.play_shooting_sound()
 
     def set_bayonet(self):
-        if self.attitude != "prepare_bayonet":
-            self.image.image = animate_bayonet()[0]
-            self.image.set_name(animate_bayonet()[1])
+        self.image.image = animate_prepare_bayonet()[0]
+        self.image.set_name(animate_prepare_bayonet()[1])
+        self.bayonet = True
 
 
         # return
@@ -212,18 +216,26 @@ class OldGuard():
     def move(self):
         if self.path == []:
             return
-        if self.attitude != "marching":
-            self.image.image = animate_marching()[0]
-            self.image.set_name(animate_marching()[1])
-            self.attitude = "marching"
+        else:
+            if self.bayonet:
+                if self.attitude !="marching_bayonet":
+                    self.attitude = "marching_bayonet"
+                    self.image.image = animate_marching_bayonet()[0]
+                    self.image.set_name(animate_marching_bayonet()[1])
+            else :
+                if self.attitude != "marching":
+                        self.image.image = animate_marching()[0]
+                        self.image.set_name(animate_marching()[1])
+                        self.attitude = "marching"
         try:
             x1, y1 = self.path[self.path_pos]
             if self.path_pos + 1 >= len(self.path):
                 self.path = []
                 self.path_pos = 0
-                self.attitude = "waiting"
-                self.image.image = animate_waiting()[0]
-                self.image.set_name(animate_waiting()[1])
+                if not self.bayonet:
+                    self.attitude = "waiting"
+                    self.image.image = animate_waiting()[0]
+                    self.image.set_name(animate_waiting()[1])
                 return
             x2, y2 = self.path[self.path_pos + 1]
             if True:
