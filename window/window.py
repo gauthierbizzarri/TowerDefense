@@ -1,6 +1,7 @@
 import pyglet
 from pyglet import shapes
 from units.oldguard import OldGuard
+from units.voltigeur import Voltigeur
 from units.oldguard import animate_waiting
 from window.camera import Camera
 from config.settings import *
@@ -104,15 +105,15 @@ class Window(pyglet.window.Window):
         l = 5
         r = 5
         units = [
-            OldGuard(line=l,        row=r,          batch=self.batch),
-            OldGuard(line=l,        row=r + 1,      batch=self.batch),
-            OldGuard(line=l,        row=r - 1,      batch=self.batch),
-            OldGuard(line=l + 1,    row=r,          batch=self.batch),
-            OldGuard(line=l + 1,    row=r - 1,      batch=self.batch),
-            OldGuard(line=l + 1,    row=r + 1,      batch=self.batch),
-            OldGuard(line=l - 1,    row=r,          batch=self.batch),
-            OldGuard(line=l - 1,    row=r - 1,      batch=self.batch),
-            OldGuard(line=l - 1,    row=r + 1,      batch=self.batch),
+            Voltigeur(line=l,        row=r,          batch=self.batch),
+            Voltigeur(line=l,        row=r + 1,      batch=self.batch),
+            Voltigeur(line=l,        row=r - 1,      batch=self.batch),
+            Voltigeur(line=l + 1,    row=r,          batch=self.batch),
+            Voltigeur(line=l + 1,    row=r - 1,      batch=self.batch),
+            Voltigeur(line=l + 1,    row=r + 1,      batch=self.batch),
+            Voltigeur(line=l - 1,    row=r,          batch=self.batch),
+            Voltigeur(line=l - 1,    row=r - 1,      batch=self.batch),
+            Voltigeur(line=l - 1,    row=r + 1,      batch=self.batch),
 
 
         ]
