@@ -8,6 +8,20 @@ from config.settings import *
 from terrain.grid import Grid
 from terrain.grid import get_line_row
 from units.bataillon import Bataillon
+
+image= pyglet.resource.image('ressources/imgs/bataillon.png')
+
+def img_bataillon():
+    frames = []
+    img = pyglet.resource.image('ressources/imgs/bataillon.png')
+    frame = pyglet.image.AnimationFrame(img, duration=0.5)
+    frames.append(frame)
+
+    ani = pyglet.image.Animation(frames=frames)
+    return ani
+
+
+
 class Window(pyglet.window.Window):
 
     def __init__(self, game):
@@ -48,25 +62,28 @@ class Window(pyglet.window.Window):
         self.move = False
         self.shoot = False
 
-        self.init_bandeau()
 
         self.clicked_bataillon = None
 
 
         self.bataillons = []
+
+
         self.init_armee()
 
+
+        self.init_bandeau()
         self.grid.update()
 
 
     def init_bandeau(self):
         separator = 0
-        for element in self.game.units:
+        for element in self.bataillons:
             self.bandeau.append(
-                (shapes.BorderedRectangle(LEFT_BORDER + separator, 0, BLOCKSIZE * 1., BLOCKSIZE * 1.5, border=3, color=(0, 0, 0),
+                (shapes.BorderedRectangle(LEFT_BORDER + separator, 0,60  ,60,  border=3, color=(0, 0, 0),
                                           border_color=(0, 255, 0), batch=self.batch, group=self.foreground_group),
 
-                 pyglet.sprite.Sprite(img=animate_waiting()[0], x=LEFT_BORDER + separator , y=0,
+                 pyglet.sprite.Sprite(img=img_bataillon(), x=LEFT_BORDER + separator , y=0,
                                       batch=self.batch, group=self.foreground_group)))
             separator +=BLOCKSIZE+20
 
