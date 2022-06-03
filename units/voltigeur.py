@@ -12,6 +12,7 @@ from pyglet import clock
 def resize_image(image):
     image.height = BLOCKSIZE*1.5 * 1.2
     image.width = BLOCKSIZE * 1.8 *1.2
+    return image
 
 
 def center_image(image):
@@ -194,6 +195,7 @@ class Voltigeur():
         self.image.y = place_unit_y(self.line)
 
     def add_path(self,matrix, end_line, end_row,etendard):
+        if self.path != [] : return
         self.path = []
         end_line_1 = end_line    + self.line-etendard.line
         end_row_1 = end_row   + self.row -etendard.row
