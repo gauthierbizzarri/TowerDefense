@@ -110,7 +110,8 @@ class Window(pyglet.window.Window):
             if content == "NONE":
                 # self.grid.draw_bataillon_selected(self.clicked_bataillon)
                 self.clicked_bataillon.add_path(self.grid.get_matrix_for_path(),get_line_row(x,y)[0],get_line_row(x,y)[1],self.clicked_unit)
-                # self.grid.set_move_tile(get_line_row(x,y)[0],get_line_row(x,y)[1])
+                self.grid.set_move_tile(get_line_row(x,y)[0],get_line_row(x,y)[1])
+                self.grid.update()
             if content == "TARGET":
                 # self.grid.set_move_tile(get_line_row(x, y)[0], get_line_row(x, y)[1])
                 self.clicked_bataillon.shoot()

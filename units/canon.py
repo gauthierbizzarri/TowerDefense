@@ -9,6 +9,7 @@ import string
 from terrain.grid import get_line_row
 from pyglet import clock
 
+from terrain.projectile import Projectile
 
 def resize_image(image):
     image.height = BLOCKSIZE*1.5 * 1.4
@@ -116,7 +117,8 @@ class Canon():
     def __init__(self, line, row, batch):
         self.line = line
         self.row = row
-        self.image = EffectSprite(img=animate_waiting()[0], x=place_unit_x(self.row), y=place_unit_y(self.line),
+        self.batch = batch
+        self.image = EffectSprite(img=animate_waiting()[0], x=place_unit_x(self.row-1), y=place_unit_y(self.line),
                                   batch=batch, group=get_group(self.line))
         self.image.set_name(animate_waiting()[1])
         self.path_pos = 0
@@ -131,6 +133,8 @@ class Canon():
         self.bataillon = None
         self.name = "Canon"
         self.bayonet = False
+
+        self.balls = []
 
     def set_bataillon(self,bataillon):
         self.bataillon = bataillon
@@ -163,18 +167,21 @@ class Canon():
             self.image.image = animate_shooting()[0]
             self.image.set_name(animate_shooting()[1])
             self.play_shooting_sound()
+            self.spawn_ball()
 
     def set_bayonet(self):
         return
-        self.image.image = animate_prepare_bayonet()[0]
-        self.image.set_name(animate_prepare_bayonet()[1])
-        self.bayonet = True
 
+    def spawn_ball(self):
+        projectile = Projectile(self.line, self.row, self.batch)
+        self.balls.append(projectile)
 
         # return
 
 
     def move(self):
+        for projectile in self.balls:
+            projectile.move()
         if self.path == []:
             return
         if self.attitude != "marching":

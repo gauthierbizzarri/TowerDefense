@@ -25,10 +25,10 @@ class Grid():
 
             self.mat[int(unit.line)][int(unit.row)].set_content("UNIT",unit)
             self.mat[int(unit.line)][int(unit.row)].is_selected = unit.is_selected
-            self.mat[int(unit.line)][int(unit.row+1)].set_content("UNIT", unit)
+            """self.mat[int(unit.line)][int(unit.row+1)].set_content("UNIT", unit)
             self.mat[int(unit.line)][int(unit.row+1)].is_selected = unit.is_selected
             self.mat[int(unit.line)][int(unit.row+2)].set_content("UNIT", unit)
-            self.mat[int(unit.line)][int(unit.row+2)].is_selected = unit.is_selected
+            self.mat[int(unit.line)][int(unit.row+2)].is_selected = unit.is_selected"""
             self.mat[int(unit.line)][int(unit.row)].update()
         else :
             self.mat[int(unit.line)][int(unit.row)].set_content("UNIT", unit)
@@ -42,10 +42,10 @@ class Grid():
 
             self.mat[int(unit.line)][int(unit.row)].set_content("NONE", unit)
             self.mat[int(unit.line)][int(unit.row)].is_selected = unit.is_selected
-            self.mat[int(unit.line)][int(unit.row + 1)].set_content("NONE", unit)
+            """self.mat[int(unit.line)][int(unit.row + 1)].set_content("NONE", unit)
             self.mat[int(unit.line)][int(unit.row+1)].is_selected = unit.is_selected
             self.mat[int(unit.line)][int(unit.row + 2)].set_content("NONE", unit)
-            self.mat[int(unit.line)][int(unit.row+2)].is_selected = unit.is_selected
+            self.mat[int(unit.line)][int(unit.row+2)].is_selected = unit.is_selected"""
             self.mat[int(unit.line)][int(unit.row)].update()
         else:
             self.mat[int(unit.line)][int(unit.row)].set_content("NONE", unit)
