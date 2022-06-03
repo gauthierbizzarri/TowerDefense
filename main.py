@@ -24,6 +24,9 @@ def play_music():
 if __name__ == '__main__':
     game = Game()
     window = Window(game)
+    image = pyglet.image.load('ressources/imgs/misc/cursor.png')
+    cursor = pyglet.window.ImageMouseCursor(image, 16, 8)
+    window.set_mouse_cursor(cursor)
     play_music()
     event_loop = pyglet.app.EventLoop()
     input_handler(window)

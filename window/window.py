@@ -80,12 +80,12 @@ class Window(pyglet.window.Window):
         separator = 0
         for element in self.bataillons:
             self.bandeau.append(
-                (shapes.BorderedRectangle(LEFT_BORDER + separator, 0,60  ,60,  border=3, color=(0, 0, 0),
-                                          border_color=(0, 255, 0), batch=self.batch, group=self.foreground_group),
+               #  (shapes.BorderedRectangle(LEFT_BORDER + separator, 0,100  ,110,  border=3, color=(0, 0, 0),
+                #                          border_color=(0, 255, 0), batch=self.batch, group=self.foreground_group),
 
                  pyglet.sprite.Sprite(img=img_bataillon(), x=LEFT_BORDER + separator , y=0,
-                                      batch=self.batch, group=self.foreground_group)))
-            separator +=BLOCKSIZE+20
+                                      batch=self.batch, group=self.foreground_group))
+            separator +=BLOCKSIZE+100
 
 
     def get_element(self,x,y,action):
@@ -95,7 +95,8 @@ class Window(pyglet.window.Window):
                 self.clicked_unit = element
                 self.clicked_bataillon = self.bataillons[self.clicked_unit.bataillon]
 
-
+    def handle_right(self,x,y):
+        self.get_element(x,y,action="CLICK")
     def handle_left(self,x,y):
         content = self.grid.get_element(x, y)[1]
 
@@ -172,17 +173,9 @@ class Window(pyglet.window.Window):
                 self.clicked_bataillon.set_bayonet()
 
     def main(self):
-        """
-       for unit in self.game.units :
-            self.grid.unset_unit(unit)
-            unit.move(unit.line,unit.row+2)
-            self.grid.set_unit(unit)
-            """
         self.init_bandeau()
-            # self.grid.unset_unit(unit)
         for bat in self.bataillons :
             bat.move_bataillon()
-            # self.grid.set_unit(unit)
         if self.shoot :
             self.bataillon.shoot()
 

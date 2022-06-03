@@ -21,11 +21,13 @@ class Grid():
 
     def set_unit(self,unit):
         self.mat[int(unit.line)][int(unit.row)].set_content("UNIT",unit)
+        self.mat[int(unit.line)][int(unit.row)].update()
         # self.update()
 
     def unset_unit(self,unit):
 
         self.mat[int(unit.line)][int(unit.row)].content = "NONE"
+        self.mat[int(unit.line)][int(unit.row)].update()
         # self.update()
     def update(self):
         for i in range (len(self.mat)):
