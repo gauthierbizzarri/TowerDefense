@@ -13,8 +13,8 @@ from pyglet import clock
 
 
 def resize_image(image):
-    image.height = BLOCKSIZE*0.1
-    image.width = BLOCKSIZE *0.1
+    image.height = BLOCKSIZE*1
+    image.width = BLOCKSIZE *1.2
     return image
 
 def center_image(image):
@@ -26,25 +26,17 @@ def center_image(image):
 
 image_ball1= pyglet.resource.image('ressources/imgs/misc/ball.png')
 
-image_waiting_a = pyglet.resource.image('ressources/imgs/units/canon/reloading/1.png')
+
 def image_ball():
+
     frames = []
-    img = pyglet.resource.image('ressources/imgs/units/canon/reloading/{}.png'.format(str((1))))
+    img = pyglet.resource.image('ressources/imgs/misc/ball.png')
     img = resize_image(img)
     frame = pyglet.image.AnimationFrame(img, duration=0.13)
     frames.append(frame)
+    ani = pyglet.image.Animation(frames=frames)
+    return ani, "waiting "
 
-    ani = pyglet.image.Animation(frames=frames)
-    return ani, "waiting "
-    return
-"""
-    frames = []
-    img = pyglet.resource.image('ressources/imgs/misc/ball.png')
-    frame = pyglet.image.AnimationFrame(img, duration=0.13)
-    frames.append(frame)
-    ani = pyglet.image.Animation(frames=frames)
-    return ani, "waiting "
-"""
 def place_unit_x(row):
     return BLOCKSIZE * row + LEFT_BORDER
 
@@ -66,7 +58,8 @@ class EffectSprite(pyglet.sprite.Sprite):
         return self.name
 
     def on_animation_end(self):
-        self.delete()
+        pass
+        # self.delete()
 
 
 
@@ -74,7 +67,7 @@ class Projectile():
     def __init__(self, line, row, batch):
         self.line = line
         self.row = row
-        self.image = pyglet.sprite(img=image_ball()[0], x=place_unit_x(self.row), y=place_unit_y(self.line),
+        self.image = EffectSprite(img=image_ball()[0], x=place_unit_x(self.row), y=place_unit_y(self.line),
                                   batch=batch, group=get_group(self.line))
         self.path_pos = 0
         self.path = []
@@ -116,22 +109,16 @@ class Projectile():
 
 
     def move(self):
-        if self.path == []:
-            return
         try:
             # x1, y1 = self.path[self.path_pos]
-            if self.path_pos + 1 >= len(self.path):
-                self.path = []
-                self.path_pos = 0
-                return
             # x2, y2 = self.path[self.path_pos + 1]
             if True:
                 # dirn = ((x2 - x1), (y2 - y1))
                 # length = 1/10*math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
                 # dirn = (dirn[0] / length, dirn[1] / length)
                 # move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
-                self.x = self.x - 10
-                self.y = self.y - 10
+                self.x = self.x + 10
+                self.y = self.y
 
                 x = self.x - LEFT_BORDER
                 y = self.y - TOP_BORDER

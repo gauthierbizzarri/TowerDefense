@@ -181,6 +181,7 @@ class Canon():
 
     def move(self):
         for projectile in self.balls:
+            print(projectile.x,projectile.y)
             projectile.move()
         if self.path == []:
             return
