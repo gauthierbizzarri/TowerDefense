@@ -2,6 +2,7 @@ import pyglet
 from pyglet import shapes
 from units.oldguard import OldGuard
 from units.voltigeur import Voltigeur
+from units.canon import Canon
 from units.oldguard import animate_waiting
 from window.camera import Camera
 from config.settings import *
@@ -157,6 +158,21 @@ class Window(pyglet.window.Window):
             OldGuard(line=l - 1,        row=r,          batch=self.batch),
             OldGuard(line=l - 1,        row=r - 1,      batch=self.batch),
             OldGuard(line=l - 1,        row=r + 1,      batch=self.batch),
+
+        ]
+        for unit in units:
+            self.add_unit(unit)
+        bataillon = Bataillon(units, self.grid)
+        for unit in units:
+            unit.set_bataillon(len(self.bataillons))
+        self.bataillons.append(bataillon)
+
+        ### 3eme bataillon :
+
+        l = 1
+        r = 1
+        units = [
+            Canon(line=l, row=r, batch=self.batch),
 
         ]
         for unit in units:

@@ -17,7 +17,7 @@ def play_music():
     music = pyglet.resource.media('sounds/misc/music.mp3', streaming=True)
     # music.play()
     # vive_empereur = pyglet.resource.media('viveempereur.mp3', streaming=True)
-    # music.play()
+    music.play()
 
 
 

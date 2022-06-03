@@ -9,7 +9,9 @@ import string
 from terrain.grid import get_line_row
 from pyglet import clock
 
-
+def resize_image(image):
+    image.height = BLOCKSIZE*1.5 * 1.2
+    image.width = BLOCKSIZE * 1.8 *1.2
 
 
 def center_image(image):
@@ -60,6 +62,7 @@ def animate_waiting():
     frames = []
     for i in range(1, 9):
         img = pyglet.resource.image('ressources/imgs/units/voltigeur/waiting/{}.png'.format(str((i))))
+        img = resize_image(img)
         frame = pyglet.image.AnimationFrame(img, duration=0.33)
         frames.append(frame)
 
@@ -72,6 +75,7 @@ def animate_shooting():
     for i in range(1, 13):
         if i == 12:
             img = pyglet.resource.image('ressources/imgs/units/voltigeur/shooting/{}.png'.format(str((i))))
+            img = resize_image(img)
             frame = pyglet.image.AnimationFrame(img, duration=0.5)
         else:
             img = pyglet.resource.image('ressources/imgs/units/voltigeur/shooting/{}.png'.format(str((i))))
@@ -86,6 +90,7 @@ def animate_marching():
     frames = []
     for i in range(1, 5):
         img = pyglet.resource.image('ressources/imgs/units/voltigeur/marching/{}.png'.format(str((i))))
+        img = resize_image(img)
         frame = pyglet.image.AnimationFrame(img, duration=0.1)
         frames.append(frame)
 
@@ -96,6 +101,7 @@ def animate_prepare_bayonet():
     frames = []
     for i in range(1, 5):
         img = pyglet.resource.image('ressources/imgs/units/voltigeur/bayonet_marching/{}.png'.format(str((i))))
+        img = resize_image(img)
         frame = pyglet.image.AnimationFrame(img, duration=0.3)
         frames.append(frame)
 
@@ -106,6 +112,7 @@ def animate_marching_bayonet():
     frames = []
     for i in range(5, 9):
         img = pyglet.resource.image('ressources/imgs/units/voltigeur/bayonet_marching/{}.png'.format(str((i))))
+        img = resize_image(img)
         frame = pyglet.image.AnimationFrame(img, duration=0.2)
         frames.append(frame)
 
@@ -116,6 +123,7 @@ def animate_dying():
     frames = []
     for i in range(2, 4):
         img = pyglet.resource.image('ressources/imgs/units/voltigeur/dying/{}.png'.format(str((i))))
+        img = resize_image(img)
         frame = pyglet.image.AnimationFrame(img, duration=0.3)
         frames.append(frame)
 
