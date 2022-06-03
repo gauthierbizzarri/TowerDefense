@@ -10,12 +10,15 @@ from config.settings import *
 from terrain.grid import get_line_row
 from pyglet import clock
 
+image_smoke= pyglet.resource.animation('ressources/imgs/misc/smoke.gif')
 
+def play_smoke():
+    ani = pyglet.resource.animation('ressources/imgs/misc/smoke.gif')
+    return ani
 
 def resize_image(image):
     image.height = BLOCKSIZE*1.5 * 1.2
     image.width = BLOCKSIZE * 1.8 *1.2
-
     return image
 def center_image(image):
     # Center image at middle bottom of the image
@@ -158,6 +161,7 @@ class EffectSprite(pyglet.sprite.Sprite):
     def on_animation_end(self):
         if self.name =="shooting":
             self.image = animate_waiting()[0]
+            # play_smoke()
         if self.name =="dying":
             self.delete()
         if self.name =="prepare_bayonet":
@@ -172,6 +176,8 @@ class OldGuard():
         self.row = row
         self.image = EffectSprite(img=animate_waiting()[0], x=place_unit_x(self.row), y=place_unit_y(self.line),
                                   batch=batch, group=get_group(self.line))
+
+        # self.effect = EffectSprite(img=play_smoke(), x=place_unit_x(self.row), y=place_unit_y(self.line),batch=batch, group=get_group(self.line))
         self.image.set_name(animate_waiting()[1])
         self.path_pos = 0
         self.path = []
@@ -181,7 +187,8 @@ class OldGuard():
         self.x = place_unit_x(self.row)
         self.y = place_unit_y(self.line)
         self.player =pyglet.media.Player()
-
+        self.name = "OldGuard"
+        self.is_selected = False
         self.bataillon = None
 
         self.bayonet = False

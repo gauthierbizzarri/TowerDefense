@@ -20,14 +20,37 @@ class Grid():
         self.mat = self.create_grid()
 
     def set_unit(self,unit):
-        self.mat[int(unit.line)][int(unit.row)].set_content("UNIT",unit)
-        self.mat[int(unit.line)][int(unit.row)].update()
+        ### A CANON IS BIGGER THAN COMMON UNITS
+        if unit.name =="Canon":
+
+            self.mat[int(unit.line)][int(unit.row)].set_content("UNIT",unit)
+            self.mat[int(unit.line)][int(unit.row)].is_selected = unit.is_selected
+            self.mat[int(unit.line)][int(unit.row+1)].set_content("UNIT", unit)
+            self.mat[int(unit.line)][int(unit.row+1)].is_selected = unit.is_selected
+            self.mat[int(unit.line)][int(unit.row+2)].set_content("UNIT", unit)
+            self.mat[int(unit.line)][int(unit.row+2)].is_selected = unit.is_selected
+            self.mat[int(unit.line)][int(unit.row)].update()
+        else :
+            self.mat[int(unit.line)][int(unit.row)].set_content("UNIT", unit)
+            self.mat[int(unit.line)][int(unit.row)].is_selected = unit.is_selected
+            self.mat[int(unit.line)][int(unit.row)].update()
         # self.update()
 
     def unset_unit(self,unit):
 
-        self.mat[int(unit.line)][int(unit.row)].content = "NONE"
-        self.mat[int(unit.line)][int(unit.row)].update()
+        if unit.name == "Canon":
+
+            self.mat[int(unit.line)][int(unit.row)].set_content("NONE", unit)
+            self.mat[int(unit.line)][int(unit.row)].is_selected = unit.is_selected
+            self.mat[int(unit.line)][int(unit.row + 1)].set_content("NONE", unit)
+            self.mat[int(unit.line)][int(unit.row+1)].is_selected = unit.is_selected
+            self.mat[int(unit.line)][int(unit.row + 2)].set_content("NONE", unit)
+            self.mat[int(unit.line)][int(unit.row+2)].is_selected = unit.is_selected
+            self.mat[int(unit.line)][int(unit.row)].update()
+        else:
+            self.mat[int(unit.line)][int(unit.row)].set_content("NONE", unit)
+            self.mat[int(unit.line)][int(unit.row)].is_selected = unit.is_selected
+            self.mat[int(unit.line)][int(unit.row)].update()
         # self.update()
     def update(self):
         for i in range (len(self.mat)):
@@ -98,4 +121,9 @@ class Grid():
         mat[10][1].content = "TARGET"
 
         return mat
+
+    def draw_bataillon_selected(self,bataillon):
+        for unit in bataillon.units :
+            pass
+            # self.mat[int(unit.line)][int(unit.row)].is_selected=True
 

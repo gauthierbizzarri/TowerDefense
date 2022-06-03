@@ -14,10 +14,10 @@ pyglet.resource.reindex()
 
 def play_music():
     # streaming = False for longer tracks
-    music = pyglet.resource.media('sounds/misc/music.mp3', streaming=True)
+    music = pyglet.resource.media('sounds/misc/austerlitzmp3', streaming=True)
     # music.play()
     # vive_empereur = pyglet.resource.media('viveempereur.mp3', streaming=True)
-    music.play()
+    # music.play()
 
 
 

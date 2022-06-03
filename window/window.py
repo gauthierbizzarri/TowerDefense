@@ -76,6 +76,9 @@ class Window(pyglet.window.Window):
         self.init_bandeau()
         self.grid.update()
 
+        ani = pyglet.resource.animation('ressources/imgs/misc/smoke.gif')
+        self.sprite = pyglet.sprite.Sprite(img=ani)
+
 
     def init_bandeau(self):
         separator = 0
@@ -105,12 +108,9 @@ class Window(pyglet.window.Window):
             self.clicked_bataillon = self.bataillons[self.clicked_unit.bataillon]
             ### CHECK FREE :
             if content == "NONE":
-                # UNSET OLD  MOVE TILE
-                # self.grid.set_move_tile(get_line_row(x,y)[0],get_line_row(x,y)[1])
-                ###MOVE UNIT
-                #self.grid.unset_unit(self.clicked_unit)
+                # self.grid.draw_bataillon_selected(self.clicked_bataillon)
                 self.clicked_bataillon.add_path(self.grid.get_matrix_for_path(),get_line_row(x,y)[0],get_line_row(x,y)[1],self.clicked_unit)
-                # self.grid.set_unit(self.clicked_unit)
+                # self.grid.set_move_tile(get_line_row(x,y)[0],get_line_row(x,y)[1])
             if content == "TARGET":
                 # self.grid.set_move_tile(get_line_row(x, y)[0], get_line_row(x, y)[1])
                 self.clicked_bataillon.shoot()

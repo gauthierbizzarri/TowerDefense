@@ -10,7 +10,10 @@ from terrain.grid import get_line_row
 from pyglet import clock
 
 
-
+def resize_image(image):
+    image.height = BLOCKSIZE*1.5 * 1.4
+    image.width = BLOCKSIZE * 1.8 *2.6
+    return image
 
 def center_image(image):
     # Center image at middle bottom of the image
@@ -30,6 +33,7 @@ for i in range(1,46):
 def animate_waiting():
     frames = []
     img = pyglet.resource.image('ressources/imgs/units/canon/reloading/{}.png'.format(str((1))))
+    img = resize_image(img)
     frame = pyglet.image.AnimationFrame(img, duration=0.13)
     frames.append(frame)
 
@@ -42,9 +46,11 @@ def animate_shooting():
     for i in range(1, 45):
         if i == 28:
             img = pyglet.resource.image('ressources/imgs/units/canon/reloading/{}.png'.format(str((i))))
+            img = resize_image(img)
             frame = pyglet.image.AnimationFrame(img, duration=0.5)
         else:
             img = pyglet.resource.image('ressources/imgs/units/canon/reloading/{}.png'.format(str((i))))
+            img = resize_image(img)
             frame = pyglet.image.AnimationFrame(img, duration=0.13)
         frames.append(frame)
 
@@ -55,6 +61,7 @@ def animate_shooting():
 def animate_marching():
     frames = []
     img = pyglet.resource.image('ressources/imgs/units/canon/reloading/1.png'.format(str((i))))
+    img = resize_image(img)
     frame = pyglet.image.AnimationFrame(img, duration=0.1)
     frames.append(frame)
 
@@ -69,6 +76,7 @@ def animate_dying():
     frames = []
     for i in range(2, 4):
         img = pyglet.resource.image('ressources/imgs/units/grenadier/dying/{}.png'.format(str((i))))
+        img = resize_image(img)
         frame = pyglet.image.AnimationFrame(img, duration=0.3)
         frames.append(frame)
 
@@ -119,9 +127,9 @@ class Canon():
         self.x = place_unit_x(self.row)
         self.y = place_unit_y(self.line)
         self.player =pyglet.media.Player()
-
+        self.is_selected = False
         self.bataillon = None
-
+        self.name = "Canon"
         self.bayonet = False
 
     def set_bataillon(self,bataillon):
@@ -167,19 +175,12 @@ class Canon():
 
 
     def move(self):
-        if True:
+        if self.path == []:
             return
-        else:
-            if self.bayonet:
-                if self.attitude !="marching_bayonet":
-                    self.attitude = "marching_bayonet"
-                    self.image.image = animate_marching_bayonet()[0]
-                    self.image.set_name(animate_marching_bayonet()[1])
-            else :
-                if self.attitude != "marching":
-                        self.image.image = animate_marching()[0]
-                        self.image.set_name(animate_marching()[1])
-                        self.attitude = "marching"
+        if self.attitude != "marching":
+                self.image.image = animate_marching()[0]
+                self.image.set_name(animate_marching()[1])
+                self.attitude = "marching"
         try:
             x1, y1 = self.path[self.path_pos]
             if self.path_pos + 1 >= len(self.path):

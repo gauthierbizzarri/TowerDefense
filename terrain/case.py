@@ -55,32 +55,34 @@ class Case():
         if self.is_hovered:
             selected_color += 150
         if self.is_selected:
-            selected_color += 100
+            selected_color += 255
 
         if self.content =="OBSTACLE":
             shape = shapes.BorderedRectangle(self.get_x(update=True), self.get_y(update=True), BLOCKSIZE, BLOCKSIZE,
-                                             border=3, color=(0 + selected_color, 0+path_color, 0 + destination_color),
-                                             border_color=(255, 0, 0), batch=self.batch, group=self.group)
+                                             border=3 + 2*selected_color/255, color=(0 + selected_color, 0+path_color, 0 + destination_color),
+                                             border_color=(255, selected_color, 0), batch=self.batch, group=self.group)
             shape.opacity = 255
             self.shape = shape
 
         if self.content == "UNIT":
             shape = shapes.BorderedRectangle(self.get_x(update=True), self.get_y(update=True), BLOCKSIZE, BLOCKSIZE,
                                              border=3, color=(0 + selected_color, 50+path_color, 0+destination_color),
-                                             border_color=(255, 0, 0), batch=self.batch, group=self.group)
+                                             border_color=(255, selected_color, 0), batch=self.batch, group=self.group)
             shape.opacity = 100
             self.shape = shape
 
         if self.content == "NONE":
             shape = shapes.BorderedRectangle(self.get_x(update=True), self.get_y(update=True), BLOCKSIZE, BLOCKSIZE,
                                              border=3, color=(0 + selected_color, 0+path_color, 0+destination_color),
-                                             border_color=(255, 0, 0), batch=self.batch, group=self.group)
+                                             border_color=(255, selected_color, 0), batch=self.batch, group=self.group)
             shape.opacity = 100
             self.shape = shape
 
         if self.content == "TARGET":
             shape = shapes.BorderedRectangle(self.get_x(update=True), self.get_y(update=True), BLOCKSIZE, BLOCKSIZE,
                                              border=3, color=(255, 0+path_color, 0+destination_color),
-                                             border_color=(255, 0, 0), batch=self.batch, group=self.group)
+                                             border_color=(255, selected_color, 0), batch=self.batch, group=self.group)
             shape.opacity = 199
             self.shape = shape
+
+

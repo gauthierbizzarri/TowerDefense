@@ -80,6 +80,7 @@ def animate_shooting():
             frame = pyglet.image.AnimationFrame(img, duration=0.5)
         else:
             img = pyglet.resource.image('ressources/imgs/units/voltigeur/shooting/{}.png'.format(str((i))))
+            img = resize_image(img)
             frame = pyglet.image.AnimationFrame(img, duration=0.33)
         frames.append(frame)
 
@@ -178,9 +179,9 @@ class Voltigeur():
         self.x = place_unit_x(self.row)
         self.y = place_unit_y(self.line)
         self.player =pyglet.media.Player()
-
+        self.name = "Voltigeur"
         self.bataillon = None
-
+        self.is_selected = False
         self.bayonet = False
 
     def set_bataillon(self,bataillon):
