@@ -25,6 +25,7 @@ if __name__ == '__main__':
     game = Game()
     window = Window(game)
     image = pyglet.image.load('ressources/imgs/misc/cursor.png')
+    image.anchor_y = +10
     cursor = pyglet.window.ImageMouseCursor(image, 16, 8)
     window.set_mouse_cursor(cursor)
     play_music()
