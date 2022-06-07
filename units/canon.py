@@ -2,12 +2,9 @@ import pyglet
 from config.settings import *
 import math
 import random
-from pathfinding.core.diagonal_movement import DiagonalMovement
 from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
 import string
-from terrain.grid import get_line_row
-from pyglet import clock
 
 from terrain.projectile import Projectile
 
@@ -161,19 +158,19 @@ class Canon():
         for element in path :
             self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
 
-    def attack(self):
+    def attack(self,target):
         if self.attitude != "shooting":
             self.attitude = "shooting"
             self.image.image = animate_shooting()[0]
             self.image.set_name(animate_shooting()[1])
             self.play_shooting_sound()
-            self.spawn_ball()
+        self.spawn_ball(target)
 
     def set_bayonet(self):
         return
 
-    def spawn_ball(self):
-        projectile = Projectile(self.line, self.row, self.batch)
+    def spawn_ball(self,target):
+        projectile = Projectile(self.line, self.row, self.batch,target)
         self.balls.append(projectile)
 
         # return
@@ -181,8 +178,10 @@ class Canon():
 
     def move(self):
         for projectile in self.balls:
-            print(projectile.x,projectile.y)
             projectile.move()
+            if projectile.stop :
+                # projectile a touché
+                self.balls.remove(projectile)
         if self.path == []:
             return
         if self.attitude != "marching":

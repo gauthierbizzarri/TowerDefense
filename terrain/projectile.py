@@ -13,8 +13,8 @@ from pyglet import clock
 
 
 def resize_image(image):
-    image.height = BLOCKSIZE*1
-    image.width = BLOCKSIZE *1.2
+    image.height = BLOCKSIZE*0.8
+    image.width = BLOCKSIZE *0.7
     return image
 
 def center_image(image):
@@ -64,7 +64,7 @@ class EffectSprite(pyglet.sprite.Sprite):
 
 
 class Projectile():
-    def __init__(self, line, row, batch):
+    def __init__(self, line, row, batch,target):
         self.line = line
         self.row = row
         self.image = EffectSprite(img=image_ball()[0], x=place_unit_x(self.row), y=place_unit_y(self.line),
@@ -78,6 +78,8 @@ class Projectile():
         self.is_selected = False
         self.name = "Projectile"
         self.bayonet = False
+        self.stop = False
+        self.target = target
 
     def set_bataillon(self,bataillon):
         self.bataillon = bataillon
@@ -113,12 +115,15 @@ class Projectile():
             # x1, y1 = self.path[self.path_pos]
             # x2, y2 = self.path[self.path_pos + 1]
             if True:
-                # dirn = ((x2 - x1), (y2 - y1))
-                # length = 1/10*math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
-                # dirn = (dirn[0] / length, dirn[1] / length)
-                # move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
-                self.x = self.x + 10
-                self.y = self.y
+                dirn = ((self.target.x - self.x), (self.target.y - self.y))
+                length = 1/6*math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
+                if length < 1 :
+                    self.stop = True
+                    return
+                dirn = (dirn[0] / length, dirn[1] / length)
+                move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
+                self.x = move_x
+                self.y = move_y
 
                 x = self.x - LEFT_BORDER
                 y = self.y - TOP_BORDER

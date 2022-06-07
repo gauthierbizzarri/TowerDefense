@@ -170,7 +170,7 @@ class EffectSprite(pyglet.sprite.Sprite):
 
 
 
-class OldGuard():
+class ChasseurCheval():
     def __init__(self, line, row, batch):
         self.line = line
         self.row = row
@@ -219,11 +219,12 @@ class OldGuard():
         for element in path :
             self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
 
-    def attack(self,target):
-        self.attitude = "shooting"
-        self.image.image = animate_shooting()[0]
-        self.image.set_name(animate_shooting()[1])
-        self.play_shooting_sound()
+    def attack(self):
+        if self.attitude != "shooting":
+            self.attitude = "shooting"
+            self.image.image = animate_shooting()[0]
+            self.image.set_name(animate_shooting()[1])
+            self.play_shooting_sound()
 
     def set_bayonet(self):
         self.image.image = animate_prepare_bayonet()[0]

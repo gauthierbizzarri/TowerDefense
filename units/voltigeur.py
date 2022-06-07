@@ -210,8 +210,7 @@ class Voltigeur():
         for element in path :
             self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
 
-    def attack(self):
-        if self.attitude != "shooting":
+    def attack(self,target):
             self.attitude = "shooting"
             self.image.image = animate_shooting()[0]
             self.image.set_name(animate_shooting()[1])

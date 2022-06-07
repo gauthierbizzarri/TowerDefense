@@ -2,6 +2,8 @@ import math
 from pathfinding.core.diagonal_movement import DiagonalMovement
 from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
+from units.oldguard import OldGuard
+from units.voltigeur import Voltigeur
 from config.settings import *
 def place_unit_x(row):
     return BLOCKSIZE * row + LEFT_BORDER
@@ -27,9 +29,10 @@ class Bataillon():
         for unit in self.units:
             unit.set_bayonet()
 
-    def shoot(self):
-        for unit in self.units:
-            unit.attack()
+    def shoot(self,target):
+        if isinstance(target, OldGuard):
+            for unit in self.units:
+                unit.attack(target)
 
     def add_path(self,matrix, end_line, end_row,etendard):
         for unit in self.units :

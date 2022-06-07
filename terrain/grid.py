@@ -123,7 +123,12 @@ class Grid():
 
 
         ## Create targets
-        mat[10][1].content = "TARGET"
+        mat[10][20].content = "TARGET"
+        mat[10][21].content = "TARGET"
+        mat[10][22].content = "TARGET"
+        mat[11][20].content = "TARGET"
+        mat[11][21].content = "TARGET"
+        mat[11][22].content = "TARGET"
 
         return mat
 
