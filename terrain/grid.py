@@ -57,6 +57,11 @@ class Grid():
             for j in range (len(self.mat[0])):
                 self.mat[i][j].update()
 
+    def glow_selected_bataillon(self,bataillon):
+        for unit in bataillon.units:
+            self.mat[int(unit.line)][int(unit.row)].is_destination = True
+            # print(self.mat[int(unit.line)][int(unit.row)].content)
+            self.mat[int(unit.line)][int(unit.row)].update()
 
     def set_move_tile(self,line,row):
         for i in range(len(self.mat)):

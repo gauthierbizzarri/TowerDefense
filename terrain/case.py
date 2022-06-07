@@ -67,14 +67,14 @@ class Case():
         if self.content == "UNIT":
             shape = shapes.BorderedRectangle(self.get_x(update=True), self.get_y(update=True), BLOCKSIZE, BLOCKSIZE,
                                              border=3, color=(0 + selected_color, 50+path_color, 0+destination_color),
-                                             border_color=(255, selected_color, 0), batch=self.batch, group=self.group)
+                                             border_color=(255, selected_color, selected_color), batch=self.batch, group=self.group)
             shape.opacity = 100
             self.shape = shape
 
         if self.content == "NONE":
             shape = shapes.BorderedRectangle(self.get_x(update=True), self.get_y(update=True), BLOCKSIZE, BLOCKSIZE,
-                                             border=3, color=(0 + selected_color, 0+path_color, 0+destination_color),
-                                             border_color=(255, selected_color, 0), batch=self.batch, group=self.group)
+                                             border=3, color=(0 , 0+path_color, 0+destination_color),
+                                             border_color=(255, 0, 0), batch=self.batch, group=self.group)
             shape.opacity = 100
             self.shape = shape
 

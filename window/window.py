@@ -93,11 +93,16 @@ class Window(pyglet.window.Window):
 
 
     def get_element(self,x,y,action):
+        if self.clicked_bataillon is not None:
+            for unit in self.clicked_bataillon.units :
+                unit.is_selected = False
         element = self.grid.get_element(x,y,action)[0]
         if action =="CLICK":
             if element is not None :
                 self.clicked_unit = element
                 self.clicked_bataillon = self.bataillons[self.clicked_unit.bataillon]
+                for unit in self.clicked_bataillon.units:
+                    unit.is_selected = True
 
     def handle_right(self,x,y):
         self.get_element(x,y,action="CLICK")
@@ -105,7 +110,6 @@ class Window(pyglet.window.Window):
         content = self.grid.get_element(x, y)[1]
 
         if self.clicked_unit :
-            self.clicked_bataillon = self.bataillons[self.clicked_unit.bataillon]
             ### CHECK FREE :
             if content == "NONE":
                 # self.grid.draw_bataillon_selected(self.clicked_bataillon)
