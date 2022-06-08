@@ -64,7 +64,8 @@ def animate_waiting():
     for i in range(1, 9):
         img = pyglet.resource.image('ressources/imgs/units/voltigeur/waiting/{}.png'.format(str((i))))
         img = resize_image(img)
-        frame = pyglet.image.AnimationFrame(img, duration=0.33)
+        rdt = random.uniform(-1, 1)
+        frame = pyglet.image.AnimationFrame(img, duration=0.33 + rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -77,11 +78,13 @@ def animate_shooting():
         if i == 12:
             img = pyglet.resource.image('ressources/imgs/units/voltigeur/shooting/{}.png'.format(str((i))))
             img = resize_image(img)
-            frame = pyglet.image.AnimationFrame(img, duration=0.5)
+            rdt = random.uniform(-1, 1)
+            frame = pyglet.image.AnimationFrame(img, duration=0.5+ rdt)
         else:
             img = pyglet.resource.image('ressources/imgs/units/voltigeur/shooting/{}.png'.format(str((i))))
             img = resize_image(img)
-            frame = pyglet.image.AnimationFrame(img, duration=0.33)
+            rdt = random.uniform(-1, 1)
+            frame = pyglet.image.AnimationFrame(img, duration=0.33 + rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -93,7 +96,8 @@ def animate_marching():
     for i in range(1, 5):
         img = pyglet.resource.image('ressources/imgs/units/voltigeur/marching/{}.png'.format(str((i))))
         img = resize_image(img)
-        frame = pyglet.image.AnimationFrame(img, duration=0.1)
+        rdt = random.uniform(-1, 1)
+        frame = pyglet.image.AnimationFrame(img, duration=0.1 +0)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -104,7 +108,8 @@ def animate_prepare_bayonet():
     for i in range(1, 5):
         img = pyglet.resource.image('ressources/imgs/units/voltigeur/bayonet_marching/{}.png'.format(str((i))))
         img = resize_image(img)
-        frame = pyglet.image.AnimationFrame(img, duration=0.3)
+        rdt = random.uniform(-1, 1)
+        frame = pyglet.image.AnimationFrame(img, duration=0.3 +rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -115,7 +120,8 @@ def animate_marching_bayonet():
     for i in range(5, 9):
         img = pyglet.resource.image('ressources/imgs/units/voltigeur/bayonet_marching/{}.png'.format(str((i))))
         img = resize_image(img)
-        frame = pyglet.image.AnimationFrame(img, duration=0.2)
+        rdt = random.uniform(-1, 1)
+        frame = pyglet.image.AnimationFrame(img, duration=0.2 + rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -126,7 +132,8 @@ def animate_dying():
     for i in range(2, 4):
         img = pyglet.resource.image('ressources/imgs/units/voltigeur/dying/{}.png'.format(str((i))))
         img = resize_image(img)
-        frame = pyglet.image.AnimationFrame(img, duration=0.3)
+        rdt = random.uniform(-1, 1)
+        frame = pyglet.image.AnimationFrame(img, duration=0.3 +rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -252,7 +259,7 @@ class Voltigeur():
             x2, y2 = self.path[self.path_pos + 1]
             if True:
                 dirn = ((x2 - x1), (y2 - y1))
-                length = 1/10*math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
+                length = 1*math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
                 dirn = (dirn[0] / length, dirn[1] / length)
                 move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
                 self.x = move_x

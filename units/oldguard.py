@@ -69,7 +69,8 @@ def animate_waiting():
     for i in range(1, 9):
         img = pyglet.resource.image('ressources/imgs/units/grenadier/waiting/{}.png'.format(str((i))))
         img = resize_image(img)
-        frame = pyglet.image.AnimationFrame(img, duration=0.33)
+        rdt = random.uniform(-1, 1)
+        frame = pyglet.image.AnimationFrame(img, duration=0.33+rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -82,11 +83,13 @@ def animate_shooting():
         if i == 12:
             img = pyglet.resource.image('ressources/imgs/units/grenadier/shooting/{}.png'.format(str((i))))
             img = resize_image(img)
-            frame = pyglet.image.AnimationFrame(img, duration=0.5)
+            rdt = random.uniform(-1, 1)
+            frame = pyglet.image.AnimationFrame(img, duration=0.5 +rdt)
         else:
             img = pyglet.resource.image('ressources/imgs/units/grenadier/shooting/{}.png'.format(str((i))))
             img = resize_image(img)
-            frame = pyglet.image.AnimationFrame(img, duration=0.33)
+            rdt = random.uniform(-1, 1)
+            frame = pyglet.image.AnimationFrame(img, duration=0.33 + rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -98,7 +101,8 @@ def animate_marching():
     for i in range(1, 5):
         img = pyglet.resource.image('ressources/imgs/units/grenadier/marching/{}.png'.format(str((i))))
         img = resize_image(img)
-        frame = pyglet.image.AnimationFrame(img, duration=0.1)
+        rdt = random.uniform(-1, 1)
+        frame = pyglet.image.AnimationFrame(img, duration=0.1 + 0)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -109,7 +113,8 @@ def animate_prepare_bayonet():
     for i in range(1, 5):
         img = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/{}.png'.format(str((i))))
         img = resize_image(img)
-        frame = pyglet.image.AnimationFrame(img, duration=0.3)
+        rdt = random.uniform(-1, 1)
+        frame = pyglet.image.AnimationFrame(img, duration=0.3 + rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -120,7 +125,8 @@ def animate_marching_bayonet():
     for i in range(5, 9):
         img = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/{}.png'.format(str((i))))
         img = resize_image(img)
-        frame = pyglet.image.AnimationFrame(img, duration=0.2)
+        rdt = random.uniform(-1, 1)
+        frame = pyglet.image.AnimationFrame(img, duration=0.2 + rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -131,7 +137,8 @@ def animate_dying():
     for i in range(2, 4):
         img = pyglet.resource.image('ressources/imgs/units/grenadier/dying/{}.png'.format(str((i))))
         img = resize_image(img)
-        frame = pyglet.image.AnimationFrame(img, duration=0.3)
+        rdt = random.uniform(-1, 1)
+        frame = pyglet.image.AnimationFrame(img, duration=0.3 + rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -219,7 +226,7 @@ class OldGuard():
         for element in path :
             self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
 
-    def attack(self,target):
+    def attack(self, target):
         self.attitude = "shooting"
         self.image.image = animate_shooting()[0]
         self.image.set_name(animate_shooting()[1])

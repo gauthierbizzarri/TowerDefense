@@ -30,7 +30,7 @@ class Bataillon():
             unit.set_bayonet()
 
     def shoot(self,target):
-        if isinstance(target, OldGuard):
+        if isinstance(target, OldGuard) or isinstance(target,Voltigeur):
             for unit in self.units:
                 unit.attack(target)
 
