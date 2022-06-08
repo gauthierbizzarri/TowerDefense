@@ -52,9 +52,8 @@ class Window(pyglet.window.Window):
         self.bandeau = []
 
         self.clicked_unit = None
-        background_image = pyglet.resource.image('imgs/window/back.png')
-        background_image.width = 4290
-        background_image.height = 1300
+        background_image = pyglet.resource.image('imgs/window/back')
+        background_image.width = 1900
         self.background = pyglet.sprite.Sprite(background_image,
                                                batch=self.batch, group=self.background_group)
 
@@ -76,8 +75,6 @@ class Window(pyglet.window.Window):
         self.init_bandeau()
         self.grid.update()
 
-        ani = pyglet.resource.animation('ressources/imgs/misc/smoke.gif')
-        self.sprite = pyglet.sprite.Sprite(img=ani)
 
 
     def init_bandeau(self):

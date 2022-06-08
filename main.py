@@ -3,6 +3,7 @@ from window.input_handler import input_handler, motion_handler
 from window.window import  Window
 from pyglet import clock
 from game import Game
+
 pyglet.resource.path = ['ressources']
 pyglet.resource.reindex()
 

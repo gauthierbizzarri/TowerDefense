@@ -10,7 +10,6 @@ from config.settings import *
 from terrain.grid import get_line_row
 from pyglet import clock
 
-image_smoke= pyglet.resource.animation('ressources/imgs/misc/smoke.gif')
 
 def play_smoke():
     ani = pyglet.resource.animation('ressources/imgs/misc/smoke.gif')
@@ -268,7 +267,7 @@ class OldGuard():
             x2, y2 = self.path[self.path_pos + 1]
             if True:
                 dirn = ((x2 - x1), (y2 - y1))
-                length = 1/10*math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
+                length = 1*math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
                 dirn = (dirn[0] / length, dirn[1] / length)
                 move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
                 self.x = move_x

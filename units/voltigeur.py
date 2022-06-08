@@ -9,6 +9,14 @@ import string
 from terrain.grid import get_line_row
 from pyglet import clock
 
+def play_walking_sound():
+    music = pyglet.resource.media('sounds/units/walking.mp3', streaming=False)
+    music.play()
+
+def play_shooting_sound():
+    music = pyglet.resource.media('sounds/units/rifle_shoot.mp3', streaming=False)
+    music.play()
+
 def resize_image(image):
     image.height = BLOCKSIZE*1.5 * 1.2
     image.width = BLOCKSIZE * 1.8 *1.2
@@ -44,6 +52,11 @@ image_shooting_j = pyglet.resource.image('ressources/imgs/units/voltigeur/shooti
 image_shooting_k = pyglet.resource.image('ressources/imgs/units/voltigeur/shooting/11.png')
 image_shooting_l = pyglet.resource.image('ressources/imgs/units/voltigeur/shooting/12.png')
 
+
+image_reloading_a = pyglet.resource.image('ressources/imgs/units/voltigeur/reloading/1.png')
+image_reloading_b = pyglet.resource.image('ressources/imgs/units/voltigeur/reloading/2.png')
+
+
 image_marching_a = pyglet.resource.image('ressources/imgs/units/voltigeur/marching/1.png')
 image_marching_b = pyglet.resource.image('ressources/imgs/units/voltigeur/marching/2.png')
 image_marching_c = pyglet.resource.image('ressources/imgs/units/voltigeur/marching/3.png')
@@ -59,6 +72,20 @@ image_bayonet_marching_g = pyglet.resource.image('ressources/imgs/units/voltigeu
 image_bayonet_marching_h = pyglet.resource.image('ressources/imgs/units/voltigeur/bayonet_marching/8.png')
 
 
+image_smoke_1 = pyglet.resource.image('ressources/imgs/misc/mist/fumée1.png')
+image_smoke_2 = pyglet.resource.image('ressources/imgs/misc/mist/fumée2.png')
+image_smoke_3 = pyglet.resource.image('ressources/imgs/misc/mist/fumée3.png')
+
+def animate_smoke():
+    frames = []
+    for i in range(1, 2):
+        img = pyglet.resource.image('ressources/imgs/misc/mist/fumée{}.png'.format(str((i))))
+        img = resize_image(img)
+        rdt = random.uniform(-0.3, 0.3)
+        frame = pyglet.image.AnimationFrame(img, duration=0.05 + 0)
+        frames.append(frame)
+        ani = pyglet.image.Animation(frames=frames)
+    return ani, "smoke "
 def animate_waiting():
     frames = []
     for i in range(1, 9):
@@ -72,25 +99,41 @@ def animate_waiting():
     return ani, "waiting "
 
 
+def animate_prepare_shooting():
+    frames = []
+    for i in range(1, 9):
+        img = pyglet.resource.image('ressources/imgs/units/voltigeur/shooting/{}.png'.format(str((i))))
+        img = resize_image(img)
+        rdt = random.uniform(-0.33, 0.33)
+        frame = pyglet.image.AnimationFrame(img, duration=0.33 + rdt)
+        frames.append(frame)
+
+    ani = pyglet.image.Animation(frames=frames)
+    return ani, "prepare_shooting"
+
 def animate_shooting():
     frames = []
-    for i in range(1, 13):
-        if i == 12:
-            img = pyglet.resource.image('ressources/imgs/units/voltigeur/shooting/{}.png'.format(str((i))))
-            img = resize_image(img)
-            rdt = random.uniform(-1, 1)
-            frame = pyglet.image.AnimationFrame(img, duration=0.5+ rdt)
-        else:
-            img = pyglet.resource.image('ressources/imgs/units/voltigeur/shooting/{}.png'.format(str((i))))
-            img = resize_image(img)
-            rdt = random.uniform(-1, 1)
-            frame = pyglet.image.AnimationFrame(img, duration=0.33 + rdt)
+    for i in range(8, 13):
+        img = pyglet.resource.image('ressources/imgs/units/voltigeur/shooting/{}.png'.format(str((i))))
+        img = resize_image(img)
+        rdt = random.uniform(-0.22, 0.22)
+        frame = pyglet.image.AnimationFrame(img, duration=0.33 + rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
     return ani, "shooting"
 
+def animate_reloading():
+    frames = []
+    for i in range(1, 3):
+        img = pyglet.resource.image('ressources/imgs/units/voltigeur/reloading/{}.png'.format(str((i))))
+        img = resize_image(img)
+        rdt = random.uniform(-1, 1)
+        frame = pyglet.image.AnimationFrame(img, duration=9 + rdt)
+        frames.append(frame)
 
+    ani = pyglet.image.Animation(frames=frames)
+    return ani, "reloading"
 def animate_marching():
     frames = []
     for i in range(1, 5):
@@ -161,23 +204,46 @@ class EffectSprite(pyglet.sprite.Sprite):
         return self.name
 
     def on_animation_end(self):
-        if self.name =="shooting":
+        cpt = 0
+        if self.name =="prepare_shooting":
+            self.image = animate_shooting()[0]
+            self.name = animate_shooting()[1]
+            return
+        if self.name == "shooting":
+
+            self.image = animate_reloading()[0]
+            self.name = animate_reloading()[1]
+            return
+        if self.name =="reloading":
             self.image = animate_waiting()[0]
+            self.name = animate_waiting()[1]
+            return
         if self.name =="dying":
             self.delete()
         if self.name =="prepare_bayonet":
-
             self.image = animate_marching_bayonet()[0]
 
+        if self.name =="smoke":
+            if self.opacity < 10:
+                del(self)
+                return
+            rdt_x = random.uniform(0.6, 2)
+            self.x = self.x - 2
+            rdt_o = random.uniform(-1, 1)
+            self.opacity = self.opacity -3 + rdt_o
 
 
 class Voltigeur():
     def __init__(self, line, row, batch):
+        self.batch = batch
         self.line = line
         self.row = row
         self.image = EffectSprite(img=animate_waiting()[0], x=place_unit_x(self.row), y=place_unit_y(self.line),
                                   batch=batch, group=get_group(self.line))
         self.image.set_name(animate_waiting()[1])
+
+        self.effect = None
+        # self.effect.set_name = None
         self.path_pos = 0
         self.path = []
         self.attitude = "waiting"
@@ -218,11 +284,9 @@ class Voltigeur():
             self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
 
     def attack(self,target):
-            self.attitude = "shooting"
-            self.image.image = animate_shooting()[0]
-            self.image.set_name(animate_shooting()[1])
-            self.play_shooting_sound()
-
+            self.attitude = "prepare_shooting"
+            self.image.image = animate_prepare_shooting()[0]
+            self.image.set_name(animate_prepare_shooting()[1])
     def set_bayonet(self):
         self.image.image = animate_prepare_bayonet()[0]
         self.image.set_name(animate_prepare_bayonet()[1])
@@ -233,6 +297,12 @@ class Voltigeur():
 
 
     def move(self):
+        if self.image.name == "reloading":
+            if self.effect is  None :
+                self.effect = EffectSprite(img=animate_smoke()[0], x=place_unit_x(self.row)-20, y=place_unit_y(self.line),
+                                         batch=self.batch, group=get_group(self.line+1))
+
+                self.effect.set_name("smoke")
         if self.path == []:
             return
         else:
@@ -291,11 +361,5 @@ class Voltigeur():
         except:
             pass
 
-    def play_walking_sound(self):
-        music = pyglet.resource.media('sounds/units/walking.mp3', streaming=False)
-        self.player.queue(music)
 
-    def play_shooting_sound(self):
-        music = pyglet.resource.media('sounds/units/rifle_shoot.mp3', streaming=False)
-        self.player.queue(music)
 
