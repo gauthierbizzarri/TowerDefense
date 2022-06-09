@@ -150,11 +150,12 @@ class Window(pyglet.window.Window):
         for unit in units:
             unit.set_bataillon(len(self.bataillons))
         self.bataillons.append(bataillon)
+        bataillon.create_path_spawn(self.grid.get_matrix_for_path())
 
 
         ### 2eme bataillon :
 
-        l = 10
+        """l = 10
         r = 10
         units = [
             OldGuard(line=l,            row=r,          batch=self.batch),
@@ -174,10 +175,10 @@ class Window(pyglet.window.Window):
         for unit in units:
             unit.set_bataillon(len(self.bataillons))
         self.bataillons.append(bataillon)
-
+"""
         ### 3eme bataillon :
 
-        l = 1
+        """l = 1
         r = 1
         units = [
             Canon(line=l, row=r, batch=self.batch),
@@ -188,7 +189,7 @@ class Window(pyglet.window.Window):
         bataillon = Bataillon(units, self.grid)
         for unit in units:
             unit.set_bataillon(len(self.bataillons))
-        self.bataillons.append(bataillon)
+        self.bataillons.append(bataillon)"""
 
 
     def handle_key(self,key):
@@ -200,6 +201,7 @@ class Window(pyglet.window.Window):
         self.init_bandeau()
         for bat in self.bataillons :
             bat.move_bataillon()
+            bat.play_effect()
         if self.shoot :
             self.bataillon.shoot()
 

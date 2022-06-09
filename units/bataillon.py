@@ -18,6 +18,11 @@ class Bataillon():
         self.units = units
         self.grid = grid
 
+        ## create path spawn
+
+    def create_path_spawn(self,matrix):
+        for unit in self.units :
+            unit.add_path_spawn(matrix)
     def move_bataillon(self):
         for unit in self.units:
             # CREATE PATH FOR UNIT :
@@ -42,3 +47,8 @@ class Bataillon():
     def spawn_bataillon(self):
         for unit in self.units:
             unit.spawn()
+
+    def play_effect(self):
+        for unit in self.units :
+            unit.play_effect()
+

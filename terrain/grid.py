@@ -119,16 +119,7 @@ class Grid():
 
         for i in range(LIGNES):
             if i !=5:
-                mat[i][6].content = "OBSTACLE"
-
-
-        ## Create targets
-        mat[10][20].content = "TARGET"
-        mat[10][21].content = "TARGET"
-        mat[10][22].content = "TARGET"
-        mat[11][20].content = "TARGET"
-        mat[11][21].content = "TARGET"
-        mat[11][22].content = "TARGET"
+                mat[i][20].content = "OBSTACLE"
 
         return mat
 
