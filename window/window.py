@@ -42,6 +42,9 @@ class Window(pyglet.window.Window):
         self.camera = Camera()
 
 
+        self.decor = []
+
+
         self.background_group = pyglet.graphics.OrderedGroup(0)
         self.middleground_group = pyglet.graphics.OrderedGroup(1)
         self.foreground_group = pyglet.graphics.OrderedGroup(2)
@@ -78,6 +81,7 @@ class Window(pyglet.window.Window):
 
 
     def init_bandeau(self):
+        return
         separator = 0
         for element in self.bataillons:
             self.bandeau.append(

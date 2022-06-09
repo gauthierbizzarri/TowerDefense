@@ -63,6 +63,22 @@ image_bayonet_marching_g = pyglet.resource.image('ressources/imgs/units/grenadie
 image_bayonet_marching_h = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/8.png')
 
 
+image_smoke_1 = pyglet.resource.image('ressources/imgs/misc/mist/fumée1.png')
+image_smoke_2 = pyglet.resource.image('ressources/imgs/misc/mist/fumée2.png')
+image_smoke_3 = pyglet.resource.image('ressources/imgs/misc/mist/fumée3.png')
+
+def animate_smoke():
+    frames = []
+    for i in range(1, 2):
+        img = pyglet.resource.image('ressources/imgs/misc/mist/fumée{}.png'.format(str((i))))
+        img = resize_image(img)
+        rdt = random.uniform(-0.3, 0.3)
+        frame = pyglet.image.AnimationFrame(img, duration=0.05 + 0)
+        frames.append(frame)
+        ani = pyglet.image.Animation(frames=frames)
+    return ani, "smoke "
+
+
 def animate_waiting():
     frames = []
     for i in range(1, 9):
@@ -73,27 +89,44 @@ def animate_waiting():
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
-    return ani, "waiting "
+    return ani, "waiting"
 
+
+def animate_prepare_shooting():
+    frames = []
+    for i in range(1, 9):
+        img = pyglet.resource.image('ressources/imgs/units/grenadier/shooting/{}.png'.format(str((i))))
+        img = resize_image(img)
+        rdt = random.uniform(-0.33, 0.33)
+        frame = pyglet.image.AnimationFrame(img, duration=0.33 + rdt)
+        frames.append(frame)
+
+    ani = pyglet.image.Animation(frames=frames)
+    return ani, "prepare_shooting"
 
 def animate_shooting():
     frames = []
-    for i in range(1, 13):
-        if i == 12:
-            img = pyglet.resource.image('ressources/imgs/units/grenadier/shooting/{}.png'.format(str((i))))
-            img = resize_image(img)
-            rdt = random.uniform(-1, 1)
-            frame = pyglet.image.AnimationFrame(img, duration=0.5 +rdt)
-        else:
-            img = pyglet.resource.image('ressources/imgs/units/grenadier/shooting/{}.png'.format(str((i))))
-            img = resize_image(img)
-            rdt = random.uniform(-1, 1)
-            frame = pyglet.image.AnimationFrame(img, duration=0.33 + rdt)
+    for i in range(8, 11):
+        img = pyglet.resource.image('ressources/imgs/units/grenadier/shooting/{}.png'.format(str((i))))
+        img = resize_image(img)
+        rdt = random.uniform(-0.22, 0.22)
+        frame = pyglet.image.AnimationFrame(img, duration=0.22 + rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
     return ani, "shooting"
 
+def animate_reloading():
+    frames = []
+    for i in range(11, 13):
+        img = pyglet.resource.image('ressources/imgs/units/grenadier/shooting/{}.png'.format(str((i))))
+        img = resize_image(img)
+        rdt = random.uniform(-1, 1)
+        frame = pyglet.image.AnimationFrame(img, duration=9 + rdt)
+        frames.append(frame)
+
+    ani = pyglet.image.Animation(frames=frames)
+    return ani, "reloading"
 
 def animate_marching():
     frames = []
@@ -165,25 +198,44 @@ class EffectSprite(pyglet.sprite.Sprite):
         return self.name
 
     def on_animation_end(self):
-        if self.name =="shooting":
+        if self.name == "prepare_shooting":
+            self.image = animate_shooting()[0]
+            self.name = animate_shooting()[1]
+            return
+        if self.name == "shooting":
+            self.image = animate_reloading()[0]
+            self.name = animate_reloading()[1]
+            return
+        if self.name == "reloading":
             self.image = animate_waiting()[0]
-            # play_smoke()
-        if self.name =="dying":
+            self.name = animate_waiting()[1]
+            return
+        if self.name == "dying":
             self.delete()
-        if self.name =="prepare_bayonet":
-
+        if self.name == "prepare_bayonet":
             self.image = animate_marching_bayonet()[0]
 
+        ## SMOKE EFFECT
+        if self.name == "smoke":
+            if self.opacity < 5:
+                self.name = "smoke_ended"
+                return
+            rdt_x = random.uniform(-0.6, 0.5)
+            self.x = self.x - 1.5
+            #  self.y = self.y - rdt_x
+            rdt_o = random.uniform(-1, 1)
+            self.opacity = self.opacity - 2 + rdt_o
 
 
 class OldGuard():
     def __init__(self, line, row, batch):
+        self.batch = batch
         self.line = line
         self.row = row
         self.image = EffectSprite(img=animate_waiting()[0], x=place_unit_x(self.row), y=place_unit_y(self.line),
                                   batch=batch, group=get_group(self.line))
 
-        # self.effect = EffectSprite(img=play_smoke(), x=place_unit_x(self.row), y=place_unit_y(self.line),batch=batch, group=get_group(self.line))
+        self.effect = None
         self.image.set_name(animate_waiting()[1])
         self.path_pos = 0
         self.path = []
@@ -226,10 +278,10 @@ class OldGuard():
             self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
 
     def attack(self, target):
-        self.attitude = "shooting"
-        self.image.image = animate_shooting()[0]
-        self.image.set_name(animate_shooting()[1])
-        self.play_shooting_sound()
+        if self.image.name == "waiting" or self.image.name == "marching":
+            self.attitude = "prepare_shooting"
+            self.image.image = animate_prepare_shooting()[0]
+            self.image.set_name(animate_prepare_shooting()[1])
 
     def set_bayonet(self):
         self.image.image = animate_prepare_bayonet()[0]
@@ -241,6 +293,12 @@ class OldGuard():
 
 
     def move(self):
+        if self.image.name == "shooting":
+            if self.effect is  None or self.effect.name =="smoke_ended" :
+                self.effect = EffectSprite(img=animate_smoke()[0], x=place_unit_x(self.row)-10, y=place_unit_y(self.line),
+                                         batch=self.batch, group=get_group(self.line+1))
+
+                self.effect.set_name("smoke")
         if self.path == []:
             return
         else:

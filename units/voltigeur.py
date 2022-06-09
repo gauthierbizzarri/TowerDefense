@@ -96,7 +96,7 @@ def animate_waiting():
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
-    return ani, "waiting "
+    return ani, "waiting"
 
 
 def animate_prepare_shooting():
@@ -117,7 +117,7 @@ def animate_shooting():
         img = pyglet.resource.image('ressources/imgs/units/voltigeur/shooting/{}.png'.format(str((i))))
         img = resize_image(img)
         rdt = random.uniform(-0.22, 0.22)
-        frame = pyglet.image.AnimationFrame(img, duration=0.33 + rdt)
+        frame = pyglet.image.AnimationFrame(img, duration=0.22 + rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -204,7 +204,6 @@ class EffectSprite(pyglet.sprite.Sprite):
         return self.name
 
     def on_animation_end(self):
-        cpt = 0
         if self.name =="prepare_shooting":
             self.image = animate_shooting()[0]
             self.name = animate_shooting()[1]
@@ -223,14 +222,16 @@ class EffectSprite(pyglet.sprite.Sprite):
         if self.name =="prepare_bayonet":
             self.image = animate_marching_bayonet()[0]
 
+        ## SMOKE EFFECT
         if self.name =="smoke":
-            if self.opacity < 10:
-                del(self)
+            if self.opacity < 5:
+                self.name = "smoke_ended"
                 return
-            rdt_x = random.uniform(0.6, 2)
-            self.x = self.x - 2
+            rdt_x = random.uniform(-0.6, 0.5)
+            self.x = self.x - 1.5
+           #  self.y = self.y - rdt_x
             rdt_o = random.uniform(-1, 1)
-            self.opacity = self.opacity -3 + rdt_o
+            self.opacity = self.opacity -2 + rdt_o
 
 
 class Voltigeur():
@@ -284,6 +285,7 @@ class Voltigeur():
             self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
 
     def attack(self,target):
+        if self.image.name =="waiting" or self.image.name =="marching":
             self.attitude = "prepare_shooting"
             self.image.image = animate_prepare_shooting()[0]
             self.image.set_name(animate_prepare_shooting()[1])
@@ -297,9 +299,9 @@ class Voltigeur():
 
 
     def move(self):
-        if self.image.name == "reloading":
-            if self.effect is  None :
-                self.effect = EffectSprite(img=animate_smoke()[0], x=place_unit_x(self.row)-20, y=place_unit_y(self.line),
+        if self.image.name == "shooting":
+            if self.effect is  None or self.effect.name =="smoke_ended" :
+                self.effect = EffectSprite(img=animate_smoke()[0], x=place_unit_x(self.row)-10, y=place_unit_y(self.line),
                                          batch=self.batch, group=get_group(self.line+1))
 
                 self.effect.set_name("smoke")
