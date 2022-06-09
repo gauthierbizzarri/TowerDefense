@@ -237,10 +237,14 @@ class EffectSprite(pyglet.sprite.Sprite):
 class Voltigeur():
     def __init__(self, line, row, batch):
         self.batch = batch
+        self.dest_line = line
+        self.dest_row = row
         self.line = line
-        self.row = row
+        self.row = row - 10
         self.image = EffectSprite(img=animate_waiting()[0], x=place_unit_x(self.row), y=place_unit_y(self.line),
                                   batch=batch, group=get_group(self.line))
+
+        self.has_spawned = False
         self.image.set_name(animate_waiting()[1])
 
         self.effect = None
@@ -289,23 +293,54 @@ class Voltigeur():
             self.attitude = "prepare_shooting"
             self.image.image = animate_prepare_shooting()[0]
             self.image.set_name(animate_prepare_shooting()[1])
+
     def set_bayonet(self):
         self.image.image = animate_prepare_bayonet()[0]
         self.image.set_name(animate_prepare_bayonet()[1])
         self.bayonet = True
 
 
-        # return
+    def spawn(self):
+        if self.has_spawned :
+            self.attitude = "waiting"
+            self.image.image = animate_waiting()[0]
+            self.image.set_name(animate_waiting()[1])
+            return
+        if self.attitude != "marching":
+            self.image.image = animate_marching()[0]
+            self.image.set_name(animate_marching()[1])
+            self.attitude = "marching"
+        dirn = ((self.dest_row*BLOCKSIZE - self.x), (self.dest_line*BLOCKSIZE- self.y))
+        length = 1 * math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
+        if length <10:
+            self.has_spawned = True
+        dirn = (dirn[0] / length, dirn[1] / length)
+        move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
+        self.x = move_x
+        self.y = move_y
+
+
+        x = self.x - LEFT_BORDER
+        y = self.y - TOP_BORDER
+        row = x / BLOCKSIZE
+        line = y / BLOCKSIZE
+
+        self.line = line
+        self.row = row
+        self.path_pos += 1
+        self.update_image()
+
 
 
     def move(self):
+        self.spawn()
         if self.image.name == "shooting":
             if self.effect is  None or self.effect.name =="smoke_ended" :
                 self.effect = EffectSprite(img=animate_smoke()[0], x=place_unit_x(self.row)-10, y=place_unit_y(self.line),
                                          batch=self.batch, group=get_group(self.line+1))
 
                 self.effect.set_name("smoke")
-        if self.path == []:
+        if self.path == [] :
             return
         else:
             if self.bayonet:
