@@ -239,7 +239,7 @@ class Voltigeur():
         self.dest_line = line
         self.dest_row = row
         self.line = line
-        self.row = row - 10
+        self.row = row - 12
         self.image = EffectSprite(img=animate_waiting()[0], x=place_unit_x(self.row), y=place_unit_y(self.line),
                                   batch=batch, group=get_group(self.line))
 

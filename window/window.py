@@ -155,8 +155,8 @@ class Window(pyglet.window.Window):
 
         ### 2eme bataillon :
 
-        """l = 10
-        r = 10
+        l = 10
+        r = 5
         units = [
             OldGuard(line=l,            row=r,          batch=self.batch),
             OldGuard(line=l,            row=r + 1,      batch=self.batch),
@@ -175,7 +175,8 @@ class Window(pyglet.window.Window):
         for unit in units:
             unit.set_bataillon(len(self.bataillons))
         self.bataillons.append(bataillon)
-"""
+        bataillon.create_path_spawn(self.grid.get_matrix_for_path())
+
         ### 3eme bataillon :
 
         """l = 1
