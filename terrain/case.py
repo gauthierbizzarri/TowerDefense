@@ -59,9 +59,9 @@ class Case():
 
         if self.content =="OBSTACLE":
             shape = shapes.BorderedRectangle(self.get_x(update=True), self.get_y(update=True), BLOCKSIZE, BLOCKSIZE,
-                                             border=3 + 2*selected_color/255, color=(0 + selected_color, 0+path_color, 0 + destination_color),
+                                             border=3 , color=(0 + selected_color, 50+path_color, 0 + destination_color),
                                              border_color=(255, selected_color, 0), batch=self.batch, group=self.group)
-            shape.opacity = 255
+            shape.opacity = 100
             self.shape = shape
 
         if self.content == "UNIT":

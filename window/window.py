@@ -42,7 +42,6 @@ class Window(pyglet.window.Window):
         self.camera = Camera()
 
 
-        self.decor = []
 
 
         self.background_group = pyglet.graphics.OrderedGroup(0)
@@ -51,11 +50,13 @@ class Window(pyglet.window.Window):
 
 
         self.grid = Grid(batch=self.batch,group=self.middleground_group)
+        self.decor = []
+        self.create_decor()
 
         self.bandeau = []
 
         self.clicked_unit = None
-        background_image = pyglet.resource.image('imgs/window/back')
+        background_image = pyglet.resource.image('imgs/window/back.jpg')
         background_image.width = 1900
         self.background = pyglet.sprite.Sprite(background_image,
                                                batch=self.batch, group=self.background_group)
@@ -77,6 +78,20 @@ class Window(pyglet.window.Window):
 
         self.init_bandeau()
         self.grid.update()
+
+
+    def create_decor(self):
+        grid = self.grid.create_grid()
+        for i in range (len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j].content == "OBSTACLE":
+                    tree_img = pyglet.resource.image('imgs/misc/bush.png')
+                    tree_img.width = BLOCKSIZE * 2
+                    tree_img.height = BLOCKSIZE *1.6
+                    tree_img.anchor_x = tree_img.width // 8
+                    tree_img.anchor_y = tree_img.height // 8
+                    tree = pyglet.sprite.Sprite(tree_img,x= j*BLOCKSIZE+LEFT_BORDER, y= i*BLOCKSIZE+TOP_BORDER, batch=self.batch, group=self.foreground_group)
+                    self.decor.append(tree)
 
 
 
