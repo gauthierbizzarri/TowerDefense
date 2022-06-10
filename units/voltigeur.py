@@ -208,7 +208,6 @@ class EffectSprite(pyglet.sprite.Sprite):
             self.name = animate_shooting()[1]
             return
         if self.name == "shooting":
-
             self.image = animate_reloading()[0]
             self.name = animate_reloading()[1]
             return
@@ -262,6 +261,9 @@ class Voltigeur():
         self.bataillon = None
         self.is_selected = False
         self.bayonet = False
+        self.health = 1
+        self.shoot = False
+        self.target = None
 
     def set_bataillon(self,bataillon):
         self.bataillon = bataillon
@@ -303,11 +305,23 @@ class Voltigeur():
         for element in path :
             self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
 
-    def attack(self,target):
+    def attack(self,target=None):
+        if self.target == None:
+            self.target = target
         if self.image.name =="waiting" or self.image.name =="marching":
             self.attitude = "prepare_shooting"
             self.image.image = animate_prepare_shooting()[0]
             self.image.set_name(animate_prepare_shooting()[1])
+        self.shoot = True
+        if self.image.name =="shooting" :
+            try:
+                self.target.be_attacked()
+                self.target = None
+            except:
+                pass
+
+    def be_attacked(self):
+        self.health =0
 
     def set_bayonet(self):
         self.image.image = animate_prepare_bayonet()[0]
@@ -377,6 +391,8 @@ class Voltigeur():
     def move(self):
         if not self.has_spawned:
             self.spawn()
+        if self.shoot:
+            self.attack()
         if self.path == [] :
             return
         else:

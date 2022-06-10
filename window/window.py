@@ -121,7 +121,7 @@ class Window(pyglet.window.Window):
                 self.grid.update()
             if content == "UNIT":
                ###### SHOOT
-                target = self.grid.get_element(x, y)[0]
+                target = self.bataillons[self.grid.get_element(x, y)[0].bataillon]
                 # self.grid.set_move_tile(get_line_row(x, y)[0], get_line_row(x, y)[1])
                 self.clicked_bataillon.shoot(target)
 
@@ -200,9 +200,19 @@ class Window(pyglet.window.Window):
                 self.clicked_bataillon.set_bayonet()
 
     def main(self):
+        print("THERE ARE ",len(self.bataillons), "BATTAILLONS")
         for bat in self.bataillons :
+            print(len(bat.units))
+
+            bat.main()
+            if len(bat.units) <= 1 :
+                for unit in bat.units:
+                    self.game.remove_unit(unit)
+                self.bataillons.remove(bat)
             bat.move_bataillon()
             bat.play_effect()
+
+
         if self.shoot :
             self.bataillon.shoot()
 

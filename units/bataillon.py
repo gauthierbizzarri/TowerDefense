@@ -35,17 +35,21 @@ class Bataillon():
             unit.set_bayonet()
 
     def shoot(self,target):
-        if isinstance(target, OldGuard) or isinstance(target,Voltigeur):
+        if isinstance(target, Bataillon) :
             for unit in self.units:
-                unit.attack(target)
+                print(len(target.units))
+                if len(target.units)>0:
+                    unit.attack(target)
 
     def add_path(self,matrix, end_line, end_row,etendard):
         for unit in self.units :
             unit.add_path(matrix,end_line,end_row,etendard)
-
-
-
     def play_effect(self):
         for unit in self.units :
             unit.play_effect()
 
+    def main(self):
+        pass
+    def be_attacked(self):
+        for unit in self.units :
+            unit.be_attacked()

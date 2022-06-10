@@ -67,6 +67,11 @@ image_smoke_1 = pyglet.resource.image('ressources/imgs/misc/mist/fumée1.png')
 image_smoke_2 = pyglet.resource.image('ressources/imgs/misc/mist/fumée2.png')
 image_smoke_3 = pyglet.resource.image('ressources/imgs/misc/mist/fumée3.png')
 
+
+image_bayonet_death_a = pyglet.resource.image('ressources/imgs/units/grenadier/dying/1.png')
+image_bayonet_death_b = pyglet.resource.image('ressources/imgs/units/grenadier/dying/2.png')
+image_bayonet_death_a = pyglet.resource.image('ressources/imgs/units/grenadier/dying/3.png')
+
 def animate_smoke():
     frames = []
     for i in range(1, 2):
@@ -212,7 +217,9 @@ class EffectSprite(pyglet.sprite.Sprite):
             self.name = animate_waiting()[1]
             return
         if self.name =="dying":
-            self.delete()
+            self.image = animate_marching_bayonet()[0]
+            self.name = "dead"
+            return
         if self.name =="prepare_bayonet":
             self.image = animate_marching_bayonet()[0]
 
@@ -257,6 +264,7 @@ class OldGuard():
         self.bataillon = None
         self.is_selected = False
         self.bayonet = False
+        self.health = 1
 
     def set_bataillon(self,bataillon):
         self.bataillon = bataillon
@@ -310,6 +318,10 @@ class OldGuard():
         self.bayonet = True
 
 
+    def be_attacked(self):
+        self.image.image = animate_dying()[0]
+        self.image.set_name(animate_dying()[1])
+        self.health =0
     def spawn(self):
 
         if self.path_spawn == []:
@@ -371,69 +383,77 @@ class OldGuard():
 
 
     def move(self):
-        if not self.has_spawned:
-            self.spawn()
-        if self.path == [] :
-            return
-        else:
-            if self.bayonet:
-                if self.attitude !="marching_bayonet":
-                    self.attitude = "marching_bayonet"
-                    self.image.image = animate_marching_bayonet()[0]
-                    self.image.set_name(animate_marching_bayonet()[1])
-            else :
-                if self.attitude != "marching":
-                        self.image.image = animate_marching()[0]
-                        self.image.set_name(animate_marching()[1])
-                        self.attitude = "marching"
-            x1, y1 = self.path[self.path_pos]
-            if self.path_pos + 1 >= len(self.path):
-                self.path = []
-                self.path_pos = 0
-                if not self.bayonet:
-                    self.attitude = "waiting"
-                    self.image.image = animate_waiting()[0]
-                    self.image.set_name(animate_waiting()[1])
+        try:
+            if self.image.name == "dead":
+                print("dead")
+                self.image.batch = None
                 return
-            x2, y2 = self.path[self.path_pos + 1]
-            dirn = ((x2 - x1), (y2 - y1))
-            length = 1*math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
-            dirn = (dirn[0] / length, dirn[1] / length)
-            move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
-            self.x = move_x
-            self.y = move_y
+            if not self.has_spawned:
+                self.spawn()
+            if self.path == [] :
+                return
+            else:
+                if self.bayonet:
+                    if self.attitude !="marching_bayonet":
+                        self.attitude = "marching_bayonet"
+                        self.image.image = animate_marching_bayonet()[0]
+                        self.image.set_name(animate_marching_bayonet()[1])
+                else :
+                    if self.attitude != "marching":
+                            self.image.image = animate_marching()[0]
+                            self.image.set_name(animate_marching()[1])
+                            self.attitude = "marching"
+                x1, y1 = self.path[self.path_pos]
+                if self.path_pos + 1 >= len(self.path):
+                    self.path = []
+                    self.path_pos = 0
+                    if not self.bayonet:
+                        self.attitude = "waiting"
+                        self.image.image = animate_waiting()[0]
+                        self.image.set_name(animate_waiting()[1])
+                    return
+                x2, y2 = self.path[self.path_pos + 1]
+                dirn = ((x2 - x1), (y2 - y1))
+                length = 1*math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
+                dirn = (dirn[0] / length, dirn[1] / length)
+                move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
+                self.x = move_x
+                self.y = move_y
 
-            x = self.x - LEFT_BORDER
-            y = self.y - TOP_BORDER
-            row = x / BLOCKSIZE
-            line = y / BLOCKSIZE
+                x = self.x - LEFT_BORDER
+                y = self.y - TOP_BORDER
+                row = x / BLOCKSIZE
+                line = y / BLOCKSIZE
 
-            self.line = line
-            self.row = row
-            # Go to next point
-            if dirn[0] >= 0:  # moving right
-                if dirn[1] >= 0:  # moving down
-                    if self.x >= x2 and self.y >= y2:
-                        self.path_pos += 1
-                else:
-                    if self.x >= x2 and self.y <= y2:
-                        self.path_pos += 1
-            else:  # moving left
-                if dirn[1] >= 0:  # moving down
-                    if self.x <= x2 and self.y >= y2:
-                        self.path_pos += 1
-                else:
-                    if self.x <= x2 and self.y >= y2:
-                        self.path_pos += 1
-            self.update_image()
+                self.line = line
+                self.row = row
+                # Go to next point
+                if dirn[0] >= 0:  # moving right
+                    if dirn[1] >= 0:  # moving down
+                        if self.x >= x2 and self.y >= y2:
+                            self.path_pos += 1
+                    else:
+                        if self.x >= x2 and self.y <= y2:
+                            self.path_pos += 1
+                else:  # moving left
+                    if dirn[1] >= 0:  # moving down
+                        if self.x <= x2 and self.y >= y2:
+                            self.path_pos += 1
+                    else:
+                        if self.x <= x2 and self.y >= y2:
+                            self.path_pos += 1
+                self.update_image()
+        except:
+            pass
 
 
     def play_effect(self):
-        if self.image.name == "shooting":
-            if self.effect is  None or self.effect.name =="smoke_ended" :
-                self.effect = EffectSprite(img=animate_smoke()[0], x=place_unit_x(self.row)-10, y=place_unit_y(self.line),
-                                         batch=self.batch, group=get_group(self.line+1))
+        if self.image :
+            if self.image.name == "shooting":
+                if self.effect is  None or self.effect.name =="smoke_ended" :
+                    self.effect = EffectSprite(img=animate_smoke()[0], x=place_unit_x(self.row)-10, y=place_unit_y(self.line),
+                                             batch=self.batch, group=get_group(self.line+1))
 
-                self.effect.set_name("smoke")
+                    self.effect.set_name("smoke")
 
 
