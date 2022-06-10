@@ -200,15 +200,16 @@ class Window(pyglet.window.Window):
                 self.clicked_bataillon.set_bayonet()
 
     def main(self):
-        print("THERE ARE ",len(self.bataillons), "BATTAILLONS")
         for bat in self.bataillons :
-            print(len(bat.units))
-
             bat.main()
             if len(bat.units) <= 1 :
                 for unit in bat.units:
+
+                    self.grid.unset_unit(unit)
                     self.game.remove_unit(unit)
+                    self.grid.update()
                 self.bataillons.remove(bat)
+                return
             bat.move_bataillon()
             bat.play_effect()
 

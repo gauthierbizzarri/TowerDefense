@@ -194,7 +194,6 @@ def get_group(line):
     # LAYOUT
     return pyglet.graphics.OrderedGroup(abs(line - 13))
 
-
 class EffectSprite(pyglet.sprite.Sprite):
 
     def set_name(self,name):
@@ -203,35 +202,34 @@ class EffectSprite(pyglet.sprite.Sprite):
         return self.name
 
     def on_animation_end(self):
-        if self.name =="prepare_shooting":
+        if self.name == "prepare_shooting":
             self.image = animate_shooting()[0]
             self.name = animate_shooting()[1]
             return
         if self.name == "shooting":
-
             self.image = animate_reloading()[0]
             self.name = animate_reloading()[1]
             return
-        if self.name =="reloading":
+        if self.name == "reloading":
             self.image = animate_waiting()[0]
             self.name = animate_waiting()[1]
             return
-        if self.name =="dying":
+        if self.name == "dying":
             self.name = "dead"
             return
-        if self.name =="prepare_bayonet":
+        if self.name == "prepare_bayonet":
             self.image = animate_marching_bayonet()[0]
 
         ## SMOKE EFFECT
-        if self.name =="smoke":
+        if self.name == "smoke":
             if self.opacity < 5:
                 self.name = "smoke_ended"
                 return
             rdt_x = random.uniform(-0.6, 0.5)
             self.x = self.x - 1.5
-           #  self.y = self.y - rdt_x
+            #  self.y = self.y - rdt_x
             rdt_o = random.uniform(-1, 1)
-            self.opacity = self.opacity -2 + rdt_o
+            self.opacity = self.opacity - 2 + rdt_o
 
 
 class OldGuard():
@@ -264,6 +262,8 @@ class OldGuard():
         self.is_selected = False
         self.bayonet = False
         self.health = 1
+        self.shoot = False
+        self.target = None
 
     def set_bataillon(self,bataillon):
         self.bataillon = bataillon
@@ -305,11 +305,25 @@ class OldGuard():
         for element in path :
             self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
 
-    def attack(self,target):
+    def attack(self,target=None):
+        if self.target == None:
+            self.target = target
         if self.image.name =="waiting" or self.image.name =="marching":
             self.attitude = "prepare_shooting"
             self.image.image = animate_prepare_shooting()[0]
             self.image.set_name(animate_prepare_shooting()[1])
+        self.shoot = True
+        if self.image.name =="shooting" :
+            try:
+                self.target.be_attacked()
+                self.target = None
+            except:
+                pass
+
+    def be_attacked(self):
+        self.image.image = animate_dying()[0]
+        self.image.set_name(animate_dying()[1])
+        self.health = 0
 
     def set_bayonet(self):
         self.image.image = animate_prepare_bayonet()[0]
@@ -317,12 +331,7 @@ class OldGuard():
         self.bayonet = True
 
 
-    def be_attacked(self):
-        self.image.image = animate_dying()[0]
-        self.image.set_name(animate_dying()[1])
-        self.health =0
     def spawn(self):
-
         if self.path_spawn == []:
             self.line = self.dest_line
             self.row = self.dest_row
@@ -382,12 +391,14 @@ class OldGuard():
 
 
     def move(self):
-        try:
+        try :
             if self.image.name == "dead":
                 self.image.delete()
                 return
             if not self.has_spawned:
                 self.spawn()
+            if self.shoot:
+                self.attack()
             if self.path == [] :
                 return
             else:
@@ -446,12 +457,11 @@ class OldGuard():
 
 
     def play_effect(self):
-        if self.image :
-            if self.image.name == "shooting":
-                if self.effect is  None or self.effect.name =="smoke_ended" :
-                    self.effect = EffectSprite(img=animate_smoke()[0], x=place_unit_x(self.row)-10, y=place_unit_y(self.line),
-                                             batch=self.batch, group=get_group(self.line+1))
+        if self.image.name == "shooting":
+            if self.effect is  None or self.effect.name =="smoke_ended" :
+                self.effect = EffectSprite(img=animate_smoke()[0], x=place_unit_x(self.row)-10, y=place_unit_y(self.line),
+                                         batch=self.batch, group=get_group(self.line+1))
 
-                    self.effect.set_name("smoke")
+                self.effect.set_name("smoke")
 
 
