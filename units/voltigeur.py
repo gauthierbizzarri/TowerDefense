@@ -139,8 +139,8 @@ def animate_marching():
     for i in range(1, 5):
         img = pyglet.resource.image('ressources/imgs/units/voltigeur/marching/{}.png'.format(str((i))))
         img = resize_image(img)
-        rdt = random.uniform(-1, 1)
-        frame = pyglet.image.AnimationFrame(img, duration=0.1 +0)
+        rdt = random.uniform(-0.05, 0.05)
+        frame = pyglet.image.AnimationFrame(img, duration=0.1 +rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -239,11 +239,11 @@ class Voltigeur():
         self.dest_line = line
         self.dest_row = row
         self.line = line
-        self.row = row - 12
+        self.row = row
         self.image = EffectSprite(img=animate_waiting()[0], x=place_unit_x(self.row), y=place_unit_y(self.line),
                                   batch=batch, group=get_group(self.line))
 
-        self.has_spawned = False
+        self.has_spawned = True
 
         self.image.set_name(animate_waiting()[1])
 
@@ -275,8 +275,8 @@ class Voltigeur():
         self.image.y = place_unit_y(self.line)
 
     def add_path_spawn(self,matrix):
-        if self.path != [] : return
-        self.path = []
+        if self.path_spawn != [] : return
+        self.path_spawn = []
         end_line_1 = self.dest_line
         end_row_1 = self.dest_row
         grid = Grid(matrix=matrix)
@@ -287,10 +287,10 @@ class Voltigeur():
         finder = AStarFinder()
         path, runs = finder.find_path(start, end, grid)
         for element in path :
-            self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
+            self.path_spawn.append((place_unit_x(element[0]),place_unit_y(element[1])))
     def add_path(self,matrix, end_line, end_row,etendard):
-        if self.path_spawn != [] : return
-        self.path_spawn = []
+        if self.path != [] : return
+        self.path = []
         end_line_1 = end_line    + self.line-etendard.line
         end_row_1 = end_row   + self.row -etendard.row
         grid = Grid(matrix=matrix)
@@ -301,7 +301,7 @@ class Voltigeur():
         finder = AStarFinder()
         path, runs = finder.find_path(start, end, grid)
         for element in path :
-            self.path_spawn.append((place_unit_x(element[0]),place_unit_y(element[1])))
+            self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
 
     def attack(self,target):
         if self.image.name =="waiting" or self.image.name =="marching":
@@ -317,6 +317,9 @@ class Voltigeur():
 
     def spawn(self):
         if self.path_spawn == []:
+            self.line = self.dest_line
+            self.row = self.dest_row
+            self.has_spawned = True
             return
         else:
             if self.bayonet:
@@ -339,37 +342,36 @@ class Voltigeur():
                     self.image.set_name(animate_waiting()[1])
                 return
             x2, y2 = self.path_spawn[self.path_spawn_pos + 1]
-            if True:
-                dirn = ((x2 - x1), (y2 - y1))
-                length = 1 * math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
-                dirn = (dirn[0] / length, dirn[1] / length)
-                move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
-                self.x = move_x
-                self.y = move_y
+            dirn = ((x2 - x1), (y2 - y1))
+            length = 1/3 * math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
+            dirn = (dirn[0] / length, dirn[1] / length)
+            move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
+            self.x = move_x
+            self.y = move_y
 
-                x = self.x - LEFT_BORDER
-                y = self.y - TOP_BORDER
-                row = x / BLOCKSIZE
-                line = y / BLOCKSIZE
+            x = self.x - LEFT_BORDER
+            y = self.y - TOP_BORDER
+            row = x / BLOCKSIZE
+            line = y / BLOCKSIZE
 
-                self.line = line
-                self.row = row
-                # Go to next point
-                if dirn[0] >= 0:  # moving right
-                    if dirn[1] >= 0:  # moving down
-                        if self.x >= x2 and self.y >= y2:
-                            self.path_spawn_pos += 1
-                    else:
-                        if self.x >= x2 and self.y <= y2:
-                            self.path_spawn_pos += 1
-                else:  # moving left
-                    if dirn[1] >= 0:  # moving down
-                        if self.x <= x2 and self.y >= y2:
-                            self.path_spawn_pos += 1
-                    else:
-                        if self.x <= x2 and self.y >= y2:
-                            self.path_spawn_pos += 1
-                self.update_image()
+            self.line = line
+            self.row = row
+            # Go to next point
+            if dirn[0] >= 0:  # moving right
+                if dirn[1] >= 0:  # moving down
+                    if self.x >= x2 and self.y >= y2:
+                        self.path_spawn_pos += 1
+                else:
+                    if self.x >= x2 and self.y <= y2:
+                        self.path_spawn_pos += 1
+            else:  # moving left
+                if dirn[1] >= 0:  # moving down
+                    if self.x <= x2 and self.y >= y2:
+                        self.path_spawn_pos += 1
+                else:
+                    if self.x <= x2 and self.y >= y2:
+                        self.path_spawn_pos += 1
+        self.update_image()
 
 
     def move(self):
@@ -388,7 +390,6 @@ class Voltigeur():
                         self.image.image = animate_marching()[0]
                         self.image.set_name(animate_marching()[1])
                         self.attitude = "marching"
-        try:
             x1, y1 = self.path[self.path_pos]
             if self.path_pos + 1 >= len(self.path):
                 self.path = []
@@ -399,39 +400,36 @@ class Voltigeur():
                     self.image.set_name(animate_waiting()[1])
                 return
             x2, y2 = self.path[self.path_pos + 1]
-            if True:
-                dirn = ((x2 - x1), (y2 - y1))
-                length = 1/3*math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
-                dirn = (dirn[0] / length, dirn[1] / length)
-                move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
-                self.x = move_x
-                self.y = move_y
+            dirn = ((x2 - x1), (y2 - y1))
+            length = 1*math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
+            dirn = (dirn[0] / length, dirn[1] / length)
+            move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
+            self.x = move_x
+            self.y = move_y
 
-                x = self.x - LEFT_BORDER
-                y = self.y - TOP_BORDER
-                row = x / BLOCKSIZE
-                line = y / BLOCKSIZE
+            x = self.x - LEFT_BORDER
+            y = self.y - TOP_BORDER
+            row = x / BLOCKSIZE
+            line = y / BLOCKSIZE
 
-                self.line = line
-                self.row = row
-                # Go to next point
-                if dirn[0] >= 0:  # moving right
-                    if dirn[1] >= 0:  # moving down
-                        if self.x >= x2 and self.y >= y2:
-                            self.path_pos += 1
-                    else:
-                        if self.x >= x2 and self.y <= y2:
-                            self.path_pos += 1
-                else:  # moving left
-                    if dirn[1] >= 0:  # moving down
-                        if self.x <= x2 and self.y >= y2:
-                            self.path_pos += 1
-                    else:
-                        if self.x <= x2 and self.y >= y2:
-                            self.path_pos += 1
-                self.update_image()
-        except:
-            pass
+            self.line = line
+            self.row = row
+            # Go to next point
+            if dirn[0] >= 0:  # moving right
+                if dirn[1] >= 0:  # moving down
+                    if self.x >= x2 and self.y >= y2:
+                        self.path_pos += 1
+                else:
+                    if self.x >= x2 and self.y <= y2:
+                        self.path_pos += 1
+            else:  # moving left
+                if dirn[1] >= 0:  # moving down
+                    if self.x <= x2 and self.y >= y2:
+                        self.path_pos += 1
+                else:
+                    if self.x <= x2 and self.y >= y2:
+                        self.path_pos += 1
+            self.update_image()
 
 
     def play_effect(self):
@@ -441,4 +439,5 @@ class Voltigeur():
                                          batch=self.batch, group=get_group(self.line+1))
 
                 self.effect.set_name("smoke")
+
 

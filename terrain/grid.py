@@ -1,10 +1,6 @@
 from config.settings import *
-from pyglet import shapes
 from terrain.case import Case
-import random
-from pathfinding.core.diagonal_movement import DiagonalMovement
-from pathfinding.core.grid import Grid as grid_path
-from pathfinding.finder.a_star import AStarFinder
+import pyglet
 
 def get_line_row(x,y):
     x = x - LEFT_BORDER
@@ -119,12 +115,23 @@ class Grid():
 
         for i in range(LIGNES):
             if i !=5:
-                mat[i][20].content = "OBSTACLE"
+                mat[i][15].content = "OBSTACLE"
 
         return mat
 
-    def draw_bataillon_selected(self,bataillon):
-        for unit in bataillon.units :
-            pass
-            # self.mat[int(unit.line)][int(unit.row)].is_selected=True
+    def create_decor(self, group):
+        grid = self.mat
+        decor = []
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j].content == "OBSTACLE":
+                    tree_img = pyglet.resource.image('imgs/misc/bush.png')
+                    tree_img.width = BLOCKSIZE * 2
+                    tree_img.height = BLOCKSIZE * 1.6
+                    tree_img.anchor_x = tree_img.width // 8
+                    tree_img.anchor_y = tree_img.height // 8
+                    tree = pyglet.sprite.Sprite(tree_img, x=j * BLOCKSIZE + LEFT_BORDER, y=i * BLOCKSIZE + TOP_BORDER,
+                                                batch=self.batch, group=group)
+                    decor.append(tree)
+        return decor
 

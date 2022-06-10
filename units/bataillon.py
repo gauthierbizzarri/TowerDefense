@@ -44,9 +44,6 @@ class Bataillon():
             unit.add_path(matrix,end_line,end_row,etendard)
 
 
-    def spawn_bataillon(self):
-        for unit in self.units:
-            unit.spawn()
 
     def play_effect(self):
         for unit in self.units :

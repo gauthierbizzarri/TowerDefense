@@ -49,7 +49,7 @@ class Case():
         destination_color = 0
         path_color = 0
         if self.is_destination:
-            destination_color = destination_color+255
+            destination_color = destination_color + 255
         if self.is_a_path :
             path_color = path_color+255
         if self.is_hovered:
@@ -73,7 +73,7 @@ class Case():
 
         if self.content == "NONE":
             shape = shapes.BorderedRectangle(self.get_x(update=True), self.get_y(update=True), BLOCKSIZE, BLOCKSIZE,
-                                             border=3, color=(50 , 50+path_color, 50+destination_color),
+                                             border=3, color=(0 , 0, destination_color),
                                              border_color=(255, 0, 0), batch=self.batch, group=self.group)
             shape.opacity = 100
             self.shape = shape

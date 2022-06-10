@@ -133,8 +133,8 @@ def animate_marching():
     for i in range(1, 5):
         img = pyglet.resource.image('ressources/imgs/units/grenadier/marching/{}.png'.format(str((i))))
         img = resize_image(img)
-        rdt = random.uniform(-1, 1)
-        frame = pyglet.image.AnimationFrame(img, duration=0.1 + 0)
+        rdt = random.uniform(-0.05, 0.05)
+        frame = pyglet.image.AnimationFrame(img, duration=0.1 + rdt)
         frames.append(frame)
 
     ani = pyglet.image.Animation(frames=frames)
@@ -157,7 +157,7 @@ def animate_marching_bayonet():
     for i in range(5, 9):
         img = pyglet.resource.image('ressources/imgs/units/grenadier/bayonet_marching/{}.png'.format(str((i))))
         img = resize_image(img)
-        rdt = random.uniform(-1, 1)
+        rdt = random.uniform(-0.05, 0.05)
         frame = pyglet.image.AnimationFrame(img, duration=0.2 + rdt)
         frames.append(frame)
 
@@ -198,33 +198,34 @@ class EffectSprite(pyglet.sprite.Sprite):
         return self.name
 
     def on_animation_end(self):
-        if self.name == "prepare_shooting":
+        if self.name =="prepare_shooting":
             self.image = animate_shooting()[0]
             self.name = animate_shooting()[1]
             return
         if self.name == "shooting":
+
             self.image = animate_reloading()[0]
             self.name = animate_reloading()[1]
             return
-        if self.name == "reloading":
+        if self.name =="reloading":
             self.image = animate_waiting()[0]
             self.name = animate_waiting()[1]
             return
-        if self.name == "dying":
+        if self.name =="dying":
             self.delete()
-        if self.name == "prepare_bayonet":
+        if self.name =="prepare_bayonet":
             self.image = animate_marching_bayonet()[0]
 
         ## SMOKE EFFECT
-        if self.name == "smoke":
+        if self.name =="smoke":
             if self.opacity < 5:
                 self.name = "smoke_ended"
                 return
             rdt_x = random.uniform(-0.6, 0.5)
             self.x = self.x - 1.5
-            #  self.y = self.y - rdt_x
+           #  self.y = self.y - rdt_x
             rdt_o = random.uniform(-1, 1)
-            self.opacity = self.opacity - 2 + rdt_o
+            self.opacity = self.opacity -2 + rdt_o
 
 
 class OldGuard():
@@ -233,12 +234,15 @@ class OldGuard():
         self.dest_line = line
         self.dest_row = row
         self.line = line
-        self.row = row - 12
+        self.row = row-10
         self.image = EffectSprite(img=animate_waiting()[0], x=place_unit_x(self.row), y=place_unit_y(self.line),
                                   batch=batch, group=get_group(self.line))
+
         self.has_spawned = False
-        self.effect = None
+
         self.image.set_name(animate_waiting()[1])
+
+        self.effect = None
         self.path_pos = 0
         self.path = []
         self.path_spawn = []
@@ -249,10 +253,9 @@ class OldGuard():
         self.x = place_unit_x(self.row)
         self.y = place_unit_y(self.line)
         self.player =pyglet.media.Player()
-        self.name = "OldGuard"
-        self.is_selected = False
+        self.name = "Voltigeur"
         self.bataillon = None
-
+        self.is_selected = False
         self.bayonet = False
 
     def set_bataillon(self,bataillon):
@@ -266,10 +269,9 @@ class OldGuard():
         self.image.x = place_unit_x(self.row)
         self.image.y = place_unit_y(self.line)
 
-
     def add_path_spawn(self,matrix):
-        if self.path != [] : return
-        self.path = []
+        if self.path_spawn != [] : return
+        self.path_spawn = []
         end_line_1 = self.dest_line
         end_row_1 = self.dest_row
         grid = Grid(matrix=matrix)
@@ -280,10 +282,9 @@ class OldGuard():
         finder = AStarFinder()
         path, runs = finder.find_path(start, end, grid)
         for element in path :
-            self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
-
+            self.path_spawn.append((place_unit_x(element[0]),place_unit_y(element[1])))
     def add_path(self,matrix, end_line, end_row,etendard):
-        if self.path != []: return
+        if self.path != [] : return
         self.path = []
         end_line_1 = end_line    + self.line-etendard.line
         end_row_1 = end_row   + self.row -etendard.row
@@ -297,8 +298,8 @@ class OldGuard():
         for element in path :
             self.path.append((place_unit_x(element[0]),place_unit_y(element[1])))
 
-    def attack(self, target):
-        if self.image.name == "waiting" or self.image.name == "marching":
+    def attack(self,target):
+        if self.image.name =="waiting" or self.image.name =="marching":
             self.attitude = "prepare_shooting"
             self.image.image = animate_prepare_shooting()[0]
             self.image.set_name(animate_prepare_shooting()[1])
@@ -309,10 +310,12 @@ class OldGuard():
         self.bayonet = True
 
 
-        # return
-
     def spawn(self):
+
         if self.path_spawn == []:
+            self.line = self.dest_line
+            self.row = self.dest_row
+            self.has_spawned = True
             return
         else:
             if self.bayonet:
@@ -335,55 +338,54 @@ class OldGuard():
                     self.image.set_name(animate_waiting()[1])
                 return
             x2, y2 = self.path_spawn[self.path_spawn_pos + 1]
-            if True:
-                dirn = ((x2 - x1), (y2 - y1))
-                length = 1 * math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
-                dirn = (dirn[0] / length, dirn[1] / length)
-                move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
-                self.x = move_x
-                self.y = move_y
+            dirn = ((x2 - x1), (y2 - y1))
+            length = 1/3 * math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
+            dirn = (dirn[0] / length, dirn[1] / length)
+            move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
+            self.x = move_x
+            self.y = move_y
 
-                x = self.x - LEFT_BORDER
-                y = self.y - TOP_BORDER
-                row = x / BLOCKSIZE
-                line = y / BLOCKSIZE
+            x = self.x - LEFT_BORDER
+            y = self.y - TOP_BORDER
+            row = x / BLOCKSIZE
+            line = y / BLOCKSIZE
 
-                self.line = line
-                self.row = row
-                # Go to next point
-                if dirn[0] >= 0:  # moving right
-                    if dirn[1] >= 0:  # moving down
-                        if self.x >= x2 and self.y >= y2:
-                            self.path_spawn_pos += 1
-                    else:
-                        if self.x >= x2 and self.y <= y2:
-                            self.path_spawn_pos += 1
-                else:  # moving left
-                    if dirn[1] >= 0:  # moving down
-                        if self.x <= x2 and self.y >= y2:
-                            self.path_spawn_pos += 1
-                    else:
-                        if self.x <= x2 and self.y >= y2:
-                            self.path_spawn_pos += 1
-                self.update_image()
+            self.line = line
+            self.row = row
+            # Go to next point
+            if dirn[0] >= 0:  # moving right
+                if dirn[1] >= 0:  # moving down
+                    if self.x >= x2 and self.y >= y2:
+                        self.path_spawn_pos += 1
+                else:
+                    if self.x >= x2 and self.y <= y2:
+                        self.path_spawn_pos += 1
+            else:  # moving left
+                if dirn[1] >= 0:  # moving down
+                    if self.x <= x2 and self.y >= y2:
+                        self.path_spawn_pos += 1
+                else:
+                    if self.x <= x2 and self.y >= y2:
+                        self.path_spawn_pos += 1
+        self.update_image()
+
 
     def move(self):
         if not self.has_spawned:
             self.spawn()
-        if self.path == []:
+        if self.path == [] :
             return
         else:
             if self.bayonet:
-                if self.attitude != "marching_bayonet":
+                if self.attitude !="marching_bayonet":
                     self.attitude = "marching_bayonet"
                     self.image.image = animate_marching_bayonet()[0]
                     self.image.set_name(animate_marching_bayonet()[1])
-            else:
+            else :
                 if self.attitude != "marching":
-                    self.image.image = animate_marching()[0]
-                    self.image.set_name(animate_marching()[1])
-                    self.attitude = "marching"
-        try:
+                        self.image.image = animate_marching()[0]
+                        self.image.set_name(animate_marching()[1])
+                        self.attitude = "marching"
             x1, y1 = self.path[self.path_pos]
             if self.path_pos + 1 >= len(self.path):
                 self.path = []
@@ -394,47 +396,37 @@ class OldGuard():
                     self.image.set_name(animate_waiting()[1])
                 return
             x2, y2 = self.path[self.path_pos + 1]
-            if True:
-                dirn = ((x2 - x1), (y2 - y1))
-                length = 1 / 3 * math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
-                dirn = (dirn[0] / length, dirn[1] / length)
-                move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
-                self.x = move_x
-                self.y = move_y
+            dirn = ((x2 - x1), (y2 - y1))
+            length = 1*math.sqrt((dirn[0]) ** 2 + (dirn[1]) ** 2)
+            dirn = (dirn[0] / length, dirn[1] / length)
+            move_x, move_y = ((self.x + dirn[0]), (self.y + dirn[1]))
+            self.x = move_x
+            self.y = move_y
 
-                x = self.x - LEFT_BORDER
-                y = self.y - TOP_BORDER
-                row = x / BLOCKSIZE
-                line = y / BLOCKSIZE
+            x = self.x - LEFT_BORDER
+            y = self.y - TOP_BORDER
+            row = x / BLOCKSIZE
+            line = y / BLOCKSIZE
 
-                self.line = line
-                self.row = row
-                # Go to next point
-                if dirn[0] >= 0:  # moving right
-                    if dirn[1] >= 0:  # moving down
-                        if self.x >= x2 and self.y >= y2:
-                            self.path_pos += 1
-                    else:
-                        if self.x >= x2 and self.y <= y2:
-                            self.path_pos += 1
-                else:  # moving left
-                    if dirn[1] >= 0:  # moving down
-                        if self.x <= x2 and self.y >= y2:
-                            self.path_pos += 1
-                    else:
-                        if self.x <= x2 and self.y >= y2:
-                            self.path_pos += 1
-                self.update_image()
-        except:
-            pass
+            self.line = line
+            self.row = row
+            # Go to next point
+            if dirn[0] >= 0:  # moving right
+                if dirn[1] >= 0:  # moving down
+                    if self.x >= x2 and self.y >= y2:
+                        self.path_pos += 1
+                else:
+                    if self.x >= x2 and self.y <= y2:
+                        self.path_pos += 1
+            else:  # moving left
+                if dirn[1] >= 0:  # moving down
+                    if self.x <= x2 and self.y >= y2:
+                        self.path_pos += 1
+                else:
+                    if self.x <= x2 and self.y >= y2:
+                        self.path_pos += 1
+            self.update_image()
 
-    def play_walking_sound(self):
-        music = pyglet.resource.media('sounds/units/walking.mp3', streaming=False)
-        self.player.queue(music)
-
-    def play_shooting_sound(self):
-        music = pyglet.resource.media('sounds/units/rifle_shoot.mp3', streaming=False)
-        self.player.queue(music)
 
     def play_effect(self):
         if self.image.name == "shooting":
@@ -443,4 +435,5 @@ class OldGuard():
                                          batch=self.batch, group=get_group(self.line+1))
 
                 self.effect.set_name("smoke")
+
 

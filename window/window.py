@@ -1,16 +1,20 @@
 import pyglet
-from pyglet import shapes
-from units.oldguard import OldGuard
 from units.voltigeur import Voltigeur
-from units.canon import Canon
-from units.oldguard import animate_waiting
-from window.camera import Camera
 from config.settings import *
 from terrain.grid import Grid
 from terrain.grid import get_line_row
 from units.bataillon import Bataillon
 
 image= pyglet.resource.image('ressources/imgs/bataillon.png')
+
+
+def play_music():
+    music = pyglet.resource.media('sounds/misc/austerlitz.mp3',streaming=False)
+    music.play()
+
+
+
+
 
 def img_bataillon():
     frames = []
@@ -27,19 +31,12 @@ class Window(pyglet.window.Window):
 
     def __init__(self, game):
         super(Window, self).__init__()
-
-
-        # window.set_exclusive_mouse(self)
         Window.set_caption(self, caption="Napoléon ")
-        Window.style = pyglet.window.Window.WINDOW_STYLE_DIALOG
         Window.set_fullscreen(self, fullscreen=True)
 
 
-        cursor = Window.get_system_mouse_cursor(self, Window.CURSOR_CROSSHAIR)
-        Window.set_mouse_cursor(self, cursor)
         self.batch = pyglet.graphics.Batch()
         self.game = game
-        self.camera = Camera()
 
 
 
@@ -50,8 +47,6 @@ class Window(pyglet.window.Window):
 
 
         self.grid = Grid(batch=self.batch,group=self.middleground_group)
-        self.decor = []
-        self.create_decor()
 
         self.bandeau = []
 
@@ -61,6 +56,7 @@ class Window(pyglet.window.Window):
         self.background = pyglet.sprite.Sprite(background_image,
                                                batch=self.batch, group=self.background_group)
 
+        self.decor = self.grid.create_decor(self.foreground_group)
 
 
         self.move = False
@@ -79,19 +75,10 @@ class Window(pyglet.window.Window):
         self.init_bandeau()
         self.grid.update()
 
+       #  play_music()
 
-    def create_decor(self):
-        grid = self.grid.create_grid()
-        for i in range (len(grid)):
-            for j in range(len(grid[0])):
-                if grid[i][j].content == "OBSTACLE":
-                    tree_img = pyglet.resource.image('imgs/misc/bush.png')
-                    tree_img.width = BLOCKSIZE * 2
-                    tree_img.height = BLOCKSIZE *1.6
-                    tree_img.anchor_x = tree_img.width // 8
-                    tree_img.anchor_y = tree_img.height // 8
-                    tree = pyglet.sprite.Sprite(tree_img,x= j*BLOCKSIZE+LEFT_BORDER, y= i*BLOCKSIZE+TOP_BORDER, batch=self.batch, group=self.foreground_group)
-                    self.decor.append(tree)
+
+
 
 
 
@@ -139,8 +126,6 @@ class Window(pyglet.window.Window):
                 self.clicked_bataillon.shoot(target)
 
     def init_armee(self):
-        ### GEN ARMY :
-        # CENTRE GRAVITE BATAILLON
 
         ### 1 er Bataillon :
 
@@ -172,6 +157,7 @@ class Window(pyglet.window.Window):
 
         l = 10
         r = 5
+        from units.oldguard import OldGuard
         units = [
             OldGuard(line=l,            row=r,          batch=self.batch),
             OldGuard(line=l,            row=r + 1,      batch=self.batch),
@@ -214,7 +200,6 @@ class Window(pyglet.window.Window):
                 self.clicked_bataillon.set_bayonet()
 
     def main(self):
-        self.init_bandeau()
         for bat in self.bataillons :
             bat.move_bataillon()
             bat.play_effect()
@@ -228,9 +213,6 @@ class Window(pyglet.window.Window):
 
 
 
-    def update(self):
-        self.label.x += self.camera.x
-        self.label.text = str(self.camera.x)
 
     def on_draw(self):
         self.clear()
