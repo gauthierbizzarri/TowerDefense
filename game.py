@@ -12,5 +12,4 @@ class Game():
         # Add unit to Game.units
         self.units.append(unit)
     def remove_unit(self,unit):
-        print("REMOVED UNIT")
         self.units.remove(unit)

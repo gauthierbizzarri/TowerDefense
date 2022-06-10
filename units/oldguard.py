@@ -217,7 +217,6 @@ class EffectSprite(pyglet.sprite.Sprite):
             self.name = animate_waiting()[1]
             return
         if self.name =="dying":
-            self.image = animate_marching_bayonet()[0]
             self.name = "dead"
             return
         if self.name =="prepare_bayonet":
@@ -385,8 +384,7 @@ class OldGuard():
     def move(self):
         try:
             if self.image.name == "dead":
-                print("dead")
-                self.image.batch = None
+                self.image.delete()
                 return
             if not self.has_spawned:
                 self.spawn()

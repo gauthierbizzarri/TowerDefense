@@ -37,7 +37,6 @@ class Bataillon():
     def shoot(self,target):
         if isinstance(target, Bataillon) :
             for unit in self.units:
-                print(len(target.units))
                 if len(target.units)>0:
                     unit.attack(target)
 
