@@ -33,7 +33,6 @@ class Grid():
         # self.update()
 
     def unset_unit(self,unit):
-
         if unit.name == "Canon":
 
             self.mat[int(unit.line)][int(unit.row)].set_content("NONE", unit)

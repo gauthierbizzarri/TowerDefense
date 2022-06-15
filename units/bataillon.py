@@ -4,6 +4,7 @@ from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
 from units.oldguard import OldGuard
 from units.voltigeur import Voltigeur
+import random
 from config.settings import *
 def place_unit_x(row):
     return BLOCKSIZE * row + LEFT_BORDER
@@ -25,10 +26,10 @@ class Bataillon():
             unit.add_path_spawn(matrix)
     def move_bataillon(self):
         for unit in self.units:
-            # CREATE PATH FOR UNIT :
-            self.grid.unset_unit(unit)
-            unit.move()
-            self.grid.set_unit(unit)
+            if unit.health != 0:            # CREATE PATH FOR UNIT :
+                self.grid.unset_unit(unit)
+                unit.move()
+                self.grid.set_unit(unit)
 
     def set_bayonet(self):
         for unit in self.units:
@@ -36,9 +37,13 @@ class Bataillon():
 
     def shoot(self,target):
         if isinstance(target, Bataillon) :
+
             for unit in self.units:
-                if len(target.units)>0:
-                    unit.attack(target)
+
+                if len(target.units) < 1:
+                    unit.shoot = False
+                target_unit = target.units[random.randint(0,len(target.units)-1)]
+                unit.attack(target_unit)
 
     def add_path(self,matrix, end_line, end_row,etendard):
         for unit in self.units :
@@ -48,7 +53,11 @@ class Bataillon():
             unit.play_effect()
 
     def main(self):
-        pass
+        for unit in self.units :
+            if unit.image.name =="dead":
+                self.units.remove(unit)
+                unit.image.delete()
+
     def be_attacked(self):
         for unit in self.units :
             unit.be_attacked()

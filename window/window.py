@@ -202,16 +202,14 @@ class Window(pyglet.window.Window):
     def main(self):
         for bat in self.bataillons :
             bat.main()
-            if len(bat.units) <= 1 :
-                for unit in bat.units:
-
+            for unit in bat.units :
+                if unit.health <= 0 :
+                    bat.units.remove(unit)
                     self.grid.unset_unit(unit)
-                    self.game.remove_unit(unit)
-                    self.grid.update()
-                self.bataillons.remove(bat)
-                return
+
             bat.move_bataillon()
             bat.play_effect()
+
 
 
         if self.shoot :
