@@ -7,7 +7,7 @@ from pyglet import clock
 def motion_handler(dt,window):
     @window.event
     def on_mouse_motion(x, y, dx, dy):
-        pass
+        window.on_mouse_motion(x,y,dx,dy)
         # window.get_element(x,y,action="HOVER")
 
 
