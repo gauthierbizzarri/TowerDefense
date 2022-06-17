@@ -218,6 +218,7 @@ class EffectSprite(pyglet.sprite.Sprite):
             self.name = animate_waiting()[1]
             return
         if self.name == "dying":
+            self.delete()
             self.name = "dead"
             return
         if self.name == "prepare_bayonet":

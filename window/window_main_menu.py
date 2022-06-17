@@ -10,7 +10,7 @@ napo_font = font.load('ressources/napo.ttf', 16)
 
 def play_music():
     music = pyglet.resource.media('sounds/misc/main_menu.mp3',streaming=False)
-    music.play()
+    return music
 
 
 class Window_main_menu(pyglet.window.Window):
@@ -34,9 +34,9 @@ class Window_main_menu(pyglet.window.Window):
         self.labels = []
 
         self.init_butons()
-
-        self.music = play_music()
-
+        self.player = pyglet.media.Player()
+        self.player.queue(play_music())
+        self.player.play()
     def init_butons(self):
 
 
@@ -93,6 +93,7 @@ class Window_main_menu(pyglet.window.Window):
                 input_handler(window)
                 # self.music.get_next_video_timestamp()
                 self.close()
+                self.player.pause()
                 pyglet.app.run()
     def handle_left(self,x,y):
         return
