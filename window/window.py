@@ -10,7 +10,7 @@ image= pyglet.resource.image('ressources/imgs/bataillon.png')
 
 def play_music():
     music = pyglet.resource.media('sounds/misc/austerlitz.mp3',streaming=False)
-    music.play()
+    return music
 
 
 
@@ -75,7 +75,9 @@ class Window(pyglet.window.Window):
         self.init_bandeau()
         self.grid.update()
 
-       #  play_music()
+        self.player = pyglet.media.Player()
+        self.player.queue(play_music())
+        self.player.play()
 
 
 

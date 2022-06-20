@@ -1,4 +1,4 @@
-BLOCKSIZE = 40
+BLOCKSIZE = 35
 
 width_map = 4000
 
