@@ -84,7 +84,7 @@ class Window_main_menu(pyglet.window.Window):
         self.selected_unit = False
         self.menu = "main"
 
-        self.budget = 1000
+        self.budget = 500
         self.coin_text = None
 
     def handle_key(self, key):
@@ -105,8 +105,7 @@ class Window_main_menu(pyglet.window.Window):
             for button in self.buttons :
                 if button.name =="Commencer" and button.is_pressed(x,y):
 
-                            bataillon =Bataillon(self.units)
-                            self.bataillons.append(bataillon)
+
                             game = Game()
                             window = Window(game,self.bataillons)
                             input_handler(window)
@@ -131,23 +130,36 @@ class Window_main_menu(pyglet.window.Window):
                 if button.name == "empty_case" and button.is_pressed(x, y) and self.selected_unit :
                     if self.selected_unit =="OldGuard":
                         if self.budget>=200:
-                            unit = OldGuard(line=button.line, row=button.row, batch=pyglet.graphics.Batch())
-                            self.units.append(unit)
-                            unit.set_bataillon(len(self.bataillons))
-                            button.name=="OldGuard"
-                            button.set_img("OldGuard")
+                            units = []
+                            for but in self.buttons:
+                                if but.name =="empty_case" and but.bataillon == button.bataillon:
+                                    unit = OldGuard(line=but.line, row=but.row, batch=pyglet.graphics.Batch())
+                                    units.append(unit)
+                                    self.units.append(unit)
+                                    unit.set_bataillon(len(self.bataillons))
+                                    but.name=="OldGuard"
+                                    but.set_img("OldGuard")
+                                    self.coin_text.text = str(self.budget)
+                            bataillon = Bataillon(units)
+                            self.bataillons.append(bataillon)
                             self.budget = self.budget - 200
-                            self.coin_text.text = str(self.budget)
                             return
                     if self.selected_unit =="Voltigeur":
                         if self.budget >= 100:
-                            unit = Voltigeur(line=button.line, row=button.row, batch=pyglet.graphics.Batch())
-                            self.units.append(unit)
-                            unit.set_bataillon(len(self.bataillons))
-                            button.name == "Voltigeur"
-                            button.set_img("Voltigeur")
+                            units = []
+                            for but in self.buttons:
+                                if but.name == "empty_case" and but.bataillon == button.bataillon:
+                                    unit = Voltigeur(line=but.line, row=but.row, batch=pyglet.graphics.Batch())
+                                    units.append(unit)
+                                    self.units.append(unit)
+                                    unit.set_bataillon(len(self.bataillons))
+                                    but.name == "Voltigeur"
+                                    but.set_img("Voltigeur")
+                                    self.coin_text.text = str(self.budget)
+
+                            bataillon = Bataillon(units)
+                            self.bataillons.append(bataillon)
                             self.budget = self.budget - 100
-                            self.coin_text.text = str(self.budget)
                             return
 
 
@@ -206,18 +218,18 @@ class Window_main_menu(pyglet.window.Window):
 
 
         ## BATAILLON 1 / CREATE BATAILLONS MENU :
-        for col in range(5):
+        for col in range(4):
             for lin in range(5):
 
                 LaunchGame_button = Button('empty_case',55*lin + 0.7* self.height , 0.35*self.width - col*55 , 50, 50, '', self.batch,
-                                           self.middle_ground, (0, 0, 0),col,lin)
+                                           self.middle_ground, (0, 0, 0),col,lin, 0)
                 self.buttons.append(LaunchGame_button)
                 ## BATAILLON 2 / CREATE BATAILLONS MENU :
-        for col in range(5):
+        for col in range(5,9):
             for lin in range(5):
-                LaunchGame_button = Button('empty_case', 55 * lin + 0.7 * self.height, 0.35 * self.width - col * 55 - 5*55 - 70,
+                LaunchGame_button = Button('empty_case', 55 * lin + 0.7 * self.height, 0.35 * self.width - col * 55 ,
                                            50, 50, '', self.batch,
-                                           self.middle_ground, (0, 0, 0), col, lin)
+                                           self.middle_ground, (0, 0, 0), col, lin, 1)
                 self.buttons.append(LaunchGame_button)
 
         self.init_bataillons()

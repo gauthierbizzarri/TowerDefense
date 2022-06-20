@@ -17,7 +17,7 @@ def get_img_from_name(name):
     ani = pyglet.image.Animation(frames=frame)
     return ani
 class Button():
-    def __init__(self,name,x,y,width,height,label,batch,group,color,line=None,row=None):
+    def __init__(self,name,x,y,width,height,label,batch,group,color,line=None,row=None,batailon = None):
         self.name = name
         self.x = x
         self.y = y
@@ -29,6 +29,7 @@ class Button():
         self.batch = batch
         self.group = group
         self.color = color
+        self.bataillon = batailon
         self.shape =  pyglet.shapes.Rectangle(self.x, self.y,self.width, self.height,self.color,self.batch,self.group)
 
         self.text = self.set_text(label)
@@ -73,7 +74,7 @@ class Button():
 
 
 class UnitButton():
-    def __init__(self,name,x,y,width,height,label,batch,group,color):
+    def __init__(self,name,x,y,width,height,label,batch,group,color,bataillon = None):
         self.name = name
         self.x = x
         self.y = y
@@ -83,6 +84,7 @@ class UnitButton():
         self.batch = batch
         self.group = group
         self.color = color
+        self.bataillon = bataillon
 
         self.image = pyglet.sprite.Sprite(img=get_img_from_name(self.name), x=x, y=y,
                                   batch=batch, group=self.group)

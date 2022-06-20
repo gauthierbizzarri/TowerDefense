@@ -129,7 +129,7 @@ class Window(pyglet.window.Window):
 
     def init_armee(self,bataillons ):
 
-
+        print(bataillons)
         for bat in bataillons:
             for unit in bat.units :
                 self.add_unit(unit)
