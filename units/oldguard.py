@@ -261,13 +261,17 @@ class OldGuard():
         self.x = place_unit_x(self.row)
         self.y = place_unit_y(self.line)
         self.player =pyglet.media.Player()
-        self.name = "Voltigeur"
+        self.name = "OldGuard"
         self.bataillon = None
         self.is_selected = False
         self.bayonet = False
         self.health = 1
         self.shoot = False
         self.target = None
+
+    def set_batch(self,batch):
+        self.batch = batch
+        self.image.batch = batch
 
     def set_bataillon(self,bataillon):
         self.bataillon = bataillon

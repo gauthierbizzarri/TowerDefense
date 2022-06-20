@@ -29,7 +29,7 @@ def img_bataillon():
 
 class Window(pyglet.window.Window):
 
-    def __init__(self, game):
+    def __init__(self, game, bataillons):
         super(Window, self).__init__()
         Window.set_caption(self, caption="Napoléon ")
         Window.set_fullscreen(self, fullscreen=True)
@@ -69,7 +69,7 @@ class Window(pyglet.window.Window):
         self.bataillons = []
 
 
-        self.init_armee()
+        self.init_armee(bataillons)
 
 
         self.init_bandeau()
@@ -127,8 +127,21 @@ class Window(pyglet.window.Window):
                 # self.grid.set_move_tile(get_line_row(x, y)[0], get_line_row(x, y)[1])
                 self.clicked_bataillon.shoot(target)
 
-    def init_armee(self):
+    def init_armee(self,bataillons ):
 
+
+        for bat in bataillons:
+            for unit in bat.units :
+                self.add_unit(unit)
+            bat.set_batch(self.batch)
+            bat.set_grid(self.grid)
+            self.bataillons.append(bat)
+            bat.create_path_spawn(self.grid.get_matrix_for_path())
+
+        """
+             
+             
+             
         ### 1 er Bataillon :
 
         l = 5
@@ -172,17 +185,19 @@ class Window(pyglet.window.Window):
             OldGuard(line=l - 1,        row=r + 1,      batch=self.batch),
 
         ]
-        for unit in units:
+        for unit in units:tttt
             self.add_unit(unit)
         bataillon = Bataillon(units, self.grid)
         for unit in units:
             unit.set_bataillon(len(self.bataillons))
         self.bataillons.append(bataillon)
         bataillon.create_path_spawn(self.grid.get_matrix_for_path())
+        
 
         ### 3eme bataillon :
 
-        """l = 1
+        
+        l = 1
         r = 1
         units = [
             Canon(line=l, row=r, batch=self.batch),
@@ -193,7 +208,8 @@ class Window(pyglet.window.Window):
         bataillon = Bataillon(units, self.grid)
         for unit in units:
             unit.set_bataillon(len(self.bataillons))
-        self.bataillons.append(bataillon)"""
+        self.bataillons.append(bataillon)
+        """
 
 
     def handle_key(self,key):
@@ -202,6 +218,7 @@ class Window(pyglet.window.Window):
                 self.clicked_bataillon.set_bayonet()
 
     def main(self):
+
         for bat in self.bataillons :
             bat.main()
             for unit in bat.units :

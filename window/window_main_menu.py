@@ -1,10 +1,13 @@
 import pyglet
 from window.input_handler import input_handler
-
+from units.oldguard import OldGuard
+from units.voltigeur import Voltigeur
 from pyglet import font
-from window.buttons import Button
+from window.buttons import Button , UnitButton
 from window.window import Window
 from game import Game
+
+from units.bataillon import Bataillon
 pyglet.resource.path = ['ressources']
 pyglet.resource.reindex()
 font.add_file('ressources/napo.ttf')
@@ -54,12 +57,9 @@ class Window_main_menu(pyglet.window.Window):
         self.player.queue(play_music())
         self.player.play()
     def generate_main(self):
-        print("generate menu main")
-        print(self.buttons)
         for but in self.buttons:
             but.delete()
         self.buttons.clear()
-        print(self.buttons)
 
         # Escarmouche:
 
@@ -73,6 +73,11 @@ class Window_main_menu(pyglet.window.Window):
         self.buttons.append(launch_game_button)
         options_button =  Button('Options',self.height//8, self.width//8, 300, 80,'Options',self.batch,self.middle_ground,(0, 0, 0))
         self.buttons.append(options_button)
+
+
+
+        self.units = []
+        self.bataillons = []
 
         ## Title
 
@@ -98,8 +103,11 @@ class Window_main_menu(pyglet.window.Window):
         if self.menu =="bataillons":
             for button in self.buttons :
                 if button.name =="Commencer" and button.is_pressed(x,y):
+
+                            bataillon =Bataillon(self.units)
+                            self.bataillons.append(bataillon)
                             game = Game()
-                            window = Window(game)
+                            window = Window(game,self.bataillons)
                             input_handler(window)
                             # self.music.get_next_video_timestamp()
                             self.close()
@@ -110,6 +118,21 @@ class Window_main_menu(pyglet.window.Window):
                     self.menu = "main"
                     self.generate_main()
                     return
+
+                ### ADD UNIT TO BATAILLON :
+                if button.name == "OldGuard" and button.is_pressed(x, y):
+                    unit = OldGuard(line=10,            row=5,          batch= pyglet.graphics.Batch())
+                    self.units.append(unit)
+                    unit.set_bataillon(len(self.bataillons))
+                    return
+
+
+                if button.name == "Voltigeur" and button.is_pressed(x, y):
+                    unit = Voltigeur(line=11, row=6, batch=pyglet.graphics.Batch())
+                    self.units.append(unit)
+                    unit.set_bataillon(len(self.bataillons))
+                    return
+
 
     def handle_left(self,x,y):
         return
@@ -130,12 +153,9 @@ class Window_main_menu(pyglet.window.Window):
 
 
     def generate_menu_bataillons(self):
-        print("generate menu bataillons")
-        print(self.buttons)
         for but in self.buttons:
             but.delete()
         self.buttons.clear()
-        print(self.buttons)
         background_image = pyglet.resource.image('imgs/window/bataillons_menu.jpg')
         background_image.width = 1900
         self.background = pyglet.sprite.Sprite(background_image,
@@ -145,11 +165,36 @@ class Window_main_menu(pyglet.window.Window):
                                     self.batch, self.middle_ground, (0, 0, 0))
 
         self.buttons.append(launch_game_button)
+
+        ### Création des bataillons à selectionner
+        self.generate_bataillons()
         LaunchGame_button = Button('Commencer', self.height // 8, self.width // 8, 300, 80, 'Commencer', self.batch,
                                    self.middle_ground, (0, 0, 0))
         self.buttons.append(LaunchGame_button)
 
+
+        ## CREATE BATAILLONS MENU :
+        for i in range(9):
+
+            LaunchGame_button = Button('empty_case',85*i + 0.7* self.height , 0.3*self.width , 80, 80, '', self.batch,
+                                       self.middle_ground, (0, 0, 0))
+            self.buttons.append(LaunchGame_button)
+        # bataillon 1 :
+
+        self.init_bataillons()
+
+
     def init_bataillons(self):
-        pass
+
+        self.bataillons = []
+
+
     def generate_bataillons(self):
-        pass
+
+     unit = UnitButton('OldGuard', 0.7*self.height , 0.4*self.width , 300, 80, 'OlGuard', self.batch,
+                               self.middle_ground, (0, 0, 0))
+     self.buttons.append(unit)
+
+     unit = UnitButton('Voltigeur', 0.9 * self.height, 0.4 * self.width, 300, 80, 'Voltigeur', self.batch,
+                       self.middle_ground, (0, 0, 0))
+     self.buttons.append(unit)
