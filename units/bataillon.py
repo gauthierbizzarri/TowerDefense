@@ -31,7 +31,6 @@ class Bataillon():
             unit.add_path_spawn(matrix)
     def move_bataillon(self):
 
-        print(self.units)
         for unit in self.units:
             if unit.health != 0:            # CREATE PATH FOR UNIT :
                 self.grid.unset_unit(unit)

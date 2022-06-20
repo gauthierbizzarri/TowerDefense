@@ -17,10 +17,12 @@ def get_img_from_name(name):
     ani = pyglet.image.Animation(frames=frame)
     return ani
 class Button():
-    def __init__(self,name,x,y,width,height,label,batch,group,color):
+    def __init__(self,name,x,y,width,height,label,batch,group,color,line=None,row=None):
         self.name = name
         self.x = x
         self.y = y
+        self.line = line
+        self.row = row
         self.width = width
         self.height = height
         self.label = label
@@ -30,11 +32,17 @@ class Button():
         self.shape =  pyglet.shapes.Rectangle(self.x, self.y,self.width, self.height,self.color,self.batch,self.group)
 
         self.text = self.set_text(label)
+        if self.name == "empty_case" or self.name == "OldGuard" or self.name == "Voltigeur":
 
-        self.shape.opacity = 120
+            self.shape.color = (70,120,70)
+            self.shape.opacity = 100
+        else :
+            self.shape.opacity = 120
 
 
-
+    def set_img(self,name):
+        self.image = pyglet.sprite.Sprite(img=get_img_from_name(name), x=self.x, y=self.y,
+                                          batch=self.batch, group=pyglet.graphics.OrderedGroup(2))
     def set_text(self,label):
         label = pyglet.text.Label(label,
                                   font_name='Napoleon Inline',
@@ -51,8 +59,10 @@ class Button():
     def is_hovered(self,x,y):
         if x <= self.x + self.width and x >= self.x:
             if y <= self.y + self.height and y >= self.y:
+                if self.name =="empty_case" or self.name =="OldGuard" or self.name =="Voltigeur" : return
                 self.shape.opacity = 200
         else :
+            if self.name == "empty_case" or self.name == "OldGuard" or self.name == "Voltigeur": return
             self.shape.opacity = 120
 
 
@@ -82,6 +92,11 @@ class UnitButton():
 
         self.shape.opacity = 0
 
+        label = pyglet.text.Label(label,
+                                  font_name='Napoleon Inline',
+                                  font_size=36,
+                                  x=1.1 * self.x, y=1.06 * self.y,
+                                  batch=self.batch, group=pyglet.graphics.OrderedGroup(2))
 
     def set_text(self,label):
         label = pyglet.text.Label(label,
