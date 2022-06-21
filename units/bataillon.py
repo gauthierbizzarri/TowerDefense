@@ -24,7 +24,8 @@ class Bataillon():
     def set_grid(self,grid):
         self.grid = grid
 
-        ## create path spawn
+
+
 
     def create_path_spawn(self,matrix):
         for unit in self.units :

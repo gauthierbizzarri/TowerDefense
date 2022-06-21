@@ -70,6 +70,10 @@ class Button():
     def delete(self):
         self.text.delete()
         self.shape.delete()
+        try:
+            self.image.delte()
+        except:
+            pass
         del(self)
 
 
@@ -94,7 +98,7 @@ class UnitButton():
 
         self.shape.opacity = 0
 
-        label = pyglet.text.Label(label,
+        self.label = pyglet.text.Label(label,
                                   font_name='Napoleon Inline',
                                   font_size=36,
                                   x=1.1 * self.x, y=1.06 * self.y,
@@ -106,7 +110,7 @@ class UnitButton():
                                   font_size=36,
                                   x=1.1 * self.x, y=1.06 * self.y,
                                   batch=self.batch, group=pyglet.graphics.OrderedGroup(2))
-        return label
+        self.label  = label
     def is_pressed(self,x,y):
 
         if x <= self.x + self.width and x >= self.x:
@@ -121,9 +125,13 @@ class UnitButton():
         else :
             self.shape.opacity = 0
 
-
     def delete(self):
         self.shape.delete()
-        self.image.delete()
-        del(self)
+        self.label.delete()
+        try:
+            self.image.delete()
+
+        except:
+            pass
+        del (self)
 

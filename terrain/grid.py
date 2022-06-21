@@ -119,6 +119,7 @@ class Grid():
         return mat
 
     def create_decor(self, group):
+        return 
         grid = self.mat
         decor = []
         for i in range(len(grid)):

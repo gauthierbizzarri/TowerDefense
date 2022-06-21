@@ -4,6 +4,7 @@ from config.settings import *
 from terrain.grid import Grid
 from terrain.grid import get_line_row
 from units.bataillon import Bataillon
+from window.camera import Camera
 
 image= pyglet.resource.image('ressources/imgs/bataillon.png')
 
@@ -38,7 +39,7 @@ class Window(pyglet.window.Window):
         self.batch = pyglet.graphics.Batch()
         self.game = game
 
-
+        self.camera = Camera()
 
 
         self.background_group = pyglet.graphics.OrderedGroup(0)
@@ -52,7 +53,7 @@ class Window(pyglet.window.Window):
 
         self.clicked_unit = None
         background_image = pyglet.resource.image('imgs/window/back.jpg')
-        background_image.width = 1900
+        background_image.width = 4000
         self.background = pyglet.sprite.Sprite(background_image,
                                                batch=self.batch, group=self.background_group)
 
@@ -128,8 +129,6 @@ class Window(pyglet.window.Window):
                 self.clicked_bataillon.shoot(target)
 
     def init_armee(self,bataillons ):
-
-        print(bataillons)
         for bat in bataillons:
             for unit in bat.units :
                 self.add_unit(unit)
@@ -138,78 +137,11 @@ class Window(pyglet.window.Window):
             self.bataillons.append(bat)
             bat.create_path_spawn(self.grid.get_matrix_for_path())
 
-        """
-             
-             
-             
-        ### 1 er Bataillon :
+    def update_camera(self,camera):
+        ### Update unit on camera :
 
-        l = 5
-        r = 5
-        units = [
-            Voltigeur(line=l,        row=r,          batch=self.batch),
-            Voltigeur(line=l,        row=r + 1,      batch=self.batch),
-            Voltigeur(line=l,        row=r - 1,      batch=self.batch),
-            Voltigeur(line=l + 1,    row=r,          batch=self.batch),
-            Voltigeur(line=l + 1,    row=r - 1,      batch=self.batch),
-            Voltigeur(line=l + 1,    row=r + 1,      batch=self.batch),
-            Voltigeur(line=l - 1,    row=r,          batch=self.batch),
-            Voltigeur(line=l - 1,    row=r - 1,      batch=self.batch),
-            Voltigeur(line=l - 1,    row=r + 1,      batch=self.batch),
-
-
-        ]
-        for unit in units :
-            self.add_unit(unit)
-        bataillon = Bataillon(units,self.grid)
-        for unit in units:
-            unit.set_bataillon(len(self.bataillons))
-        self.bataillons.append(bataillon)
-        bataillon.create_path_spawn(self.grid.get_matrix_for_path())
-
-
-        ### 2eme bataillon :
-
-        l = 10
-        r = 5
-        from units.oldguard import OldGuard
-        units = [
-            OldGuard(line=l,            row=r,          batch=self.batch),
-            OldGuard(line=l,            row=r + 1,      batch=self.batch),
-            OldGuard(line=l,            row=r - 1,      batch=self.batch),
-            OldGuard(line=l + 1,        row=r,          batch=self.batch),
-            OldGuard(line=l + 1,        row=r - 1,      batch=self.batch),
-            OldGuard(line=l + 1,        row=r + 1,      batch=self.batch),
-            OldGuard(line=l - 1,        row=r,          batch=self.batch),
-            OldGuard(line=l - 1,        row=r - 1,      batch=self.batch),
-            OldGuard(line=l - 1,        row=r + 1,      batch=self.batch),
-
-        ]
-        for unit in units:tttt
-            self.add_unit(unit)
-        bataillon = Bataillon(units, self.grid)
-        for unit in units:
-            unit.set_bataillon(len(self.bataillons))
-        self.bataillons.append(bataillon)
-        bataillon.create_path_spawn(self.grid.get_matrix_for_path())
-        
-
-        ### 3eme bataillon :
-
-        
-        l = 1
-        r = 1
-        units = [
-            Canon(line=l, row=r, batch=self.batch),
-
-        ]
-        for unit in units:
-            self.add_unit(unit)
-        bataillon = Bataillon(units, self.grid)
-        for unit in units:
-            unit.set_bataillon(len(self.bataillons))
-        self.bataillons.append(bataillon)
-        """
+        self.background.x = self.background.x + camera.x
+        self.background.y = self.background.y + camera.y
 
 
     def handle_key(self,key):
@@ -217,8 +149,16 @@ class Window(pyglet.window.Window):
             if self.clicked_bataillon:
                 self.clicked_bataillon.set_bayonet()
 
+        if key == pyglet.window.key.A :
+            self.camera.move_left()
+
+        if key == pyglet.window.key.Z:
+            self.camera.move_right()
+
     def main(self):
 
+
+        # get_transform
         for bat in self.bataillons :
             bat.main()
             for unit in bat.units :
