@@ -1,5 +1,5 @@
 import pyglet
-from window.input_handler import input_handler
+from window.input_handler import input_handler , motion_handler
 from units.oldguard import OldGuard
 from units.voltigeur import Voltigeur
 from pyglet import font
@@ -60,6 +60,13 @@ class Window_main_menu(pyglet.window.Window):
         for but in self.buttons:
             but.delete()
         self.buttons.clear()
+        try :
+            if self.coin_img :
+                self.coin_img.delete()
+            if self.coin_text:
+                self.coin_text.delete()
+        except:
+            pass
 
         # Escarmouche:
 
@@ -109,6 +116,7 @@ class Window_main_menu(pyglet.window.Window):
                             game = Game()
                             window = Window(game,self.bataillons)
                             input_handler(window)
+                            motion_handler(window)
                             # self.music.get_next_video_timestamp()
                             self.close()
                             self.player.pause()
@@ -219,14 +227,14 @@ class Window_main_menu(pyglet.window.Window):
 
         ## BATAILLON 1 / CREATE BATAILLONS MENU :
         for col in range(4):
-            for lin in range(5):
+            for lin in range(3):
 
                 LaunchGame_button = Button('empty_case',55*lin + 0.7* self.height , 0.35*self.width - col*55 , 50, 50, '', self.batch,
                                            self.middle_ground, (0, 0, 0),col,lin, 0)
                 self.buttons.append(LaunchGame_button)
                 ## BATAILLON 2 / CREATE BATAILLONS MENU :
         for col in range(5,9):
-            for lin in range(5):
+            for lin in range(3):
                 LaunchGame_button = Button('empty_case', 55 * lin + 0.7 * self.height, 0.35 * self.width - col * 55 ,
                                            50, 50, '', self.batch,
                                            self.middle_ground, (0, 0, 0), col, lin, 1)

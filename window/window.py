@@ -52,7 +52,7 @@ class Window(pyglet.window.Window):
         self.bandeau = []
 
         self.clicked_unit = None
-        background_image = pyglet.resource.image('imgs/window/back.jpg')
+        background_image = pyglet.resource.image('imgs/window/map1.png')
         background_image.width = 4000
         self.background = pyglet.sprite.Sprite(background_image,
                                                batch=self.batch, group=self.background_group)
@@ -80,11 +80,7 @@ class Window(pyglet.window.Window):
         self.player.queue(play_music())
         self.player.play()
 
-
-
-
-
-
+        self.mouse_pos = 0,0
     def init_bandeau(self):
         return
         separator = 0
@@ -99,19 +95,28 @@ class Window(pyglet.window.Window):
 
 
     def get_element(self,x,y,action):
-        if self.clicked_bataillon is not None:
-            for unit in self.clicked_bataillon.units :
-                unit.is_selected = False
-        element = self.grid.get_element(x,y,action)[0]
-        if action =="CLICK":
-            if element is not None :
-                self.clicked_unit = element
-                self.clicked_bataillon = self.bataillons[self.clicked_unit.bataillon]
-                for unit in self.clicked_bataillon.units:
-                    unit.is_selected = True
+        try:
+            if self.clicked_bataillon is not None:
+                for unit in self.clicked_bataillon.units :
+                    unit.is_selected = False
+            element = self.grid.get_element(x,y,action)[0]
+
+            if action =="CLICK":
+                if element is not None :
+                    self.clicked_unit = element
+                    self.clicked_bataillon = self.bataillons[self.clicked_unit.bataillon]
+                    for unit in self.clicked_bataillon.units:
+                        unit.is_selected = True
+        except:
+           pass
 
     def handle_right(self,x,y):
         self.get_element(x,y,action="CLICK")
+
+    def on_mouse_motion(self,x,y,dx,dy):
+        self.mouse_pos = x, y
+
+
     def handle_left(self,x,y):
         content = self.grid.get_element(x, y)[1]
 
@@ -149,14 +154,16 @@ class Window(pyglet.window.Window):
             if self.clicked_bataillon:
                 self.clicked_bataillon.set_bayonet()
 
-        if key == pyglet.window.key.A :
-            self.camera.move_left()
-
-        if key == pyglet.window.key.Z:
-            self.camera.move_right()
-
     def main(self):
 
+        if  self.mouse_pos[0] >self.screen.width - 20 :
+
+            self.camera.move_right()
+            return
+
+        if  self.mouse_pos[0] <20 :
+            self.camera.move_left()
+            return
 
         # get_transform
         for bat in self.bataillons :

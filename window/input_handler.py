@@ -4,7 +4,7 @@ from pyglet.clock import Clock
 from units.oldguard import OldGuard
 from pyglet import clock
 
-def motion_handler(dt,window):
+def motion_handler(window):
     @window.event
     def on_mouse_motion(x, y, dx, dy):
         window.on_mouse_motion(x,y,dx,dy)
