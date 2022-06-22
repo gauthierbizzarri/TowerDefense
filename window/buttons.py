@@ -113,13 +113,13 @@ class UnitButton():
         self.label  = label
     def is_pressed(self,x,y):
 
-        if x <= self.x + self.width and x >= self.x:
+        if x <= self.x + self.width//2 and x >= self.x:
             if y <= self.y + self.height and y >= self.y:
                 return True
         return False
 
     def is_hovered(self,x,y):
-        if x <= self.x + self.width and x >= self.x:
+        if x <= self.x + self.width//2 and x >= self.x:
             if y <= self.y + self.height and y >= self.y:
                 self.shape.opacity = 15
         else :

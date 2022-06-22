@@ -53,9 +53,10 @@ class Window(pyglet.window.Window):
 
         self.clicked_unit = None
         background_image = pyglet.resource.image('imgs/window/map1.png')
-        background_image.width = 4000
-        self.background = pyglet.sprite.Sprite(background_image,
-                                               batch=self.batch, group=self.background_group)
+        # background_image = pyglet.resource.animation('imgs/window/back.gif')
+        self.background = pyglet.sprite.Sprite(img=background_image,batch=self.batch, group=self.background_group)
+        background_image.width = width_map
+        background_image.height = height_map
 
         self.decor = self.grid.create_decor(self.foreground_group)
 
@@ -155,15 +156,15 @@ class Window(pyglet.window.Window):
                 self.clicked_bataillon.set_bayonet()
 
     def main(self):
-
+        self.camera.move_right()
+        print(self.mouse_pos)
         if  self.mouse_pos[0] >self.screen.width - 20 :
-
             self.camera.move_right()
-            return
+
 
         if  self.mouse_pos[0] <20 :
             self.camera.move_left()
-            return
+
 
         # get_transform
         for bat in self.bataillons :

@@ -114,7 +114,7 @@ class Grid():
 
         for i in range(LIGNES):
             if i !=5:
-                mat[i][15].content = "OBSTACLE"
+                mat[6][16].content = "OBSTACLE"
 
         return mat
 

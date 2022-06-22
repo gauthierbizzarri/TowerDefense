@@ -1,9 +1,11 @@
-BLOCKSIZE = 35
+BLOCKSIZE = 42
 
-width_map = 4000
-
-COLONNES = 36
-LIGNES = 22
 
 LEFT_BORDER = BLOCKSIZE*4
 TOP_BORDER =  BLOCKSIZE * 3
+
+width_map = 4000
+height_map = 1000
+
+COLONNES = int(( width_map - LEFT_BORDER ) /BLOCKSIZE)
+LIGNES = int((height_map - TOP_BORDER) /BLOCKSIZE)
