@@ -5,6 +5,8 @@ from terrain.grid import Grid
 from terrain.grid import get_line_row
 from units.bataillon import Bataillon
 from window.camera import Camera
+from pyglet import shapes
+from time import time, sleep
 
 image= pyglet.resource.image('ressources/imgs/bataillon.png')
 
@@ -26,14 +28,17 @@ def img_bataillon():
     ani = pyglet.image.Animation(frames=frames)
     return ani
 
-
+fps = pyglet.clock.Clock()
 
 class Window(pyglet.window.Window):
 
     def __init__(self, game, bataillons):
-        super(Window, self).__init__()
+        super(Window, self).__init__(vsync = True)
         Window.set_caption(self, caption="Napoléon ")
         Window.set_fullscreen(self, fullscreen=True)
+        self.frames = 0
+        self.framerate = pyglet.text.Label(text='Unknown', font_name='Verdana', font_size=8, x=10, y=10,
+                                           color=(255, 255, 255, 255))
 
 
         self.batch = pyglet.graphics.Batch()
@@ -60,6 +65,7 @@ class Window(pyglet.window.Window):
 
         self.decor = self.grid.create_decor(self.foreground_group)
 
+        self.alive = 1
 
         self.move = False
         self.shoot = False
@@ -82,6 +88,13 @@ class Window(pyglet.window.Window):
         self.player.play()
 
         self.mouse_pos = 0,0
+
+
+        self.cursorr = None
+
+    def update(self, dt):
+        pass
+
     def init_bandeau(self):
         return
         separator = 0
@@ -96,6 +109,7 @@ class Window(pyglet.window.Window):
 
 
     def get_element(self,x,y,action):
+        x = x - self.camera.x
         try:
             if self.clicked_bataillon is not None:
                 for unit in self.clicked_bataillon.units :
@@ -112,6 +126,7 @@ class Window(pyglet.window.Window):
            pass
 
     def handle_right(self,x,y):
+        x = x
         self.get_element(x,y,action="CLICK")
 
     def on_mouse_motion(self,x,y,dx,dy):
@@ -156,14 +171,7 @@ class Window(pyglet.window.Window):
                 self.clicked_bataillon.set_bayonet()
 
     def main(self):
-        self.camera.move_right()
-        print(self.mouse_pos)
-        if  self.mouse_pos[0] >self.screen.width - 20 :
-            self.camera.move_right()
 
-
-        if  self.mouse_pos[0] <20 :
-            self.camera.move_left()
 
 
         # get_transform
@@ -178,7 +186,6 @@ class Window(pyglet.window.Window):
             bat.play_effect()
 
 
-
         if self.shoot :
             self.bataillon.shoot()
 
@@ -188,9 +195,15 @@ class Window(pyglet.window.Window):
         self.grid.set_unit(unit)
 
 
-
-
     def on_draw(self):
+        if  self.mouse_pos[0] >self.screen.width - 20 :
+            self.camera.move_right()
+
+
+        if  self.mouse_pos[0] <20 :
+            self.camera.move_left()
+
         self.clear()
         self.main()
         self.batch.draw()
+
